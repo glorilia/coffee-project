@@ -31,11 +31,11 @@ class User(db.Model):
 
 
 class Shop(db.Model):
-    """A user."""
+    """A coffee shop."""
 
     __tablename__ = 'shops'
 
-    # This place_id, name, and address columns will come from 
+    # The place_id, name, and address columns will come from 
     # information obtained from the Google Maps API
     place_id = db.Column(db.String,
                         unique=True,
@@ -51,7 +51,12 @@ class Shop(db.Model):
 
 
     def __repr__(self):
-        return f'<Shop name={self.name} user_id={self.user_id}>'
+        return f'<Shop name={self.name} address={self.address_num} {self.address_street}>'
+
+
+
+
+
 
 
 
