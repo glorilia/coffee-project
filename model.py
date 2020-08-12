@@ -5,14 +5,60 @@ from datetime import datetime
 db = SQLAlchemy()
 
 
-#data model classes for the db SQLAlchemy db
+#*********
+#********* Data model classes for the db (SQLAlchemy object) ***************#
+#*********
+
+class User(db.Model):
+    """A user."""
+
+    __tablename__ = 'users'
+
+    user_id = db.Column(db.Integer,
+                        autoincrement=True,
+                        primary_key=True)
+    email = db.Column(db.String, 
+                        unique=True)
+    password = db.Column(db.String)
+
+    # Relationships
+    user_drinks = db.relationship('UserDrinks')
+    user_aspects = db.relationship('UserAspects')
+
+
+    def __repr__(self):
+        return f'<User email={self.email} user_id={self.user_id}>'
+
+
+class Shop(db.Model):
+    """A user."""
+
+    __tablename__ = 'shops'
+
+    # This place_id, name, and address columns will come from 
+    # information obtained from the Google Maps API
+    place_id = db.Column(db.String,
+                        unique=True,
+                        nullable=False)
+    name = db.Column(db.String)     # Not unique, shops can have many locations
+    address_num = db.Column(db.Integer)
+    address_street = db.Column(db.String)
+    zipcode = db.Column(db.String)
+
+    # Relationships
+    drinks = db.relationship('Drink')
+    aspects = db.relationship('Aspect')
+
+
+    def __repr__(self):
+        return f'<Shop name={self.name} user_id={self.user_id}>'
 
 
 
 
-
-
-def connect_to_db(flask_app, db_uri='postgresql:///coffee-project', echo=True):
+# Connects the app entered as an argument to the db (SQLAlchemy object)
+# and the hard-coded postgresql database of choice (here: coffee-project)
+def connect_to_db(flask_app, db_uri='postgresql:///coffee_project', echo=True):
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     flask_app.config['SQLALCHEMY_ECHO'] = echo
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
