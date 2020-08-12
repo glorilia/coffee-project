@@ -110,6 +110,27 @@ class Drink(db.model):
     shop = db.relationship('Shop')
 
 
+class ShopAspect(db.model):
+    """A specific drink from a shop."""
+
+    __tablename__ = "drinks"
+
+    shop_aspect_id = db.Column(db.Integer,
+                        autoincrement=True,
+                        primary_key=True)
+    shop_aspect_type_id = db.Column(db.Integer,
+                        db.ForeignKey('shop_aspect_type.shop_aspect_type_id'),
+                        nullable=False)
+    nickname = db.Column(db.String)
+    shop_id = db.Column(db.Integer,
+                        db.ForeignKey('shops.shop_id'),
+                        nullable=False)
+
+    # Relationships
+    shop_aspect_type= db.relationship('ShopAspectType')
+    shop = db.relationship('Shop')
+
+
 
 
 
