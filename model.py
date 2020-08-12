@@ -143,13 +143,77 @@ class ShopAspect(db.model):
         return f'<ShopAspect shop_aspect_id={self.shop_aspect_id} shop={self.shop.name} shop_aspect_type={self.shop_aspect_type.name}>'
 
 
+class UserDrink(db.model):
+    """A drink a user has added."""
+
+    __tablename__ = "user_drinks"
+
+    user_drink_id = db.Column(db.Integer,
+                        autoincrement=True,
+                        primary_key=True)
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.user_id'),
+                        nullable=False)
+    drink_id = db.Column(db.Integer,
+                        db.ForeignKey('drinks.drink_id'),
+                        nullable=False)
+    details = db.Column(db.String,
+                        nullable=False)
+    not_tried = db.Column(db.Boolean)
+    liked = db.Column(db.Boolean)
+    ranking = db.Column(db.Integer)
+    last_updated = db.Column(db.DateTime)
+
+
+    # Relationships
+    drink= db.relationship('Drink')
+    user = db.relationship('User')
+
+    def __repr__(self):
+        return f'<UserDrink user_drink_id={self.user_drink_id} user={self.user.name}>'
+
+
+class UserShopAspect(db.model):
+    """A shop aspect a user has added."""
+
+    __tablename__ = "user_shop_aspects"
+
+    user_shop_aspect_id = db.Column(db.Integer,
+                        autoincrement=True,
+                        primary_key=True)
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.user_id'),
+                        nullable=False)
+    shop_aspect_id = db.Column(db.Integer,
+                        db.ForeignKey('shop_aspects.shop_aspect_id'),
+                        nullable=False)
+    details = db.Column(db.String,
+                        nullable=False)
+    not_tried = db.Column(db.Boolean)
+    liked = db.Column(db.Boolean)
+    ranking = db.Column(db.Integer)
+    last_updated = db.Column(db.DateTime)
+
+
+    # Relationships
+    shop_aspect= db.relationship('ShopAspect')
+    user = db.relationship('User')
+
+    def __repr__(self):
+        return f'<UserShopAspect user_shop_aspect_id={self.user_shop_aspect_id} user={self.user.name}>'
+
+
+
+#********* END OF Data model classes for the db (SQLAlchemy object) ***************#
+
+
 
 
 
 
 # Connects the app entered as an argument to the db (SQLAlchemy object)
 # and the hard-coded postgresql database of choice (here: coffee-project)
-def connect_to_db(flask_app, db_uri='postgresql:///coffee_project', echo=True):
+def connect_to_db(flask_app, db_uri='postgresql:///coffeeproject', echo=True):
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     flask_app.config['SQLALCHEMY_ECHO'] = echo
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
