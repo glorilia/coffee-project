@@ -24,8 +24,8 @@ class User(db.Model):
     home_zipcode = db.Column(db.String)
 
     # Relationships
-    user_drinks = db.relationship('UserDrinks')
-    user_shop_aspects = db.relationship('UserAspects')
+    user_drinks = db.relationship('UserDrink')
+    user_shop_aspects = db.relationship('UserShopAspect')
 
 
     def __repr__(self):
@@ -37,7 +37,7 @@ class Shop(db.Model):
 
     __tablename__ = 'shops'
 
-    # The place_id (in the db shop_id), name, and address columns will come from 
+    # The place_id (shop_id in here), name, and address columns will come from 
     # information obtained from the Google Maps API
     shop_id = db.Column(db.String,
                         primary_key=True)
@@ -48,12 +48,12 @@ class Shop(db.Model):
 
     # Relationships
     drinks = db.relationship('Drink')
-    shop_aspects = db.relationship('Aspect')
+    shop_aspects = db.relationship('ShopAspect')
 
 
     def __repr__(self):
         return f'<Shop name={self.name} address={self.address_num} {self.address_street}>'
-
+        # repr doesn't include shop_id (place_id) bc it can be veeerryy long
 
 class DrinkType(db.model):
     """A type of drink (ex: latte)."""
@@ -71,6 +71,9 @@ class DrinkType(db.model):
     # Relationships
     drinks = db.relationship('Drink')
 
+    def __repr__(self):
+        return f'<DrinkType name={self.name} drink_type_id={self.drink_type_id}>'
+
 
 class ShopAspectType(db.model):
     """A type of shop aspect (ex: music, privacy)."""
@@ -86,7 +89,10 @@ class ShopAspectType(db.model):
                         nullable=False)
 
     # Relationships
-    shop_aspects = db.relationship('ShopAspects')
+    shop_aspects = db.relationship('ShopAspect')
+
+    def __repr__(self):
+        return f'<ShopAspectType name={self.name} shop_aspect_type_id={self.shop_aspect_type_id}>'
 
 
 class Drink(db.model):
@@ -101,7 +107,7 @@ class Drink(db.model):
                         db.ForeignKey('drink_types.drink_type_id'),
                         nullable=False)
     nickname = db.Column(db.String)
-    shop_id = db.Column(db.Integer,
+    shop_id = db.Column(db.String,
                         db.ForeignKey('shops.shop_id'),
                         nullable=False)
 
@@ -109,11 +115,14 @@ class Drink(db.model):
     drink_type= db.relationship('DrinkType')
     shop = db.relationship('Shop')
 
+    def __repr__(self):
+        return f'<Drink drink_id={self.drink_id} shop={self.shop.name} drink_type={self.drink_type.name}>'
+
 
 class ShopAspect(db.model):
-    """A specific drink from a shop."""
+    """A specific shop aspect of a shop."""
 
-    __tablename__ = "drinks"
+    __tablename__ = "shop_aspects"
 
     shop_aspect_id = db.Column(db.Integer,
                         autoincrement=True,
@@ -122,13 +131,16 @@ class ShopAspect(db.model):
                         db.ForeignKey('shop_aspect_type.shop_aspect_type_id'),
                         nullable=False)
     nickname = db.Column(db.String)
-    shop_id = db.Column(db.Integer,
+    shop_id = db.Column(db.String,
                         db.ForeignKey('shops.shop_id'),
                         nullable=False)
 
     # Relationships
     shop_aspect_type= db.relationship('ShopAspectType')
     shop = db.relationship('Shop')
+
+    def __repr__(self):
+        return f'<ShopAspect shop_aspect_id={self.shop_aspect_id} shop={self.shop.name} shop_aspect_type={self.shop_aspect_type.name}>'
 
 
 
