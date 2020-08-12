@@ -5,9 +5,8 @@ from datetime import datetime
 db = SQLAlchemy()
 
 
-#*********
 #********* Data model classes for the db (SQLAlchemy object) ***************#
-#*********
+
 
 class User(db.Model):
     """A user."""
@@ -18,12 +17,15 @@ class User(db.Model):
                         autoincrement=True,
                         primary_key=True)
     email = db.Column(db.String, 
-                        unique=True)
-    password = db.Column(db.String)
+                        unique=True,
+                        nullable=False)
+    password = db.Column(db.String,
+                        nullable=False)
+    home_zipcode = db.Column(db.String)
 
     # Relationships
     user_drinks = db.relationship('UserDrinks')
-    user_aspects = db.relationship('UserAspects')
+    user_shop_aspects = db.relationship('UserAspects')
 
 
     def __repr__(self):
@@ -35,11 +37,10 @@ class Shop(db.Model):
 
     __tablename__ = 'shops'
 
-    # The place_id, name, and address columns will come from 
+    # The place_id (in the db shop_id), name, and address columns will come from 
     # information obtained from the Google Maps API
-    place_id = db.Column(db.String,
-                        unique=True,
-                        nullable=False)
+    shop_id = db.Column(db.String,
+                        primary_key=True)
     name = db.Column(db.String)     # Not unique, shops can have many locations
     address_num = db.Column(db.Integer)
     address_street = db.Column(db.String)
@@ -47,14 +48,66 @@ class Shop(db.Model):
 
     # Relationships
     drinks = db.relationship('Drink')
-    aspects = db.relationship('Aspect')
+    shop_aspects = db.relationship('Aspect')
 
 
     def __repr__(self):
         return f'<Shop name={self.name} address={self.address_num} {self.address_street}>'
 
 
+class DrinkType(db.model):
+    """A type of drink (ex: latte)."""
 
+    __tablename__ = "drink_types"
+
+    drink_type_id = db.Column(db.Integer,
+                        autoincrement=True,
+                        primary_key=True)
+    name = db.Column(db.String,
+                        nullable=False)
+    description = db.Column(db.String,
+                        nullable=False)
+
+    # Relationships
+    drinks = db.relationship('Drink')
+
+
+class ShopAspectType(db.model):
+    """A type of shop aspect (ex: music, privacy)."""
+
+    __tablename__ = "shop_aspect_types"
+
+    shop_aspect_type_id = db.Column(db.Integer,
+                        autoincrement=True,
+                        primary_key=True)
+    name = db.Column(db.String,
+                        nullable=False)
+    description = db.Column(db.String,
+                        nullable=False)
+
+    # Relationships
+    shop_aspects = db.relationship('ShopAspects')
+
+
+class Drink(db.model):
+    """A specific drink from a shop."""
+
+    __tablename__ = "drinks"
+
+    drink_id = db.Column(db.Integer,
+                        autoincrement=True,
+                        primary_key=True)
+    drink_type_id = db.Column(db.Integer,
+                        db.ForeignKey('drink_types.drink_type_id'),
+                        nullable=False)
+    nickname = db.Column(db.String)
+    shop_id = db.Column(db.Integer,
+                        db.ForeignKey('shops.shop_id'),
+                        nullable=False)
+
+    # Relationships
+    drink_type= db.relationship('DrinkType')
+    shop = db.relationship('Shop')
 
 
 
