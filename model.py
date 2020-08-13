@@ -26,7 +26,6 @@ class User(db.Model):
     # Relationships
     user_features = db.relationship('UserFeature')
 
-
     def __repr__(self):
         return f'<User email={self.email} user_id={self.user_id}>'
 
@@ -50,10 +49,10 @@ class Shop(db.Model):
     # Relationships
     user_features = db.relationship('UserFeature')
 
-
     def __repr__(self):
         return f'<Shop name={self.name} address={self.address_num} {self.address_street}>'
         # repr doesn't include shop_id (place_id) bc it can be veeerryy long
+
 
 class Type(db.Model):
     """A type of feature, usually drink or aspect"""
@@ -84,7 +83,7 @@ class Feature(db.Model):
     name = db.Column(db.String,
                         nullable=False)
     type_id = db.Column(db.Integer,
-                        db.ForeignKey('types.type_id')
+                        db.ForeignKey('types.type_id'),
                         nullable=False)
     description = db.Column(db.String,
                         nullable=False)
@@ -114,14 +113,13 @@ class UserFeature(db.Model):
     shop_id = db.Column(db.String,
                         db.ForeignKey('shops.shop_id'),
                         nullable=False)
-    nickname = db.Column(db.String)
     details = db.Column(db.String,
                         nullable=False)
+    nickname = db.Column(db.String)
     not_tried = db.Column(db.Boolean)
     liked = db.Column(db.Boolean)
     ranking = db.Column(db.Integer)
     last_updated = db.Column(db.DateTime)
-
 
     # Relationships
     user = db.relationship('User')
@@ -129,76 +127,16 @@ class UserFeature(db.Model):
     feature = db.relationship('Feature')
 
     def __repr__(self):
-        return f'<UserFeature user={self.user.name} feature={self.feature.name} user_feature_id={self.user_feature_id}>'
-
-
-class ShopAspect(db.Model):
-    """A specific shop aspect of a shop."""
-
-    __tablename__ = "shop_aspects"
-
-    shop_aspect_id = db.Column(db.Integer,
-                        autoincrement=True,
-                        primary_key=True)
-    shop_aspect_type_id = db.Column(db.Integer,
-                        db.ForeignKey('shop_aspect_types.shop_aspect_type_id'),
-                        nullable=False)
-    nickname = db.Column(db.String)
-    shop_id = db.Column(db.String,
-                        db.ForeignKey('shops.shop_id'),
-                        nullable=False)
-
-    # Relationships
-    shop_aspect_type= db.relationship('ShopAspectType')
-    shop = db.relationship('Shop')
-
-    def __repr__(self):
-        return f'<ShopAspect shop_aspect_id={self.shop_aspect_id} shop={self.shop.name} shop_aspect_type={self.shop_aspect_type.name}>'
-
-
-
-
-
-class UserShopAspect(db.Model):
-    """A shop aspect a user has added."""
-
-    __tablename__ = "user_shop_aspects"
-
-    user_shop_aspect_id = db.Column(db.Integer,
-                        autoincrement=True,
-                        primary_key=True)
-    user_id = db.Column(db.Integer,
-                        db.ForeignKey('users.user_id'),
-                        nullable=False)
-    shop_aspect_id = db.Column(db.Integer,
-                        db.ForeignKey('shop_aspects.shop_aspect_id'),
-                        nullable=False)
-    details = db.Column(db.String,
-                        nullable=False)
-    not_tried = db.Column(db.Boolean)
-    liked = db.Column(db.Boolean)
-    ranking = db.Column(db.Integer)
-    last_updated = db.Column(db.DateTime)
-
-
-    # Relationships
-    shop_aspect= db.relationship('ShopAspect')
-    user = db.relationship('User')
-
-    def __repr__(self):
-        return f'<UserShopAspect user_shop_aspect_id={self.user_shop_aspect_id} user={self.user.name}>'
+        return f'<UserFeature user_feature_id={self.user_feature_id} ranking={self.ranking}>'
 
 
 #********* END OF Data model classes for the db (SQLAlchemy object) ***************#
 
 
-
-
-
-
 # Connects the app entered as an argument to the db (SQLAlchemy object)
 # and the hard-coded postgresql database of choice (here: coffee-project)
 def connect_to_db(flask_app, db_uri='postgresql:///coffee_project', echo=True):
+    """ Connects the flask_app to the default postresql database. """
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     flask_app.config['SQLALCHEMY_ECHO'] = echo
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -209,7 +147,6 @@ def connect_to_db(flask_app, db_uri='postgresql:///coffee_project', echo=True):
     print('Connected to the db!')
 
 
-
 if __name__ == '__main__':
     from server import app
 
@@ -218,3 +155,6 @@ if __name__ == '__main__':
     # query it executes.
 
     connect_to_db(app)
+
+    # Only need to run when creating (or re-creating) the db tables
+    # db.create_all()
