@@ -44,6 +44,8 @@ class Shop(db.Model):
     address_num = db.Column(db.Integer)
     address_street = db.Column(db.String)
     zipcode = db.Column(db.String)
+    lat = db.Column(db.Float)
+    lng = db.Column(db.Float)
 
     # Relationships
     user_features = db.relationship('UserFeature')
@@ -53,27 +55,49 @@ class Shop(db.Model):
         return f'<Shop name={self.name} address={self.address_num} {self.address_street}>'
         # repr doesn't include shop_id (place_id) bc it can be veeerryy long
 
-class FeatureType(db.Model):
+class Type(db.Model):
     """A type of feature, usually drink or aspect"""
 
-    __tablename__ = "feature_types"
+    __tablename__ = "types"
 
-    feature_type_id = db.Column(db.Integer,
+    type_id = db.Column(db.Integer,
                         primary_key=True,
                         autoincrement=True)
     name = db.Column(db.String,
                         nullable=False)
-    description = db.Column(db.String,
-                        nullable=False)
 
     # Relationships
-    user_features = db.relationship('UserFeature')
+    features = db.relationship('Feature')
 
     def __repr__(self):
         return f'<Type name={self.name} type_id={self.type_id}>'
 
 
-class UserFeatures(db.Model):
+class Feature(db.Model):
+    """A feature, like a latte, or privacy."""
+
+    __tablename__ = "features"
+
+    feature_id = db.Column(db.Integer,
+                        primary_key=True,
+                        autoincrement=True)
+    name = db.Column(db.String,
+                        nullable=False)
+    type_id = db.Column(db.Integer,
+                        db.ForeignKey('types.type_id')
+                        nullable=False)
+    description = db.Column(db.String,
+                        nullable=False)
+
+    # Relationships
+    type = db.relationship('Type')
+    user_features = db.relationship('UserFeature')
+
+    def __repr__(self):
+        return f'<Feature name={self.name} feature_id={self.feature_id}>'
+
+
+class UserFeature(db.Model):
     """A drink a user has added."""
 
     __tablename__ = "user_features"
@@ -84,11 +108,11 @@ class UserFeatures(db.Model):
     user_id = db.Column(db.Integer,
                         db.ForeignKey('users.user_id'),
                         nullable=False)
+    feature_id = db.Column(db.Integer,
+                        db.ForeignKey('features.feature_id'),
+                        nullable=False)
     shop_id = db.Column(db.String,
                         db.ForeignKey('shops.shop_id'),
-                        nullable=False)
-    type_id = db.Column(db.Integer,
-                        db.ForeignKey('feature_types.feature_type_id'),
                         nullable=False)
     nickname = db.Column(db.String)
     details = db.Column(db.String,
@@ -102,10 +126,10 @@ class UserFeatures(db.Model):
     # Relationships
     user = db.relationship('User')
     shop = db.relationship('Shop')
-    feature_type = db.relationship('FeatureType')
+    feature = db.relationship('Feature')
 
     def __repr__(self):
-        return f'<UserFeature type_id{self.user_drink_id} user={self.user.name}>'
+        return f'<UserFeature user={self.user.name} feature={self.feature.name} user_feature_id={self.user_feature_id}>'
 
 
 class ShopAspect(db.Model):
