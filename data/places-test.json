@@ -1,0 +1,1026 @@
+[
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.51271029999999,
+               "lng": -119.8028291
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.51405822989272,
+                  "lng": -119.8016450201073
+               },
+               "southwest": {
+                  "lat": 39.51135857010728,
+                  "lng": -119.8043446798927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Reno Coffee Company",
+         "opening_hours": {
+            "open_now": true
+         },
+         "photos": [
+            {
+               "height": 3024,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/107514874440791635125\">Jay Dae-Su Vega</a>"
+               ],
+               "photo_reference": "CmRaAAAAlW27ZgolhQH2GyEG12UtPn956HpJdSVfJsTXAsH7x1Np05M85pu6xZQutA4yK_9mwldbr4a1hdaItF0xDWZK3gBYEKGGzu_BQgxs3COvLcJwNnrRLTBDYU7JvTb66cTCEhDr5FmC38RXILAuiWOQeqfAGhSk2xdVq4vOSwYEIpnnR6gK2wllVQ",
+               "width": 4032
+            }
+         ],
+         "place_id": "ChIJz5bLD-BBmYARakAp8BUf244",
+         "plus_code": {
+            "compound_code": "G57W+3V Reno, Nevada",
+            "global_code": "85F2G57W+3V"
+         },
+         "rating": 4.9,
+         "reference": "ChIJz5bLD-BBmYARakAp8BUf244",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 112,
+         "vicinity": "1300 S Wells Ave, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.4982139,
+               "lng": -119.7998278
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.49960317989272,
+                  "lng": -119.7983471701073
+               },
+               "southwest": {
+                  "lat": 39.49690352010727,
+                  "lng": -119.8010468298927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Café Milano",
+         "opening_hours": {
+            "open_now": true
+         },
+         "photos": [
+            {
+               "height": 3024,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/109746711395311324601\">Owen Prater</a>"
+               ],
+               "photo_reference": "CmRaAAAAnOUkkRvyzsL8_QtqN8TYefztysJYPOlB8UJijdhxG9pXwJqgLMJYXX_3Zgpp1vdXTYGGUG2gtTbBz2qfO2VyOGhCDSAl8986mNWi9WdrFVgyzkljbCyBl-kj0kbrbAkJEhCL2Aal-6bKnhrx3S4r-vV-GhTIxDR2bBEhTNaK8636I2N0AXa_-A",
+               "width": 4032
+            }
+         ],
+         "place_id": "ChIJ07LkRY9AmYARI4ObVpXbSe8",
+         "plus_code": {
+            "compound_code": "F6X2+73 Reno, Nevada",
+            "global_code": "85F2F6X2+73"
+         },
+         "price_level": 2,
+         "rating": 3.9,
+         "reference": "ChIJ07LkRY9AmYARI4ObVpXbSe8",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "restaurant",
+            "food",
+            "point_of_interest",
+            "establishment"
+         ],
+         "user_ratings_total": 138,
+         "vicinity": "2707 S Virginia St, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.497487,
+               "lng": -119.8015656
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.49866257989272,
+                  "lng": -119.8001899701073
+               },
+               "southwest": {
+                  "lat": 39.49596292010727,
+                  "lng": -119.8028896298927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Café Espresso",
+         "opening_hours": {
+            "open_now": true
+         },
+         "photos": [
+            {
+               "height": 3120,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/108183996210057468966\">John Ohl</a>"
+               ],
+               "photo_reference": "CmRaAAAAXjvjO4AE6sNPsUmw5aCz92se9NincM9-h4SGRUCSCB1OZ0ukIyjHzcHkGcPExPDBaqXtkKyXZIPv-lGf6mt6lxfnzFsc_aZsNxkXXWgBSujDZHomJotPRo1Z5hrY_it_EhBGZ626krLajZkaIFlwglmbGhTxhXb6Yz3cvJcs3XuAn55l8EquAw",
+               "width": 4160
+            }
+         ],
+         "place_id": "ChIJ07LkRY9AmYAREw4-BwWU34E",
+         "plus_code": {
+            "compound_code": "F5WX+X9 Reno, Nevada",
+            "global_code": "85F2F5WX+X9"
+         },
+         "rating": 3.1,
+         "reference": "ChIJ07LkRY9AmYAREw4-BwWU34E",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 14,
+         "vicinity": "2707 S Virginia St, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.518131,
+               "lng": -119.809443
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.51951017989272,
+                  "lng": -119.8079972201073
+               },
+               "southwest": {
+                  "lat": 39.51681052010728,
+                  "lng": -119.8106968798927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "JoStella Coffee Co.",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 720,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/113408172121011356046\">Tammy Sisson</a>"
+               ],
+               "photo_reference": "CmRaAAAALPfGO45V4CY4-dOv3UoEfyZpaJ06G6kK0JqNHVhu0gmFPi5di8RrRcxgUeWl9x4UA1wRXVjjjvy6CaLmVZWH00t9wE7JtjbUnql-83yIMc-pcpgo-VKtKJmMD5F_1Ul0EhAAjKBXP3DeUKJK4KZujM6HGhQyZbbyi1mjUZVLEVF98l763xpGww",
+               "width": 960
+            }
+         ],
+         "place_id": "ChIJIQy7LLhAmYAR3YCUg6Ay_ro",
+         "plus_code": {
+            "compound_code": "G59R+76 Reno, Nevada",
+            "global_code": "85F2G59R+76"
+         },
+         "price_level": 1,
+         "rating": 4.6,
+         "reference": "ChIJIQy7LLhAmYAR3YCUg6Ay_ro",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 214,
+         "vicinity": "701 S Virginia St, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5235239,
+               "lng": -119.8027188
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52488002989272,
+                  "lng": -119.8015569201072
+               },
+               "southwest": {
+                  "lat": 39.52218037010728,
+                  "lng": -119.8042565798927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Code Coffee",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 3024,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/104611583278879965473\">Trevor K</a>"
+               ],
+               "photo_reference": "CmRaAAAAlXf4MPk49Jv97sTkpNHlacsYzx1GjIPRvyekZ5qWCLMZmXrNNFHhFm8IxJXSsps8Ya0-1VnWv9ovJtqvY1a7xPeDHJxe5JWTj0H28dXQRA6nQ0WWeOJYIvnTRGptXDztEhByOcCYvQAtvlehFr3mzQUIGhTuJQq3krhnat1IlyyP_x3lqbSR0w",
+               "width": 4032
+            }
+         ],
+         "place_id": "ChIJjftSvLBBmYARkVR7YR7_okw",
+         "plus_code": {
+            "compound_code": "G5FW+CW Reno, Nevada",
+            "global_code": "85F2G5FW+CW"
+         },
+         "rating": 4.6,
+         "reference": "ChIJjftSvLBBmYARkVR7YR7_okw",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "restaurant",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 118,
+         "vicinity": "300 S Wells Ave #5, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5156575,
+               "lng": -119.8083936
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.51705477989272,
+                  "lng": -119.8068778701073
+               },
+               "southwest": {
+                  "lat": 39.51435512010728,
+                  "lng": -119.8095775298927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Pangolin Cafe",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 1692,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/115041400537930615128\">A Google User</a>"
+               ],
+               "photo_reference": "CmRaAAAAlDYgx9OiHYK-fpm5rNxpzMG0XdlgFgqpVY6x577xL9NzVdp6Qyq3Rd4eiV3gOgJq6IvB7vbaa2dxu-trCZOLCmaJBrdulPZgxV5NG-QpjLpwLHX9DKoOP9mPSNhYKu8GEhCg1WIYasP9XPfTiEWKwM6lGhSRpr49kc6YNeVfLhbBi1nElzJAWA",
+               "width": 2538
+            }
+         ],
+         "place_id": "ChIJkyJe3LBBmYARlokE9NTa-go",
+         "plus_code": {
+            "compound_code": "G58R+7J Reno, Nevada",
+            "global_code": "85F2G58R+7J"
+         },
+         "rating": 5,
+         "reference": "ChIJkyJe3LBBmYARlokE9NTa-go",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 52,
+         "vicinity": "955 S Virginia St STE 110, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5199244,
+               "lng": -119.811696
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52119457989272,
+                  "lng": -119.8106148201073
+               },
+               "southwest": {
+                  "lat": 39.51849492010728,
+                  "lng": -119.8133144798928
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Old World Coffee Lab - Midtown",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 1365,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/116756529910766495209\">Josiah Hejny</a>"
+               ],
+               "photo_reference": "CmRaAAAANIcT93KDNDHtTG6lVZT_EkZXQ3XsRzpimhMUDUZoDQvsrhXBr1S71op42umcNhXeyz269F1VXYVForXBVCIH9V13_ZTfwNEtbp8yBYzfvAyWBno9ATSlpPkMyiFmYdmBEhBdv_boXAINpD9GImYz6bWmGhQOaTTvZa9wlN9sAVQMGMyAVxMNRQ",
+               "width": 1365
+            }
+         ],
+         "place_id": "ChIJW1JuRh5EmYARtyYSENAnQxg",
+         "plus_code": {
+            "compound_code": "G59Q+X8 Reno, Nevada",
+            "global_code": "85F2G59Q+X8"
+         },
+         "price_level": 2,
+         "rating": 4.7,
+         "reference": "ChIJW1JuRh5EmYARtyYSENAnQxg",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 297,
+         "vicinity": "104 California Ave, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.524873,
+               "lng": -119.811705
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52630607989273,
+                  "lng": -119.8103974701073
+               },
+               "southwest": {
+                  "lat": 39.52360642010728,
+                  "lng": -119.8130971298927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Global Coffee",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 3632,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/115754503041837901072\">Global Coffee</a>"
+               ],
+               "photo_reference": "CmRaAAAAODqlqOLyCyA1ucM-lPI3e5lOpxGelqpgMshUoG9iqIRh1dGHHl0Yn41Jegugu1tUqUANLYkXe53KPJVYVUT7OZXWd1fy3Vvu3c_404GhBPdK3fRqpTkiQ99cJOcK8km_EhB14TekjK0zhuYsVrgwL5QDGhSIpp-ljSQhO00vMiYNjOZmJmOVmw",
+               "width": 5456
+            }
+         ],
+         "place_id": "ChIJKaTVeLVAmYARVNcRoTCJgVA",
+         "plus_code": {
+            "compound_code": "G5FQ+W8 Reno, Nevada",
+            "global_code": "85F2G5FQ+W8"
+         },
+         "rating": 4.7,
+         "reference": "ChIJKaTVeLVAmYARVNcRoTCJgVA",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 72,
+         "vicinity": "50 S Virginia St, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.518769,
+               "lng": -119.8084739
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52015852989272,
+                  "lng": -119.8069885201073
+               },
+               "southwest": {
+                  "lat": 39.51745887010728,
+                  "lng": -119.8096881798927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "bibo coffee company / bibo freddo gelato",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 3024,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/114895967455102275039\">Vardhman Jain</a>"
+               ],
+               "photo_reference": "CmRaAAAAt983FjQ0N2SRZTV_BsIus2Hxw45O3JZErTQXKHEvV6G1sDgYW88at0MQcoiAF6waADUGTabQvGjnpT5E_2t-Be8JIE8YtKxTyKfgnEfE8bYOWnhKOpTVi0Q1aJuVqlgoEhAlTa7qci4R-AllDE3uXG4oGhT9XQEaVcHltsdb6ucTQiufjBkB-g",
+               "width": 4032
+            }
+         ],
+         "place_id": "ChIJ_V7KfLdAmYARc9d57LWyN4w",
+         "plus_code": {
+            "compound_code": "G59R+GJ Reno, Nevada",
+            "global_code": "85F2G59R+GJ"
+         },
+         "rating": 4.5,
+         "reference": "ChIJ_V7KfLdAmYARc9d57LWyN4w",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "bar",
+            "restaurant",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 133,
+         "vicinity": "717 S Center St, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5205151,
+               "lng": -119.8119903
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52182347989272,
+                  "lng": -119.8106357701073
+               },
+               "southwest": {
+                  "lat": 39.51912382010727,
+                  "lng": -119.8133354298927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Bibo Coffee Company",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 4160,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/107217125850258219951\">Adam Vallaster</a>"
+               ],
+               "photo_reference": "CmRaAAAAolLSG3Z_XRZPSoM7uJsb6yOoIlU8_csuMNYzcajGsZ5n263JkgAtehoWouAIZwj4C6wH47jWc9OBTCCgYhvKjgdSVHztLpKXJVH1Y5KN3DhYwx57DzYwRyazmVuktwSvEhBBr96uwYFKQGy0gZqksygyGhR-2y6UkicmlwvhiunEDyFTB4YGPA",
+               "width": 3120
+            }
+         ],
+         "place_id": "ChIJYeEOKLZAmYAR2uJ8SVKu4Yw",
+         "plus_code": {
+            "compound_code": "G5CQ+66 Reno, Nevada",
+            "global_code": "85F2G5CQ+66"
+         },
+         "price_level": 1,
+         "rating": 4.3,
+         "reference": "ChIJYeEOKLZAmYAR2uJ8SVKu4Yw",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 102,
+         "vicinity": "460 S Sierra St, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.514084,
+               "lng": -119.802766
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.51543302989272,
+                  "lng": -119.8014905201073
+               },
+               "southwest": {
+                  "lat": 39.51273337010728,
+                  "lng": -119.8041901798927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Walden's Coffeehouse",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 3456,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/109930422298828643933\">Walden&#39;s Coffeehouse</a>"
+               ],
+               "photo_reference": "CmRaAAAA6rdgn5RAIWASRqiI-vm6wpeRNbdHzMq_g_J5KNGeuz0nPNvrklbNGRuAv4SruJkW0bJihIstH4nbUEUSb_m24UmS5Twb8ylTkEZSgdqF90AXKkIk6Jzv1zEMk3VXLFUrEhCR1SMmpmbyDJTWvYhG1GtkGhRnpi1pKYCuPpkkU6RxhSQvUzxJVg",
+               "width": 5184
+            }
+         ],
+         "place_id": "ChIJGUh68rxAmYARJE-lb-ZUoac",
+         "plus_code": {
+            "compound_code": "G57W+JV Reno, Nevada",
+            "global_code": "85F2G57W+JV"
+         },
+         "price_level": 2,
+         "rating": 4.4,
+         "reference": "ChIJGUh68rxAmYARJE-lb-ZUoac",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "restaurant",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 224,
+         "vicinity": "1170 S Wells Ave, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5249885,
+               "lng": -119.8159655
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52638787989272,
+                  "lng": -119.8146327701072
+               },
+               "southwest": {
+                  "lat": 39.52368822010727,
+                  "lng": -119.8173324298927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Cafe Capello",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 4032,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/100881736760217220373\">Jayna Litz</a>"
+               ],
+               "photo_reference": "CmRaAAAAsn2fJGaxBtqwJ59GZqimGBl5NKpRYvaOnGFUo4OWMzWE3pXsVfODHB1H06nt6sl0IZhhLCKgxN17WREmKREo_SeerqIDDfj9r89LKubnb4mlAzx9oXqjs7JTL_2JUne0EhDS4kgh2CvNsI31ebciG2bdGhRmFt_CImTOcbQ79A9g5FlM6q41Lg",
+               "width": 3024
+            }
+         ],
+         "place_id": "ChIJYd8j3jhBmYAR879O-Z4khow",
+         "plus_code": {
+            "compound_code": "G5FM+XJ Reno, Nevada",
+            "global_code": "85F2G5FM+XJ"
+         },
+         "rating": 4.7,
+         "reference": "ChIJYd8j3jhBmYAR879O-Z4khow",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "establishment"
+         ],
+         "user_ratings_total": 47,
+         "vicinity": "248 W 1st St #250, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5071928,
+               "lng": -119.8052002
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.50856917989272,
+                  "lng": -119.8038471201073
+               },
+               "southwest": {
+                  "lat": 39.50586952010728,
+                  "lng": -119.8065467798928
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Mugshots espresso",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 2048,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/102249213381534482065\">A Google User</a>"
+               ],
+               "photo_reference": "CmRaAAAAdMY1f3qND2cY-VqHflygy-Bmi3TqFs1MItWRlHw0OfB7dsi_Sf2vghImHsmPrjCd_onuh170zKU3htZE414Sov6vV9ch5FSxJNs0ngZuGxdn7In-J8Ej6KJKhlr7uWuiEhAbH_JLYbezNVWdNvRjuOPmGhRs-WP8kXU4okoRdIdBNX1uvo1kzg",
+               "width": 1929
+            }
+         ],
+         "place_id": "ChIJu-MYTLZBmYARkQFAT2UQYbg",
+         "plus_code": {
+            "compound_code": "G54V+VW Reno, Nevada",
+            "global_code": "85F2G54V+VW"
+         },
+         "rating": 5,
+         "reference": "ChIJu-MYTLZBmYARkQFAT2UQYbg",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 17,
+         "vicinity": "45 Continental Dr, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.521959,
+               "lng": -119.822077
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52351582989272,
+                  "lng": -119.8206327201073
+               },
+               "southwest": {
+                  "lat": 39.52081617010728,
+                  "lng": -119.8233323798927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Hub Coffee Roasters",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 3024,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/106012955027225467302\">A Google User</a>"
+               ],
+               "photo_reference": "CmRaAAAA7pSoKWNk03opFX5jmDlb27ihtuKeu6-FZ-Tg0vTPBLp1g_2iqIV9dtf5Txn4rPUa5qwBW-LcmmsiVPR-z9fQxxaqw_pbHoG0aRhqcCkcsFwVv3Yw0MZiTZbYIXrk9_ODEhB7oJPUQf5WTKBqvdMZ0kPUGhQ7aKBFk0N7StIjJgvjd51klc2DvA",
+               "width": 3024
+            }
+         ],
+         "place_id": "ChIJmc08xLlAmYARFYT47vQboYM",
+         "plus_code": {
+            "compound_code": "G5CH+Q5 Reno, Nevada",
+            "global_code": "85F2G5CH+Q5"
+         },
+         "price_level": 2,
+         "rating": 4.5,
+         "reference": "ChIJmc08xLlAmYARFYT47vQboYM",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 835,
+         "vicinity": "727 Riverside Dr, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5083478,
+               "lng": -119.8032951
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.50969807989272,
+                  "lng": -119.8018590701073
+               },
+               "southwest": {
+                  "lat": 39.50699842010728,
+                  "lng": -119.8045587298927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Magpie Coffee Roasters",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 3264,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/115872227982413630863\">Brandon Day</a>"
+               ],
+               "photo_reference": "CmRaAAAAWl52T6Ek3Ut3Pt4xxt47lMBt7XBM7ZuM_xKcffVpRwiNC7Zzrll6QL8J0YrJz2HvCuBu7krVNZBiNiDP-x3UJWAjjpvnFtjD7dl1cuybDNpsRMOvId0iD8GjC-FZ0CbOEhDDcjPEV-yGYofS7SLCyRuWGhQ88JXluKvn2uGj036Ph_bhWc0huA",
+               "width": 2448
+            }
+         ],
+         "place_id": "ChIJf6jTVJZAmYAR448YzIOQpvg",
+         "plus_code": {
+            "compound_code": "G55W+8M Reno, Nevada",
+            "global_code": "85F2G55W+8M"
+         },
+         "rating": 4.6,
+         "reference": "ChIJf6jTVJZAmYAR448YzIOQpvg",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 133,
+         "vicinity": "1715 S Wells Ave, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5090306,
+               "lng": -119.8149778
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.51046247989271,
+                  "lng": -119.8136293701073
+               },
+               "southwest": {
+                  "lat": 39.50776282010727,
+                  "lng": -119.8163290298928
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Coffeebar Reno",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 3024,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/113945818794105726439\">Kristin Follett</a>"
+               ],
+               "photo_reference": "CmRaAAAAnJwGM2olZp_N39URKq_SAHBdNuJLCM5FFuBfceKvtWrLeZhb1lKb1qDRHJ1JJbB00io9mJSPpWIEuFDu2d_g6dlp8HiHTbNdw3JlQDgVue-KrNJCBF7LpHIGYJoRnRQ-EhD8MqGZDA_bFI3i2-tucuJuGhSL4uaw0GWOt0iqLQ31jvL-kZE5og",
+               "width": 3024
+            }
+         ],
+         "place_id": "ChIJL_j-TidbmYARspI4uym86h8",
+         "plus_code": {
+            "compound_code": "G55P+J2 Reno, Nevada",
+            "global_code": "85F2G55P+J2"
+         },
+         "price_level": 2,
+         "rating": 4.6,
+         "reference": "ChIJL_j-TidbmYARspI4uym86h8",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "restaurant",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 674,
+         "vicinity": "682 Mt Rose St, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5229964,
+               "lng": -119.8133005
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52437632989272,
+                  "lng": -119.8118099701072
+               },
+               "southwest": {
+                  "lat": 39.52167667010727,
+                  "lng": -119.8145096298927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "The Mug Shot Coffee and Eatery",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 640,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/116885231444567024785\">A Google User</a>"
+               ],
+               "photo_reference": "CmRaAAAAZJKrRQF14FXLRfloNxIF1HBO4vnKXEz4EPyJlOg-HKN5pocLMOci_ZdxxvIp3w-oBtok14Z-5b4eIKULrNWHYd0dBdr3lqFukNO445gb9Qv7UvsVBRvHlqPXrMBZi9wLEhBAL_sQ2Nz4MohQXeEjFMWJGhQbCYEX9dT0Vbj0Z4KRFf-fTzTG9w",
+               "width": 480
+            }
+         ],
+         "place_id": "ChIJV6lIVqtBmYAR2dOIkDsh7wo",
+         "plus_code": {
+            "compound_code": "G5FP+5M Reno, Nevada",
+            "global_code": "85F2G5FP+5M"
+         },
+         "rating": 4.5,
+         "reference": "ChIJV6lIVqtBmYAR2dOIkDsh7wo",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 27,
+         "vicinity": "205 S Sierra St #104, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.52155,
+               "lng": -119.8115283
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52301942989272,
+                  "lng": -119.8102223201073
+               },
+               "southwest": {
+                  "lat": 39.52031977010728,
+                  "lng": -119.8129219798927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Joe's Good Java",
+         "opening_hours": {
+            "open_now": false
+         },
+         "place_id": "ChIJSXsrGrZAmYARCUrveGrC-_4",
+         "plus_code": {
+            "compound_code": "G5CQ+J9 Reno, Nevada",
+            "global_code": "85F2G5CQ+J9"
+         },
+         "rating": 3,
+         "reference": "ChIJSXsrGrZAmYARCUrveGrC-_4",
+         "scope": "GOOGLE",
+         "types": [
+            "atm",
+            "finance",
+            "cafe",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 6,
+         "vicinity": "1 E 1st St, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.525254,
+               "lng": -119.810768
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52654782989272,
+                  "lng": -119.8096309201073
+               },
+               "southwest": {
+                  "lat": 39.52384817010728,
+                  "lng": -119.8123305798928
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Darkshot Coffee",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 4032,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/113137334724372927997\">A Google User</a>"
+               ],
+               "photo_reference": "CmRaAAAAcld5DhW6wKWMgpUgk-BzPXlYDw7rs8H75gTdY0oMpmsGUqrb4sO3ul49jCfQZUd2ownJkiA2eYWyujGmDQXqEO2-I64aeMSqjQz96rrTJN1ZpxpU0fy2qdeBcrftIvkKEhC3ybvx0T5MOq86gMdfB-pXGhQizroGLEv50pmpc7vMXXnR9vaomg",
+               "width": 3024
+            }
+         ],
+         "place_id": "ChIJPSZHeuJBmYARuJACB4EWTQg",
+         "plus_code": {
+            "compound_code": "G5GQ+4M Reno, Nevada",
+            "global_code": "85F2G5GQ+4M"
+         },
+         "rating": 5,
+         "reference": "ChIJPSZHeuJBmYARuJACB4EWTQg",
+         "scope": "GOOGLE",
+         "types": [
+            "meal_takeaway",
+            "cafe",
+            "restaurant",
+            "food",
+            "point_of_interest",
+            "store",
+            "establishment"
+         ],
+         "user_ratings_total": 7,
+         "vicinity": "1 South Lake Street, Reno"
+      },
+      {
+         "business_status": "OPERATIONAL",
+         "geometry": {
+            "location": {
+               "lat": 39.5219036,
+               "lng": -119.8220765
+            },
+            "viewport": {
+               "northeast": {
+                  "lat": 39.52319222989272,
+                  "lng": -119.8206388201073
+               },
+               "southwest": {
+                  "lat": 39.52049257010728,
+                  "lng": -119.8233384798927
+               }
+            }
+         },
+         "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/cafe-71.png",
+         "name": "Hub Coffee Roasters University",
+         "opening_hours": {
+            "open_now": false
+         },
+         "photos": [
+            {
+               "height": 4032,
+               "html_attributions": [
+                  "<a href=\"https://maps.google.com/maps/contrib/111200381748142952659\">Suzanne Turner</a>"
+               ],
+               "photo_reference": "CmRaAAAArfwAVnPBMv8FDeRP_IlQDmadLZ-m64k6u15sGbW7i01wRokWWm_g0dST0KQGTanAFsogwHApRXuPgpYSpm95ZxeXn4dIl3tnqc0EZY8E8Hs0Hfa1mCqEzVacpsR5BoTsEhCDqBzIQ5v8pVNeR7Y64VlJGhSd3Oe3gyglPPGJMjqlnXEZ_SoKkw",
+               "width": 3024
+            }
+         ],
+         "place_id": "ChIJG6ZGmjlHmYARX32YCXLNWsg",
+         "plus_code": {
+            "compound_code": "G5CH+Q5 Reno, Nevada",
+            "global_code": "85F2G5CH+Q5"
+         },
+         "rating": 4.6,
+         "reference": "ChIJG6ZGmjlHmYARX32YCXLNWsg",
+         "scope": "GOOGLE",
+         "types": [
+            "cafe",
+            "food",
+            "point_of_interest",
+            "establishment"
+         ],
+         "user_ratings_total": 60,
+         "vicinity": "727 Riverside Dr, Reno"
+      }
+   ]
