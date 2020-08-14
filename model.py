@@ -1,3 +1,5 @@
+""" Models for Coffee Project App """
+
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
