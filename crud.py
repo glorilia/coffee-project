@@ -109,6 +109,30 @@ def get_all_ufs_for_user(user):
 def get_user_feature_by_id(id_num):
     return db.session.query(UserFeature).get(id_num)
 
+def set_seed_rankings(all_users):
+    for user in all_users:
+        # every user has a list of user_features assoc. w/ it 
+        user_features_list= user.user_features
+
+        # dict of features already ranked
+        ranked_features = {}
+        for user_feature in user_features_list: 
+            # every user_feature has a feature and ranking.
+            # go through each user_feature and see it's feature
+            feature_id = user_feature.feature_id
+            if feature_id in ranked_features:
+                # if it's already been ranked before, give this 
+                # user_feature a rank that's one more than the value
+                # in the dictionary
+                user_feature.ranking = ranked_features[feature_id] + 1
+                ranked_features[feature_id] += 1
+            else:
+                user_feature.ranking = 1
+                ranked_features[feature_id] = 1
+
+        user.user_features = user_features_list
+        db.session.commit()
+
 
 if __name__ == '__main__':
     from server import app

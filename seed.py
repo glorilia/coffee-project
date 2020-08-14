@@ -23,6 +23,9 @@ model.connect_to_db(server.app)
 # Creating our tables from classes inherited from db.model
 model.db.create_all()
 
+# Constructing a Faker object to fake data with
+faker = Faker()
+
 
 #*************** Creating Database Table Data ******************************#
 
@@ -55,14 +58,11 @@ for place in places_data:
 
 # TYPE DATA
 # These will be the only two types for now
-drink = create_type('drink')
-shop_aspect = create_type('shop_aspect')
+drink = crud.create_type('drink')
+shop_aspect = crud.create_type('shop_aspect')
 
 # FEATURE DATA
 # This data is hard coded because I couldn't figure out a better way
-# Creating empty lists to fill with features
-all_features = []
-
 # creating shop_aspect features
 sa1 = crud.create_feature(name='privacy', type=shop_aspect, description="Low risk of being disturbed")
 sa2 = crud.create_feature(name='music', type=shop_aspect, description="Play good music")
@@ -81,14 +81,10 @@ d8 = crud.create_feature(name='pour over', type=drink, description="pour over co
 d9 = crud.create_feature(name='iced matcha latte', type=drink, description="Matcha tea with milk over ice")
 d10 = crud.create_feature(name='frappe', type=drink, description="Blended ice coffee drink")
 
-# Adding and committing features to the db, then adding them to their own list
-for feature in [sa1, sa2, sa3, sa4, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10]:
-    db.session.add(feature)
-    db.commit()
-    all_features.append(feature)
+all_features = [sa1, sa2, sa3, sa4, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10]
 
 # USER DATA
-# These users are made using faker. This loop makes 9 users
+# These users are made using faker. This loop makes 10 users
 for _ in range(10):
     email = f'{faker.email()}'
     password = f'{faker.word()}'
@@ -96,14 +92,37 @@ for _ in range(10):
 
     user = crud.create_user(email=email, password=password, home_zipcode=home_zipcode)
 
-    # Create 10 userfeatures for every user
+    # Create 20 userfeatures for every user
     for _ in range(20):
         random_feature = choice(all_features)
         random_shop = choice(all_shops_in_db)
         details = faker.sentence(nb_words=8)
         last_updated = datetime.now()
         liked = choice([True, False])
-        
+
+        user_feature = crud.create_user_feature(
+                                    user=user,
+                                    feature=random_feature,
+                                    shop=random_shop,
+                                    details=details,
+                                    last_updated=last_updated,
+                                    liked=liked
+                                    )
+
+
+# features_in_db = db.session.query(Feature).update(
+#     {}    
+#     )
+
+
+#Rank the already made features
+
+crud.set_seed_rankings(crud.get_all_users())
+"""
+SELECT user_features.ranking, features.name, shops.name FROM user_features JOIN features USING (feature_id) JOIN users USING (user_id) JOIN shops USING (shop_id)  WHERE user_id= 1 AND features.name='latte';
+
+"""
+
 
 
 
