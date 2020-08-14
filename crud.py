@@ -89,13 +89,13 @@ def get_feature_by_id(id_num):
 
 #*********************** UserFeature related functions ******************************#
 
-def create_user_feature(user, feature, shop, details, last_updated, liked,
+def create_user_feature(user, feature, shop, details, last_updated,
                          not_tried=False, ranking=None, nickname=None):
     """Create a user feature, add to db, return user feature."""
 
     user_feature = UserFeature(user=user, feature=feature, shop=shop, 
                                 details=details, nickname=nickname, 
-                                not_tried=not_tried, liked=liked, 
+                                not_tried=not_tried, 
                                 ranking=ranking, last_updated=last_updated)
     db.session.add(user_feature)
     db.session.commit()
@@ -117,8 +117,8 @@ def set_seed_rankings(all_users):
         # dict of features already ranked
         ranked_features = {}
         for user_feature in user_features_list: 
-            # every user_feature has a feature and ranking.
-            # go through each user_feature and see it's feature
+            # every user_feature has a feature, liked boolean, and ranking.
+            # go through each user_feature and see its feature
             feature_id = user_feature.feature_id
             if feature_id in ranked_features:
                 # if it's already been ranked before, give this 
@@ -127,8 +127,7 @@ def set_seed_rankings(all_users):
                 user_feature.ranking = ranked_features[feature_id] + 1
                 ranked_features[feature_id] += 1
             else:
-                user_feature.ranking = 1
-                ranked_features[feature_id] = 1
+                ranked_features[feature_id] = user_feature.ranking
 
         user.user_features = user_features_list
         db.session.commit()

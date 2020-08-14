@@ -13,12 +13,15 @@ app.secret_key = "dev"
 app.jinja_env.undefined = StrictUndefined
 
 
-
 # ROUTES
 @app.route('/')
 def root():
     """Render the one page web app that's made w/ React"""
     return render_template('root.html')
+
+
+# API ENDPOINTS
+
 
 
 

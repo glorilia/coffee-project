@@ -119,8 +119,8 @@ class UserFeature(db.Model):
                         nullable=False)
     nickname = db.Column(db.String)
     not_tried = db.Column(db.Boolean)
-    liked = db.Column(db.Boolean)
-    ranking = db.Column(db.Integer)
+    ranking = db.Column(db.Integer,
+                        default=0)
     last_updated = db.Column(db.DateTime)
 
     # Relationships

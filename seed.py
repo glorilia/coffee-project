@@ -92,6 +92,8 @@ for _ in range(10):
 
     user = crud.create_user(email=email, password=password, home_zipcode=home_zipcode)
 
+    # USER_FEATURES DATA
+    # Will add rankings later
     # Create 20 userfeatures for every user
     for _ in range(20):
         random_feature = choice(all_features)
@@ -105,23 +107,13 @@ for _ in range(10):
                                     feature=random_feature,
                                     shop=random_shop,
                                     details=details,
-                                    last_updated=last_updated,
-                                    liked=liked
+                                    last_updated=last_updated,                                
                                     )
 
-
-# features_in_db = db.session.query(Feature).update(
-#     {}    
-#     )
-
-
-#Rank the already made features
-
+# MORE USER_FEATURES DATA
+# Rank the already made features
 crud.set_seed_rankings(crud.get_all_users())
-"""
-SELECT user_features.ranking, features.name, shops.name FROM user_features JOIN features USING (feature_id) JOIN users USING (user_id) JOIN shops USING (shop_id)  WHERE user_id= 1 AND features.name='latte';
 
-"""
 
 
 
