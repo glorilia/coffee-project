@@ -90,12 +90,11 @@ def get_feature_by_id(id_num):
 #*********************** UserFeature related functions ******************************#
 
 def create_user_feature(user, feature, shop, details, last_updated,
-                         not_tried=False, ranking=None, nickname=None):
+                        ranking=None, nickname=None):
     """Create a user feature, add to db, return user feature."""
 
     user_feature = UserFeature(user=user, feature=feature, shop=shop, 
-                                details=details, nickname=nickname, 
-                                not_tried=not_tried, 
+                                details=details, nickname=nickname,
                                 ranking=ranking, last_updated=last_updated)
     db.session.add(user_feature)
     db.session.commit()
