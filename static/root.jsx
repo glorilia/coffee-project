@@ -154,6 +154,7 @@ function UserFeatureItem(props) {
   )
 }
 
+
 function ListOfUserFeatures(props) {
   // A list of features of a certain type
 
@@ -183,7 +184,12 @@ function ListOfUserFeatures(props) {
 }
 
 
-function 
+function ShopsAggregate(props) {
+  // Renders aggregate of drinks and shopAspects based on shops
+  // props.listOfUserFeatures includes drinks and shop aspects
+
+  return <p>shops will go here</p>
+}
 
 
 function Homepage(props) {
@@ -213,7 +219,7 @@ function Homepage(props) {
     <div>
       <h1>Honey, you're home!</h1>
       <p>Searching in {zipcode}</p>
-      <ShopsAggregate ListOfUserFeatures={drinks.concat(shopAspects)}
+      <ShopsAggregate listOfUserFeatures={drinks.concat(shopAspects)} />
       <ListOfUserFeatures listOfUserFeatures={drinks} />
       <ListOfUserFeatures listOfUserFeatures={shopAspects} />
     </div>
