@@ -105,7 +105,31 @@ def get_user_info():
     # Get all the user's user features
     user_features = crud.get_all_ufs_for_user(user)
 
-    return jsonify({'zipcode': zipcode})
+    # Turn this list into a dictionary of dictionaries
+    user_info = {
+        'zipcode': zipcode,
+        'drink': [],
+        'shop_aspect': [] 
+    }
+
+    for uf in user_features:
+        # Add to the list under the their feature_type key
+        
+        user_info[uf.feature.type.name].append(
+            {
+            'user_feature_id': uf.user_feature_id,
+            'feature': uf.feature.name,
+            'shop': uf.shop.name,
+            'nickname': uf.nickname,
+            'details': uf.details,
+            'ranking': uf.ranking,
+            'last_updated': uf.last_updated
+            }
+        )
+    print(user_info['shop_aspect'])
+    # User has list of dictionaries for 'drink' and 'shop_aspects'
+
+    return jsonify(user_info)
 
 
 

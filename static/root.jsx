@@ -141,12 +141,58 @@ function LandingPage() {
     )
 }
 
+function UserFeatureItem(props) {
+  return (
+    <li>
+      <p>{props.feature}</p>
+      <p>{props.shop}</p>
+      <p>{props.nickname}</p>
+      <p>{props.details}</p>
+      <p>{props.ranking}</p>
+      <p>{props.last_updated}</p>
+    </li>
+  )
+}
+
+function ListOfUserFeatures(props) {
+  // A list of features of a certain type
+
+  const all_features = []
+
+  for (const userFeature of props.listOfUserFeatures) {
+    // prop.featureList is a list of user feature objects
+    // Add the information from the feature to the all_features list
+    all_features.push(
+      <UserFeatureItem
+        key={userFeature.user_feature_id}
+        feature={userFeature.feature}
+        shop={userFeature.shop}
+        nickname={userFeature.nickname}
+        details={userFeature.details}
+        ranking={userFeature.ranking}
+        last_updated={userFeature.last_updated}
+      />
+    );
+  }
+
+  return (
+        <div>
+          <ul>{all_features}</ul>
+        </div>
+        )
+}
+
+
+function 
+
 
 function Homepage(props) {
   //Homepage for registered users, appears upon successful login
 
   //State for zipcode
   const [zipcode, setZipcode] = React.useState('')
+  const [drinks, setDrinks] = React.useState([])
+  const [shopAspects, setShopAspects] = React.useState([])
 
   //Get info about a user upon rendering
   React.useEffect( () => {
@@ -155,14 +201,21 @@ function Homepage(props) {
     .then(response => response.json())
     .then(data => {
       setZipcode(data.zipcode);
+      setDrinks(data.drink);
+      console.log(data.drink)
+      console.log(data.shop_aspect)
+      setShopAspects(data.shop_aspect)
     })
-  })
+  }, [])
 
 
   return (
     <div>
       <h1>Honey, you're home!</h1>
       <p>Searching in {zipcode}</p>
+      <ShopsAggregate ListOfUserFeatures={drinks.concat(shopAspects)}
+      <ListOfUserFeatures listOfUserFeatures={drinks} />
+      <ListOfUserFeatures listOfUserFeatures={shopAspects} />
     </div>
     )
 }
