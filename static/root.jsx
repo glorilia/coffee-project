@@ -212,10 +212,9 @@ function ListOfShops(props) {
   //Go through featured_shops object to get the shops.
   //create a ShopWithUserFeatures component, add to list of shops
   const all_shops = [];
-  let key = 0;
+
 
   for (const shop in featuredShops) {
-    key += 1;
     const ufsHtmlList = [];
     for (const uf of featuredShops[shop]) {
       // featuredShops.shop is a list of userFeatures
@@ -223,10 +222,9 @@ function ListOfShops(props) {
     }
     all_shops.push(
       <ShopWithUserFeatures 
-        key={key}
         shopName={shop}
         ufsHtmlList={ufsHtmlList}
-      />
+      /> // Need a key for the above list items
     );
   }
 
@@ -236,36 +234,74 @@ function ListOfShops(props) {
 }
 
 
-// function Homepage(props) {
-//   //Homepage for registered users, appears upon successful login
+function GoogleMap(props){
+  
+}
 
-//   //State for zipcode
-//   const [zipcode, setZipcode] = React.useState('')
-//   const [drinks, setDrinks] = React.useState([])
-//   const [shopAspects, setShopAspects] = React.useState([])
 
-//   //Get info about a user upon rendering
-//   React.useEffect( () => {
-//     //send GET request to the get user information endpoint
-//     fetch('/api/get-user-information')
-//     .then(response => response.json())
-//     .then(data => {
-//       setZipcode(data.zipcode);
-//       setDrinks(data.drink);
-//       setShopAspects(data.shop_aspect)
-//     })
-//   }, [])
+function Homepage(props) {
+  //Homepage for registered users, appears upon successful login
 
-//   return (
-//     <div>
-//       <h1>Honey, you're home!</h1>
-//       <p>Searching in {zipcode}</p>
-//       <ListOfShops listOfUserFeatures={drinks.concat(shopAspects)} />
-//       <ListOfUserFeatures listOfUserFeatures={drinks} />
-//       <ListOfUserFeatures listOfUserFeatures={shopAspects} />
-//     </div>
-//     )
-// }
+  // State to determine conditional rendering
+  const [viewShops, setViewShops] = React.useState(true)
+  const [viewDrinks, setViewDrinks] = React.useState(false)
+  const [viewShopAspects, setViewShopAspects] = React.useState(false)
+
+  //State for zipcode
+  const [zipcode, setZipcode] = React.useState('')
+  const [drinks, setDrinks] = React.useState([])
+  const [shopAspects, setShopAspects] = React.useState([])
+
+  //Get info about a user upon rendering
+  React.useEffect( () => {
+    //send GET request to the get user information endpoint
+    fetch('/api/get-user-information')
+    .then(response => response.json())
+    .then(data => {
+      setZipcode(data.zipcode);
+      setDrinks(data.drink);
+      setShopAspects(data.shop_aspect)
+    })
+  }, [])
+
+  const changeView = (event) => {
+    if (event.target.id === 'shops-view') {
+      setViewShops(true);
+      setViewDrinks(false);
+      setViewShopAspects(false);
+    }
+    if (event.target.id === 'drinks-view') {
+      setViewShops(false);
+      setViewDrinks(true);
+      setViewShopAspects(false);
+    }
+    if (event.target.id === 'shop-aspects-view') {
+      setViewShops(false);
+      setViewDrinks(false);
+      setViewShopAspects(true);
+    }
+  }
+
+  return (
+    <div>
+      <h1>Honey, you're home!</h1>
+      <p>Searching in {zipcode}</p>
+      <GoogleMap />
+      <button id="shops-view" onClick={changeView} >
+        Top Shops
+      </button>
+      <button id="drinks-view" onClick={changeView} >
+        Top Drinks
+      </button>
+      <button id="shop-aspects-view" onClick={changeView} >
+        Top Shop Aspects
+      </button>
+      {viewShops && <ListOfShops listOfUserFeatures={drinks.concat(shopAspects)} />}
+      {viewDrinks && <ListOfUserFeatures listOfUserFeatures={drinks} />}
+      {viewShopAspects && <ListOfUserFeatures listOfUserFeatures={shopAspects} />}
+    </div>
+    )
+}
 
 
 function About() {
@@ -355,68 +391,6 @@ function App() {
 ReactDOM.render(<App />, document.getElementById('root'))
 
 
-function Homepage(props) {
-  //Homepage for registered users, appears upon successful login
-
-  // State to determine conditional rendering
-  const [viewShops, setViewShops] = React.useState(true)
-  const [viewDrinks, setViewDrinks] = React.useState(false)
-  const [viewShopAspects, setViewShopAspects] = React.useState(false)
-
-  //State for zipcode
-  const [zipcode, setZipcode] = React.useState('')
-  const [drinks, setDrinks] = React.useState([])
-  const [shopAspects, setShopAspects] = React.useState([])
-
-  //Get info about a user upon rendering
-  React.useEffect( () => {
-    //send GET request to the get user information endpoint
-    fetch('/api/get-user-information')
-    .then(response => response.json())
-    .then(data => {
-      setZipcode(data.zipcode);
-      setDrinks(data.drink);
-      setShopAspects(data.shop_aspect)
-    })
-  }, [])
-
-  const changeView = (event) => {
-    if (event.target.id === 'shops-view') {
-      setViewShops(true);
-      setViewDrinks(false);
-      setViewShopAspects(false);
-    }
-    if (event.target.id === 'drinks-view') {
-      setViewShops(false);
-      setViewDrinks(true);
-      setViewShopAspects(false);
-    }
-    if (event.target.id === 'shop-aspects-view') {
-      setViewShops(false);
-      setViewDrinks(false);
-      setViewShopAspects(true);
-    }
-  }
-
-  return (
-    <div>
-      <h1>Honey, you're home!</h1>
-      <p>Searching in {zipcode}</p>
-      <button id="shops-view" onClick={changeView} >
-        Top Shops
-      </button>
-      <button id="drinks-view" onClick={changeView} >
-        Top Drinks
-      </button>
-      <button id="shop-aspects-view" onClick={changeView} >
-        Top Shop Aspects
-      </button>
-      {viewShops && <ListOfShops listOfUserFeatures={drinks.concat(shopAspects)} />}
-      {viewDrinks && <ListOfUserFeatures listOfUserFeatures={drinks} />}
-      {viewShopAspects && <ListOfUserFeatures listOfUserFeatures={shopAspects} />}
-    </div>
-    )
-}
 
 
 // Landing page with conditional rendering:
