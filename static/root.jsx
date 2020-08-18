@@ -1,10 +1,5 @@
 const Router = ReactRouterDOM.BrowserRouter;
-const Route =  ReactRouterDOM.Route;
-const Link =  ReactRouterDOM.Link;
-const Prompt =  ReactRouterDOM.Prompt;
-const Switch = ReactRouterDOM.Switch;
-const Redirect = ReactRouterDOM.Redirect;
-const useHistory = ReactRouterDOM.useHistory;
+const {useHistory, Redirect, Switch, Prompt, Link, Route} = ReactRouterDOM;
 
 
 function CreateAccount() {
@@ -158,7 +153,7 @@ function UserFeatureItem(props) {
 function ListOfUserFeatures(props) {
   // A list of features of a certain type
 
-  const all_features = []
+  const all_features = [];
 
   for (const userFeature of props.listOfUserFeatures) {
     // prop.featureList is a list of user feature objects
@@ -184,47 +179,93 @@ function ListOfUserFeatures(props) {
 }
 
 
-function ShopsAggregate(props) {
-  // Renders aggregate of drinks and shopAspects based on shops
-  // props.listOfUserFeatures includes drinks and shop aspects
-
-  return <p>shops will go here</p>
-}
-
-
-function Homepage(props) {
-  //Homepage for registered users, appears upon successful login
-
-  //State for zipcode
-  const [zipcode, setZipcode] = React.useState('')
-  const [drinks, setDrinks] = React.useState([])
-  const [shopAspects, setShopAspects] = React.useState([])
-
-  //Get info about a user upon rendering
-  React.useEffect( () => {
-    //send GET request to the get user information endpoint
-    fetch('/api/get-user-information')
-    .then(response => response.json())
-    .then(data => {
-      setZipcode(data.zipcode);
-      setDrinks(data.drink);
-      console.log(data.drink)
-      console.log(data.shop_aspect)
-      setShopAspects(data.shop_aspect)
-    })
-  }, [])
-
-
+function ShopWithUserFeatures(props) {
   return (
-    <div>
-      <h1>Honey, you're home!</h1>
-      <p>Searching in {zipcode}</p>
-      <ShopsAggregate listOfUserFeatures={drinks.concat(shopAspects)} />
-      <ListOfUserFeatures listOfUserFeatures={drinks} />
-      <ListOfUserFeatures listOfUserFeatures={shopAspects} />
-    </div>
+        <div>
+          {props.shopName}
+          <ul>
+            {props.ufsHtmlList}
+          </ul>
+        </div>
     )
+
 }
+
+
+function ListOfShops(props) {
+  // Renders aggregate of drinks and shopAspects based on shops
+  // props.listOfUserFeatures includes both drinks and shop aspects
+
+  // object with key being a shop name, value a list of ufs of the shop
+  const featuredShops = {}
+
+  // Go through list of user features and add each to its corresponding shop key
+  for (const userFeature of props.listOfUserFeatures) {
+    if (userFeature.shop in featuredShops) {
+      featuredShops[userFeature.shop].push(userFeature);
+    }
+    else {
+      featuredShops[userFeature.shop] = [userFeature];
+    }
+  }
+
+  //Go through featured_shops object to get the shops.
+  //create a ShopWithUserFeatures component, add to list of shops
+  const all_shops = [];
+  let key = 0;
+
+  for (const shop in featuredShops) {
+    key += 1;
+    const ufsHtmlList = [];
+    for (const uf of featuredShops[shop]) {
+      // featuredShops.shop is a list of userFeatures
+      ufsHtmlList.push(<li>{uf.feature}</li>)
+    }
+    all_shops.push(
+      <ShopWithUserFeatures 
+        key={key}
+        shopName={shop}
+        ufsHtmlList={ufsHtmlList}
+      />
+    );
+  }
+
+  return (<div>
+            <ul>{all_shops}</ul>
+        </div>)
+}
+
+
+// function Homepage(props) {
+//   //Homepage for registered users, appears upon successful login
+
+//   //State for zipcode
+//   const [zipcode, setZipcode] = React.useState('')
+//   const [drinks, setDrinks] = React.useState([])
+//   const [shopAspects, setShopAspects] = React.useState([])
+
+//   //Get info about a user upon rendering
+//   React.useEffect( () => {
+//     //send GET request to the get user information endpoint
+//     fetch('/api/get-user-information')
+//     .then(response => response.json())
+//     .then(data => {
+//       setZipcode(data.zipcode);
+//       setDrinks(data.drink);
+//       setShopAspects(data.shop_aspect)
+//     })
+//   }, [])
+
+//   return (
+//     <div>
+//       <h1>Honey, you're home!</h1>
+//       <p>Searching in {zipcode}</p>
+//       <ListOfShops listOfUserFeatures={drinks.concat(shopAspects)} />
+//       <ListOfUserFeatures listOfUserFeatures={drinks} />
+//       <ListOfUserFeatures listOfUserFeatures={shopAspects} />
+//     </div>
+//     )
+// }
 
 
 function About() {
@@ -312,3 +353,91 @@ function App() {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
+
+
+function Homepage(props) {
+  //Homepage for registered users, appears upon successful login
+
+  // State to determine conditional rendering
+  const [viewShops, setViewShops] = React.useState(true)
+  const [viewDrinks, setViewDrinks] = React.useState(false)
+  const [viewShopAspects, setViewShopAspects] = React.useState(false)
+
+  //State for zipcode
+  const [zipcode, setZipcode] = React.useState('')
+  const [drinks, setDrinks] = React.useState([])
+  const [shopAspects, setShopAspects] = React.useState([])
+
+  //Get info about a user upon rendering
+  React.useEffect( () => {
+    //send GET request to the get user information endpoint
+    fetch('/api/get-user-information')
+    .then(response => response.json())
+    .then(data => {
+      setZipcode(data.zipcode);
+      setDrinks(data.drink);
+      setShopAspects(data.shop_aspect)
+    })
+  }, [])
+
+  const changeView = (event) => {
+    if (event.target.id === 'shops-view') {
+      setViewShops(true);
+      setViewDrinks(false);
+      setViewShopAspects(false);
+    }
+    if (event.target.id === 'drinks-view') {
+      setViewShops(false);
+      setViewDrinks(true);
+      setViewShopAspects(false);
+    }
+    if (event.target.id === 'shop-aspects-view') {
+      setViewShops(false);
+      setViewDrinks(false);
+      setViewShopAspects(true);
+    }
+  }
+
+  return (
+    <div>
+      <h1>Honey, you're home!</h1>
+      <p>Searching in {zipcode}</p>
+      <button id="shops-view" onClick={changeView} >
+        Top Shops
+      </button>
+      <button id="drinks-view" onClick={changeView} >
+        Top Drinks
+      </button>
+      <button id="shop-aspects-view" onClick={changeView} >
+        Top Shop Aspects
+      </button>
+      {viewShops && <ListOfShops listOfUserFeatures={drinks.concat(shopAspects)} />}
+      {viewDrinks && <ListOfUserFeatures listOfUserFeatures={drinks} />}
+      {viewShopAspects && <ListOfUserFeatures listOfUserFeatures={shopAspects} />}
+    </div>
+    )
+}
+
+
+// Landing page with conditional rendering:
+// function LandingPage() {
+//   // First page anyone lands on, can login or create account
+//   let history = useHistory()
+
+//   const [wantsToLogin, setWantsToLogin] = React.useState(false)
+
+//   const handleClick = () => {
+//     setWantsToLogin(true)
+//   }
+
+//   return (
+//     <div> Dranks
+//       <Login />
+//       <h3>OR</h3>
+//       <button id="create-account" onClick={handleClick}>
+//         Create a New Account
+//       </button>
+//       {wantsToLogin && <CreateAccount />}
+//     </div>
+//     )
+// }
