@@ -5,9 +5,9 @@ const {useHistory, Redirect, Switch, Prompt, Link, Route} = ReactRouterDOM;
 function CreateAccount() {
   // A form to create a new user account
 
+  // HOOKS
   let history = useHistory()
-
-  // Hooks for states, used for values of input fields
+  // States for values of input fields
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [homeZipcode, setHomeZipcode] = React.useState('')
@@ -15,11 +15,9 @@ function CreateAccount() {
   // Callback for create account event
   const logIn = (event) => { 
     event.preventDefault();
-
     const formData = {'email': email, 
                       'password': password,
                       'homeZipcode': homeZipcode};
-
     fetch('/api/create-account', 
       {
         method: 'POST',
@@ -36,39 +34,39 @@ function CreateAccount() {
 
   return (
     <div>
-      <label htmlFor="email">Email:</label>
+      <label htmlFor="create-email-input">Email:</label>
       <input 
-        id="email" 
+        id="create-email-input" 
         type="text"
         onChange={(e) => setEmail(e.target.value)}
         value={email}
       ></input>
-      <label htmlFor="password">Password:</label>
+      <label htmlFor="create-password-input">Password:</label>
       <input 
-        id="password" 
+        id="create-password-input" 
         type="password"
         onChange={(e) => setPassword(e.target.value)}
         value={password}
       ></input>
-      <label htmlFor="home-zipcode">Home Zipcode:</label>
+      <label htmlFor="create-home-zipcode-input">Home Zipcode:</label>
       (we'll find coffee near you)
       <input 
-        id="home-zipcode" 
+        id="home-create-home-zipcode-input" 
         type="text"
         onChange={(e) => setHomeZipcode(e.target.value)}
         value={homeZipcode}
       ></input>
       <button onClick={logIn}> Create Account </button>
     </div>
-    )
+  )
 }
 
 
 function Login() { 
   // a form to gather login info from a user
 
+  // HOOKS
   let history = useHistory()
-
   // State hooks for the input fields
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -76,9 +74,7 @@ function Login() {
   // Callback for login event
   const logIn = (event) => { 
     event.preventDefault();
-
     const formData = {'email': email, 'password': password};
-
     fetch('/api/login', 
       {
         method: 'POST',
@@ -97,30 +93,32 @@ function Login() {
   
   return (
     <form>
-      <label htmlFor="email">Email:</label>
+      <label htmlFor="email-input">Email:</label>
       <input 
-        id="email" 
+        id="email-input" 
         type="text"
         onChange={(e) => setEmail(e.target.value)}
         value={email}
       ></input>
-      <label htmlFor="password">Password:</label>
+      <label htmlFor="password-input">Password:</label>
       <input
-        id="password" 
+        id="password-input" 
         type="password"
         onChange={(e) => setPassword(e.target.value)}
         value={password}
       ></input>
       <button onClick={logIn}> Log In </button>
     </form>
-    )
+  )
 }
 
 
 function LandingPage() {
   // First page anyone lands on, can login or create account
-  let history = useHistory()
 
+  // HOOKS
+  let history = useHistory()
+  // Callback for create account button click
   const handleClick = () => {
     history.push('/create-account')
   }
@@ -133,10 +131,13 @@ function LandingPage() {
         Create a New Account
       </button>
     </div>
-    )
+  )
 }
 
+
 function UserFeatureItem(props) {
+  // Display a user feature and its assoociated properties
+
   return (
     <li>
       <p>{props.feature}</p>
@@ -151,10 +152,9 @@ function UserFeatureItem(props) {
 
 
 function ListOfUserFeatures(props) {
-  // A list of features of a certain type
+  // A list of features, usually of a certain type
 
   const all_features = [];
-
   for (const userFeature of props.listOfUserFeatures) {
     // prop.featureList is a list of user feature objects
     // Add the information from the feature to the all_features list
@@ -172,23 +172,22 @@ function ListOfUserFeatures(props) {
   }
 
   return (
-        <div>
-          <ul>{all_features}</ul>
-        </div>
-        )
+    <div>
+      <ul>{all_features}</ul>
+    </div>
+  )
 }
 
 
 function ShopWithUserFeatures(props) {
-  return (
-        <div>
-          {props.shopName}
-          <ul>
-            {props.ufsHtmlList}
-          </ul>
-        </div>
-    )
+  // Display a shop and list of associated user features
 
+  return (
+    <div>
+      {props.shopName}
+      <ul>{props.ufsHtmlList}</ul>
+    </div>
+  )
 }
 
 
@@ -198,7 +197,6 @@ function ListOfShops(props) {
 
   // object with key being a shop name, value a list of ufs of the shop
   const featuredShops = {}
-
   // Go through list of user features and add each to its corresponding shop key
   for (const userFeature of props.listOfUserFeatures) {
     if (userFeature.shop in featuredShops) {
@@ -212,8 +210,6 @@ function ListOfShops(props) {
   //Go through featured_shops object to get the shops.
   //create a ShopWithUserFeatures component, add to list of shops
   const all_shops = [];
-
-
   for (const shop in featuredShops) {
     const ufsHtmlList = [];
     for (const uf of featuredShops[shop]) {
@@ -229,28 +225,29 @@ function ListOfShops(props) {
     );
   }
 
-  return (<div>
-            <ul>{all_shops}</ul>
-        </div>)
+  return (
+    <div>
+      <ul>{all_shops}</ul>
+    </div>
+  )
 }
 
 
 function MapComponent(props) {
   // Create a map component
 
+  const options = props.options;
+
   // Hooks
   // creates a reference object we can use when mounting our map
-  const ref = React.useRef()
-  const [theMap, setTheMap] = React.useState()
+  const ref = React.useRef();
+  const [theMap, setTheMap] = React.useState();
   // Upon component render, create the map itself
   React.useEffect( () => {
     // Initialize a map by updating the state of theMap to a new map object.
-    const createMap = () => setTheMap(new window.google.maps.Map(ref.current, props.options));
+    const createMap = () => setTheMap(new window.google.maps.Map(ref.current, options));
     //Create a script element with google url as src if none is found
-    console.log(window.google)
-    console.log('I am running useEffect')
-    if (!window.google) {
-      // Create an html element with a script tag in the DOM
+    if (!window.google) { // Create an html element with a script tag in the DOM
       const script = document.createElement('script');
       // Set the script tag's src attribute to the API URL
       script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY';
@@ -260,17 +257,15 @@ function MapComponent(props) {
       script.addEventListener('load', createMap);
       //remove the event listener (we don't need it anymore)
       return () => script.removeEventListener('load', createMap);
-    } else {
-      // Initialize the map if a script element with google url is found
+    } else { // Initialize the map if a script element with google url IS found
       createMap();
     }
- 
-  }, [props.options.center.lat]);
+  }, [options.center.lat]); //Need the value of the lat of options because it does not change
 
   // A way to have a function affect the map right after it's been mounted
   // if (theMap && typeof onMount === 'function') onMount(theMap, onMountProps);
 
-  // Return a div with the reference we made earlier
+  // Return a div with the reference we made earlier, MAKE SURE IT HAS HEIGHT.
   return (
     <div 
       style = {{ height: `60vh`, margin: `1em 0`, borderRadius: `0.5em` }}
@@ -279,6 +274,70 @@ function MapComponent(props) {
   )
 }
 
+
+function AddNewUserFeature(props){
+  // Form to add a new user feature to the database
+
+  // Hooks
+  const [drinkType, setDrinkType] = React.useState('');
+  const [nickname, setNickname] = React.useState('');
+  const [details, setDetails] = React.useState('');
+  const [liked, setLiked] = React.useState(true);
+  const [shop, setShop] = React.useState('');
+
+  const feature1 = {name: 'latte'};
+  const feature2 = {name: 'iced latte'};
+
+  return (
+    <div>
+      <label htmlFor="shop-input">Choose a Shop</label>
+      <input
+        id="shop-input"
+        type="text"
+        onChange={(e) => setShop(e.target.value)}
+        value={shop}
+        ></input>
+      <label htmlFor="drink-type-input">Drink Type</label>
+      <select
+        id="drink-type-input"
+        onChange={(e) => setDrinkType(e.target.value)}
+        value={drinkType}
+        >
+        <option value="{feature1.name}">{feature1.name}</option>
+        <option value="{feature2.name}">{feature2.name}</option>
+      </select>
+      <label htmlFor="nickname-input">Nickname</label>
+      <input
+        id="nickname-input"
+        type="text"
+        onChange={(e) => setNickname(e.target.value)}
+        value={nickname}
+        ></input>
+      <label htmlFor="details-input">Details</label>
+      <textarea
+        id="details-input"
+        onChange={(e) => setDetails(e.target.value)}
+        value={details}
+        ></textarea>
+      <label htmlFor="liked-input">Liked</label>
+      <input
+        id="liked-input"
+        type="radio"
+        value="liked"
+        onChange={(e) => setLiked(e.target.checked)}
+        checked={liked}
+        ></input>
+      <label htmlFor="disliked-input">Disliked</label>
+      <input
+        id="disliked-input"
+        type="radio"
+        value="not-liked"
+        onChange={(e) => setLiked(!e.target.checked)}
+        checked={!liked}
+        ></input>
+    </div>
+  )
+}
 
 
 function Homepage(props) {
@@ -305,7 +364,8 @@ function Homepage(props) {
     })
   }, [])
 
-  // Changes what is viewed on the page
+  // Callback that changes what is viewed on the page
+  // Causes the component itself to rerender, since we are affecting its state(s)
   const changeView = (event) => {
     if (event.target.id === 'shops-view') {
       setViewShops(true);
@@ -324,11 +384,12 @@ function Homepage(props) {
     }
   }
 
+  // Options for the mapcomponent to test it out
   const options = {
           center: { lat: 37.601773, lng: -122.202870},
           zoom: 11
         }
-  console.log("here i am, rendering again.")
+  
   return (
     <div>
       <h1>Honey, you're home!</h1>
@@ -347,7 +408,7 @@ function Homepage(props) {
       {viewDrinks && <ListOfUserFeatures listOfUserFeatures={drinks} />}
       {viewShopAspects && <ListOfUserFeatures listOfUserFeatures={shopAspects} />}
     </div>
-    )
+  )
 }
 
 
@@ -360,8 +421,8 @@ function About() {
 function Logout(props) { 
   // Logs you out
 
+  // Hooks
   let history = useHistory()
-
   React.useEffect( () => {
     fetch('/api/logout', 
       {
@@ -399,6 +460,9 @@ function App() {
                   <Link to="/homepage"> Homepage </Link>
               </li>
               <li>
+                  <Link to="/add-new-drink"> Add New Drink </Link>
+              </li>
+              <li>
                   <Link to="/login"> Login </Link>
               </li>
               <li>
@@ -416,6 +480,9 @@ function App() {
             <Route path="/create-account">
               <CreateAccount />
             </Route>    
+            <Route path="/add-new-drink">
+              <AddNewUserFeature />
+            </Route>   
             <Route path="/about">
               <About />
             </Route>
