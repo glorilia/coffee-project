@@ -279,7 +279,7 @@ function AddNewUserFeature(props){
   // Form to add a new user feature to the database
 
   // Hooks
-  const [drinkType, setDrinkType] = React.useState('');
+  const [featureName, setFeatureName] = React.useState('');
   const [nickname, setNickname] = React.useState('');
   const [details, setDetails] = React.useState('');
   const [liked, setLiked] = React.useState(true);
@@ -297,11 +297,11 @@ function AddNewUserFeature(props){
         onChange={(e) => setShop(e.target.value)}
         value={shop}
         ></input>
-      <label htmlFor="drink-type-input">Drink Type</label>
+      <label htmlFor="feature-name-input">Feature Name</label>
       <select
-        id="drink-type-input"
-        onChange={(e) => setDrinkType(e.target.value)}
-        value={drinkType}
+        id="feature-name-input"
+        onChange={(e) => setFeatureName(e.target.value)}
+        value={featureName}
         >
         <option value="{feature1.name}">{feature1.name}</option>
         <option value="{feature2.name}">{feature2.name}</option>
