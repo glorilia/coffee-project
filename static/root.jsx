@@ -222,6 +222,7 @@ function ListOfShops(props) {
     }
     all_shops.push(
       <ShopWithUserFeatures 
+        key = {featuredShops[shop][0].user_feature_id}
         shopName={shop}
         ufsHtmlList={ufsHtmlList}
       /> // Need a key for the above list items
@@ -234,24 +235,64 @@ function ListOfShops(props) {
 }
 
 
-function GoogleMap(props){
-  
+function MapComponent(props) {
+  // Create a map component
+
+  // Hooks
+  // creates a reference object we can use when mounting our map
+  const ref = React.useRef()
+  const [theMap, setTheMap] = React.useState()
+  // Upon component render, create the map itself
+  React.useEffect( () => {
+    // Initialize a map by updating the state of theMap to a new map object.
+    const createMap = () => setTheMap(new window.google.maps.Map(ref.current, props.options));
+    //Create a script element with google url as src if none is found
+    console.log(window.google)
+    console.log('I am running useEffect')
+    if (!window.google) {
+      // Create an html element with a script tag in the DOM
+      const script = document.createElement('script');
+      // Set the script tag's src attribute to the API URL
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY';
+      // Mount the script tag at the document's head
+      document.head.append(script);
+      // Listen for it to load, then do createMap when it does
+      script.addEventListener('load', createMap);
+      //remove the event listener (we don't need it anymore)
+      return () => script.removeEventListener('load', createMap);
+    } else {
+      // Initialize the map if a script element with google url is found
+      createMap();
+    }
+ 
+  }, [props.options.center.lat]);
+
+  // A way to have a function affect the map right after it's been mounted
+  // if (theMap && typeof onMount === 'function') onMount(theMap, onMountProps);
+
+  // Return a div with the reference we made earlier
+  return (
+    <div 
+      style = {{ height: `60vh`, margin: `1em 0`, borderRadius: `0.5em` }}
+      ref = {ref}
+    ></div>
+  )
 }
+
 
 
 function Homepage(props) {
   //Homepage for registered users, appears upon successful login
 
+  // HOOKS
   // State to determine conditional rendering
   const [viewShops, setViewShops] = React.useState(true)
   const [viewDrinks, setViewDrinks] = React.useState(false)
   const [viewShopAspects, setViewShopAspects] = React.useState(false)
-
   //State for zipcode
   const [zipcode, setZipcode] = React.useState('')
   const [drinks, setDrinks] = React.useState([])
   const [shopAspects, setShopAspects] = React.useState([])
-
   //Get info about a user upon rendering
   React.useEffect( () => {
     //send GET request to the get user information endpoint
@@ -264,6 +305,7 @@ function Homepage(props) {
     })
   }, [])
 
+  // Changes what is viewed on the page
   const changeView = (event) => {
     if (event.target.id === 'shops-view') {
       setViewShops(true);
@@ -282,11 +324,16 @@ function Homepage(props) {
     }
   }
 
+  const options = {
+          center: { lat: 37.601773, lng: -122.202870},
+          zoom: 11
+        }
+  console.log("here i am, rendering again.")
   return (
     <div>
       <h1>Honey, you're home!</h1>
       <p>Searching in {zipcode}</p>
-      <GoogleMap />
+      <MapComponent options={options} />
       <button id="shops-view" onClick={changeView} >
         Top Shops
       </button>
