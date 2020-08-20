@@ -1,5 +1,5 @@
 const Router = ReactRouterDOM.BrowserRouter;
-const {useHistory, Redirect, Switch, Prompt, Link, Route} = ReactRouterDOM;
+const {useHistory, useParams, Redirect, Switch, Prompt, Link, Route} = ReactRouterDOM;
 
 
 function CreateAccount() {
@@ -135,6 +135,14 @@ function LandingPage() {
 }
 
 
+function ShopFinder() {
+  return (
+    <div>
+      <SearchBox />
+      <ShopDisplayer />
+    </div>
+  )
+}
 
 
 function SearchBox() {
@@ -171,9 +179,6 @@ function SearchBox() {
     }
   }, [searchBox])
 
-  
-  
-
   return (
     <input
       ref={ref}
@@ -184,11 +189,20 @@ function SearchBox() {
   )
 }
 
+function ShopDisplayer() {
+  return (
+    <div>
+      Shop goes here
+    </div>
+  )
+}
+
 
 function AddNewUserFeature(props){
   // Form to add a new user feature to the database
-
+  
   // Hooks
+  const {featureType} = useParams();
   const [featureName, setFeatureName] = React.useState('');
   const [nickname, setNickname] = React.useState('');
   const [details, setDetails] = React.useState('');
@@ -219,18 +233,18 @@ function AddNewUserFeature(props){
       })
   }
 
-  React.useEffect( () => {
-    //send GET request to the get user information endpoint
-    fetch('/api/get-user-information')
-    .then(response => response.json())
-    .then(data => {
-      setZipcode(data.zipcode);
-      setDrinks(data.drink);
-      setShopAspects(data.shop_aspect)
-    })
-  }, [])
+  // React.useEffect( () => {
+  //   //send GET request to the get user information endpoint
+  //   fetch('/api/get-user-information')
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     setZipcode(data.zipcode);
+  //     setDrinks(data.drink);
+  //     setShopAspects(data.shop_aspect)
+  //   })
+  // }, [])
 
-
+  console.log(`Creating a UF with the params ${featureType}`);
 
   const feature1 = {name: 'latte'};
   const feature2 = {name: 'iced latte'};
@@ -422,13 +436,12 @@ function InfoContainer(props) {
 }
     // ListContainer
 function ListContainer(props) {
-  console.log(`the data to display is ${props.dataToDisplay}`)
+  // console.log(`the data to display is ${props.dataToDisplay}`)
   const [allData, setAllData] = React.useState([]);
   const dataList = []
   React.useEffect( () => {
     if(props.dataToDisplay) {
       for (const userFeature of props.dataToDisplay) {
-        console.log(`this user feature is a ${userFeature.feature}`)
         // Add a ListItem the information from the userFeature to the all_data list
         dataList.push(
           <ListItem
@@ -446,7 +459,7 @@ function ListContainer(props) {
     }
   },[props.dataToDisplay])
 
-  console.log(`allData is now ${allData}`)
+  // console.log(`allData is now ${allData}`)
 
   return (
     <div id="list-container">
@@ -479,14 +492,31 @@ function ViewAllButton() {
 }
   // SelectorAddButton
 function SelectorAddButton() {
-  React.UseEffect(() => {
+  let history = useHistory()
+  const [types, setTypes] = React.useState();
+  React.useEffect(() => {
     fetch('/api/get-types')
+    .then(response => response.json())
+    .then(data => {
+      const typesList = [];
+      for (const a_type of data) {
+        typesList.push(<option 
+                        key={a_type.id} id={a_type.name} value={a_type.name}>{a_type.name}</option>);
+      }
+      setTypes(typesList);
+    })
   }, []);
 
+  const goToCreate = (event) => {
+    const featureType = event.target.value
+    history.push(`/add-new/${featureType}`)
+  }
+
+
   return (
-    <select id="selector-add-button">
-      <option>option1</option>
-      <option>option2</option>
+    <select id="selector-add-button" onChange={goToCreate}>
+      <option key='def' value=''>Add Something New</option>
+      {types}
     </select>
   )
 }
@@ -562,7 +592,7 @@ function App() {
             <Route path="/create-account">
               <CreateAccount />
             </Route>    
-            <Route path="/add-new-drink">
+            <Route path="/add-new/:featureType">
               <AddNewUserFeature />
             </Route>   
             <Route path="/about">
@@ -585,6 +615,9 @@ function App() {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
+
+
+
 
 
 

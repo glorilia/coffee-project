@@ -128,7 +128,7 @@ def get_user_info():
         )
    
     # User has list of dictionaries for 'drink' and 'shop_aspects'
-    print(user_info['shop_aspect'])
+    # print(user_info['shop_aspect'])
 
     return jsonify(user_info)
 
@@ -163,7 +163,20 @@ def add_user_feature():
                                 details=details,
                                 nickname=nickname,
                                 last_updated=last_updated)
+
+
+@app.route('/api/get-types')
+def get_types():
+    types = crud.get_all_types()
+    all_types = []
+    for a_type in types:
+        all_types.append({'id': a_type.type_id, 'name': a_type.name})
     
+    print(f'****************{all_types}**************')
+
+    return jsonify(all_types)
+
+
 
 
 
