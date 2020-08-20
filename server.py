@@ -100,14 +100,14 @@ def get_user_info():
 
     # Query the db for the user
     user = crud.get_user_by_id(user_id)
-    zipcode = user.home_zipcode
+    # zipcode = user.home_zipcode
 
     # Get all the user's user features
     user_features = crud.get_all_ufs_for_user(user)
 
     # Turn this list into a dictionary of dictionaries
     user_info = {
-        'zipcode': zipcode,
+        # 'zipcode': zipcode,
         'drink': [],
         'shop_aspect': [] 
     }
@@ -126,10 +126,44 @@ def get_user_info():
             'last_updated': uf.last_updated
             }
         )
-    print(user_info['shop_aspect'])
+   
     # User has list of dictionaries for 'drink' and 'shop_aspects'
+    print(user_info['shop_aspect'])
 
     return jsonify(user_info)
+
+@app.route('/api/add-user-feature', methods=['POST'])
+def add_user_feature():
+    # Takes form input from the client and puts it in the database
+
+    data = request.get_json()
+    feature_name = data['featureName']
+    nickname = data['nickname']
+    details = data['details']
+    liked = data['liked']
+    shop = data['shop']
+
+    # Get the user_id from the session
+    user_id = session.get("user_id")
+    # Query the db for the user
+    user = crud.get_user_by_id(user_id)
+
+    # Get the feature
+    feature = crud.get_feature_by_name(feature_name)
+
+    # Get the shop
+    # make request to the place api 
+
+
+
+    user_feature = crud.create_user_feature(
+                                user=user,
+                                feature=feature,
+                                shop=shop,
+                                details=details,
+                                nickname=nickname,
+                                last_updated=last_updated)
+    
 
 
 

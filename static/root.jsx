@@ -135,6 +135,460 @@ function LandingPage() {
 }
 
 
+
+
+function SearchBox() {
+  const ref = React.useRef();
+
+  const [searchBox, setSearchBox] = React.useState();
+
+  React.useEffect( () => {
+    // Initialize a map by updating the state of theMap to a new map object.
+    const createSearchBox = () => setSearchBox(new window.google.maps.places.Autocomplete(ref.current));
+    //Create a script element with google url as src if none is found
+    if (!window.google) { // Create an html element with a script tag in the DOM
+      const script = document.createElement('script');
+      // Set the script tag's src attribute to the API URL
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
+      // Mount the script tag at the document's head
+      document.head.append(script);
+      // Listen for it to load, then do createMap when it does
+      script.addEventListener('load', createSearchBox);
+      //remove the event listener (we don't need it anymore)
+      console.log("made google, then made search bar")
+      return () => script.removeEventListener('load', createSearchBox);
+    } else { // Initialize the map if a script element with google url IS found
+      createSearchBox();
+      console.log("made a search bar cause there was google already")
+    }
+  }, [])
+  console.log("rendered searchbox comp")
+
+  React.useEffect( () => {
+    if (searchBox) {
+      searchBox.setFields(
+      ['address_components', 'place_id', 'icon', 'name']);
+    }
+  }, [searchBox])
+
+  
+  
+
+  return (
+    <input
+      ref={ref}
+      id="shop-input"
+      type="text"
+      placeholder="Type in the shop name"
+    ></input>
+  )
+}
+
+
+function AddNewUserFeature(props){
+  // Form to add a new user feature to the database
+
+  // Hooks
+  const [featureName, setFeatureName] = React.useState('');
+  const [nickname, setNickname] = React.useState('');
+  const [details, setDetails] = React.useState('');
+  const [liked, setLiked] = React.useState(true);
+  const [shop, setShop] = React.useState('');
+  
+  const addToDB = () => {
+    const formData = {
+      'featureName': featureName,
+      'nickname': nickname,
+      'details': details,
+      'liked': liked,
+      'shop': liked,
+    }
+    fetch('/api/add-user-feature',
+      {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        credentials: 'include',
+        headers: {'Content-Type': 'application/json'}
+      })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);
+      // if (data.status==='success') {
+        
+      // }
+      })
+  }
+
+  React.useEffect( () => {
+    //send GET request to the get user information endpoint
+    fetch('/api/get-user-information')
+    .then(response => response.json())
+    .then(data => {
+      setZipcode(data.zipcode);
+      setDrinks(data.drink);
+      setShopAspects(data.shop_aspect)
+    })
+  }, [])
+
+
+
+  const feature1 = {name: 'latte'};
+  const feature2 = {name: 'iced latte'};
+
+  return (
+    <div>
+      <label htmlFor="shop-input">Choose a Shop</label>
+      <SearchBox />
+      {/* <input
+        id="shop-input"
+        type="text"
+        onChange={(e) => setShop(e.target.value)}
+        value={shop}
+        ></input> */}
+      <label htmlFor="feature-name-input">Feature Name</label>
+      <select
+        id="feature-name-input"
+        onChange={(e) => setFeatureName(e.target.value)}
+        value={featureName}
+        >
+        <option value="{feature1.name}">{feature1.name}</option>
+        <option value="{feature2.name}">{feature2.name}</option>
+      </select>
+      <label htmlFor="nickname-input">Nickname</label>
+      <input
+        id="nickname-input"
+        type="text"
+        onChange={(e) => setNickname(e.target.value)}
+        value={nickname}
+        ></input>
+      <label htmlFor="details-input">Details</label>
+      <textarea
+        id="details-input"
+        onChange={(e) => setDetails(e.target.value)}
+        value={details}
+        ></textarea>
+      <label htmlFor="liked-input">Liked</label>
+      <input
+        id="liked-input"
+        type="radio"
+        value="liked"
+        onChange={(e) => setLiked(e.target.checked)}
+        checked={liked}
+        ></input>
+      <label htmlFor="disliked-input">Disliked</label>
+      <input
+        id="disliked-input"
+        type="radio"
+        value="not-liked"
+        onChange={(e) => setLiked(!e.target.checked)}
+        checked={!liked}
+        ></input>
+      <button onClick={addToDB}>Add Drink</button>
+    </div>
+  )
+}
+
+
+function AddUserFeatureButton(props) {
+  // Button that allows you to add a feature and has label based on the view
+  let buttonLabel = null
+  for (const view in props.view) {
+    if (view === 'viewShops' && props.view[view] === true) {
+       buttonLabel = "Add Something New";
+    } else if (view === 'viewDrinks' && props.view[view] === true) {
+       buttonLabel = "Add a New Drink";
+    } else if (view === 'viewShopAspects' && props.view[view] === true) {
+       buttonLabel = "Add a New Shop Aspect"
+    }
+  }
+  if (!buttonLabel) {
+    return null;
+  }
+
+  return (
+    <button>
+      {buttonLabel}
+    </button>
+  )
+}
+
+
+const HOMEPAGE_VIEWS = {
+  'Top Shops': 'shops',
+  'Top Drinks': 'drinks',
+  'Top Shop Aspects': 'shopAspects'
+};
+
+// Homepage
+function Homepage() {
+  // *state of the view
+  const [view, setView] = React.useState('shops');
+
+  console.log(`now rendering the ${view} view`)
+
+  return (
+    <div id="homepage">
+      <ButtonBar setView={setView} />
+      <MapContainer view={view} />
+      <InfoContainer view={view} />
+      <SelectorAddButton view={view} />
+    </div>
+  )
+}
+  // ButtonBar
+function ButtonBar(props) {
+
+  const changeView = (event) => {
+    const newView = event.target.textContent; // want to get the inner contents of the event.target
+    props.setView(HOMEPAGE_VIEWS[newView]);  // setview to that view according to the HOMEPAGE_VIEWS obj
+  }
+
+  return (
+    <div id="button-bar">
+      <button onClick={changeView} >Top Shops</button>
+      <button onClick={changeView} >Top Drinks</button>
+      <button onClick={changeView} >Top Shop Aspects</button>
+    </div>    
+  )
+}
+
+  // MapContainer
+function MapContainer(props) {
+  return (
+    <div id="map-container">
+      <LocationSetter />
+      <MapComponent options= { {center: { lat: 37.601773, lng: -122.202870}, zoom: 11} } />
+    </div>
+  )
+}
+
+    // LocationSetter
+function LocationSetter(props) {
+  return <input id="location-setter" type="text"></input>
+}
+    // Map Component
+function MapComponent(props) {
+  const options = props.options;
+  const ref = React.useRef();
+  const [theMap, setTheMap] = React.useState();
+  React.useEffect( () => {
+    const createMap = () => setTheMap(new window.google.maps.Map(ref.current, options));
+    if (!window.google) { // Create an html element with a script tag in the DOM
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
+      document.head.append(script);
+      script.addEventListener('load', createMap);
+      return () => script.removeEventListener('load', createMap);
+    } else { // Initialize the map if a script element with google url IS found
+      createMap();
+    }
+  }, [options.center.lat]); //Need the value of the lat of options because it does not change
+
+  return (
+    <div id="map-div"
+      style = {{ height: `60vh`, margin: `1em 0`, borderRadius: `0.5em`, width: '50%' }}
+      ref = {ref}
+    ></div>
+  )
+}
+
+  // InfoContainer
+function InfoContainer(props) {
+  //get the user's user features' information (all of it at the same time)
+  const [userFeatureData, setUserFeatureData] = React.useState({});
+  React.useEffect( () => {
+    //send GET request to the get user information endpoint
+    fetch('/api/get-user-information')
+    .then(response => response.json())
+    .then(data => {
+      setUserFeatureData({drinks: data.drink, 
+                        shopAspects: data.shop_aspect,
+                        shops: data.drink.concat(data.shop_aspect)})
+    })
+  }, [])
+
+  // const view = props.view;
+  // console.log(`rendered drinks to be ${userFeatureData.drinks}`);
+  // console.log(`rendered shopAspects to be ${userFeatureData.shopAspects}`);
+  // console.log(`for this view, ${props.view}, we must show ${userFeatureData[props.view]}`)
+
+
+  return (
+    <div id="info-container">
+      <ListContainer dataToDisplay={userFeatureData[props.view]} />
+      <ViewAllButton />
+    </div>
+  )
+}
+    // ListContainer
+function ListContainer(props) {
+  console.log(`the data to display is ${props.dataToDisplay}`)
+  const [allData, setAllData] = React.useState([]);
+  const dataList = []
+  React.useEffect( () => {
+    if(props.dataToDisplay) {
+      for (const userFeature of props.dataToDisplay) {
+        console.log(`this user feature is a ${userFeature.feature}`)
+        // Add a ListItem the information from the userFeature to the all_data list
+        dataList.push(
+          <ListItem
+            key={userFeature.user_feature_id}
+            feature={userFeature.feature}
+            shop={userFeature.shop}
+            nickname={userFeature.nickname}
+            details={userFeature.details}
+            ranking={userFeature.ranking}
+            last_updated={userFeature.last_updated}
+            />
+        );
+      }
+      setAllData(dataList)
+    }
+  },[props.dataToDisplay])
+
+  console.log(`allData is now ${allData}`)
+
+  return (
+    <div id="list-container">
+      <h1>Title Goes Here</h1>
+      <ul>
+        {allData}
+      </ul>
+    </div>
+  )
+}
+
+      // ListItem
+function ListItem(props) {
+  return (
+    <li>
+      <p>{props.feature}</p>
+      <p>{props.shop}</p>
+      <p>{props.nickname}</p>
+      <p>{props.details}</p>
+      <p>{props.ranking}</p>
+      <p>{props.last_updated}</p>
+    </li>
+  )
+}
+    // ViewAllButton
+function ViewAllButton() {
+  return (
+    <button id="view-all-button">View All</button>
+  )
+}
+  // SelectorAddButton
+function SelectorAddButton() {
+  React.UseEffect(() => {
+    fetch('/api/get-types')
+  }, []);
+
+  return (
+    <select id="selector-add-button">
+      <option>option1</option>
+      <option>option2</option>
+    </select>
+  )
+}
+
+
+
+
+function About() {
+  // Explain what the app is about
+  return <div> This app lets you rank your favorite coffee shop drinks </div>
+}
+
+
+function Logout(props) { 
+  // Logs you out
+
+  // Hooks
+  let history = useHistory()
+  React.useEffect( () => {
+    fetch('/api/logout', 
+      {
+        method: 'POST',
+        credentials: 'include',
+        headers: {'Content-Type' : 'application/json'}
+      })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message)
+      history.push('/')
+      }
+    )
+  })
+  
+  return <div>Bye for now!</div>
+}
+
+
+// Main component that everything is rendered from
+function App() {
+  return (
+      // Creating Navigation
+      <Router>
+        <div>
+          <nav>
+            <ul>
+              <li>
+                  <Link to="/"> Landing Page </Link>
+              </li>
+              <li>
+                  <Link to="/about"> About </Link>
+              </li>
+              <li>
+                  <Link to="/homepage"> Homepage </Link>
+              </li>
+              <li>
+                  <Link to="/add-new-drink"> Add New Drink </Link>
+              </li>
+              <li>
+                  <Link to="/login"> Login </Link>
+              </li>
+              <li>
+                  <Link to="/logout"> Log Out</Link>
+              </li>
+              <li>
+                  <Link to="/create-account"> Create Account </Link>
+              </li>
+            </ul>
+          </nav>
+          <Switch>
+            <Route path="/homepage">
+              <Homepage />
+            </Route>
+            <Route path="/create-account">
+              <CreateAccount />
+            </Route>    
+            <Route path="/add-new-drink">
+              <AddNewUserFeature />
+            </Route>   
+            <Route path="/about">
+              <About />
+            </Route>
+            <Route path="/logout">
+              <Logout />
+            </Route>
+            <Route path="/login">
+              <Login />
+            </Route>
+            <Route path="/">
+              <LandingPage />
+            </Route>           
+          </Switch>
+        </div>
+      </Router>
+    );
+
+}
+
+ReactDOM.render(<App />, document.getElementById('root'))
+
+
+
+
 function UserFeatureItem(props) {
   // Display a user feature and its assoociated properties
 
@@ -233,276 +687,47 @@ function ListOfShops(props) {
 }
 
 
-function MapComponent(props) {
-  // Create a map component
+// function MapComponent(props) {
+//   // Create a map component
 
-  const options = props.options;
+//   const options = props.options;
 
-  // Hooks
-  // creates a reference object we can use when mounting our map
-  const ref = React.useRef();
-  const [theMap, setTheMap] = React.useState();
-  // Upon component render, create the map itself
-  React.useEffect( () => {
-    // Initialize a map by updating the state of theMap to a new map object.
-    const createMap = () => setTheMap(new window.google.maps.Map(ref.current, options));
-    //Create a script element with google url as src if none is found
-    if (!window.google) { // Create an html element with a script tag in the DOM
-      const script = document.createElement('script');
-      // Set the script tag's src attribute to the API URL
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY';
-      // Mount the script tag at the document's head
-      document.head.append(script);
-      // Listen for it to load, then do createMap when it does
-      script.addEventListener('load', createMap);
-      //remove the event listener (we don't need it anymore)
-      return () => script.removeEventListener('load', createMap);
-    } else { // Initialize the map if a script element with google url IS found
-      createMap();
-    }
-  }, [options.center.lat]); //Need the value of the lat of options because it does not change
+//   // Hooks
+//   // creates a reference object we can use when mounting our map
+//   const ref = React.useRef();
+//   const [theMap, setTheMap] = React.useState();
+//   // Upon component render, create the map itself
+//   React.useEffect( () => {
+//     // Initialize a map by updating the state of theMap to a new map object.
+//     const createMap = () => setTheMap(new window.google.maps.Map(ref.current, options));
+//     //Create a script element with google url as src if none is found
+//     if (!window.google) { // Create an html element with a script tag in the DOM
+//       const script = document.createElement('script');
+//       // Set the script tag's src attribute to the API URL
+//       script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
+//       // Mount the script tag at the document's head
+//       document.head.append(script);
+//       // Listen for it to load, then do createMap when it does
+//       script.addEventListener('load', createMap);
+//       //remove the event listener (we don't need it anymore)
+//       return () => script.removeEventListener('load', createMap);
+//     } else { // Initialize the map if a script element with google url IS found
+//       createMap();
+//     }
+//   }, [options.center.lat]); //Need the value of the lat of options because it does not change
 
-  // A way to have a function affect the map right after it's been mounted
-  // if (theMap && typeof onMount === 'function') onMount(theMap, onMountProps);
+//   // A way to have a function affect the map right after it's been mounted
+//   // if (theMap && typeof onMount === 'function') onMount(theMap, onMountProps);
 
-  // Return a div with the reference we made earlier, MAKE SURE IT HAS HEIGHT.
-  return (
-    <div 
-      style = {{ height: `60vh`, margin: `1em 0`, borderRadius: `0.5em` }}
-      ref = {ref}
-    ></div>
-  )
-}
+//   // Return a div with the reference we made earlier, MAKE SURE IT HAS HEIGHT.
+//   return (
+//     <div 
+//       style = {{ height: `60vh`, margin: `1em 0`, borderRadius: `0.5em` }}
+//       ref = {ref}
+//     ></div>
+//   )
+// }
 
-
-function AddNewUserFeature(props){
-  // Form to add a new user feature to the database
-
-  // Hooks
-  const [featureName, setFeatureName] = React.useState('');
-  const [nickname, setNickname] = React.useState('');
-  const [details, setDetails] = React.useState('');
-  const [liked, setLiked] = React.useState(true);
-  const [shop, setShop] = React.useState('');
-
-  const feature1 = {name: 'latte'};
-  const feature2 = {name: 'iced latte'};
-
-  return (
-    <div>
-      <label htmlFor="shop-input">Choose a Shop</label>
-      <input
-        id="shop-input"
-        type="text"
-        onChange={(e) => setShop(e.target.value)}
-        value={shop}
-        ></input>
-      <label htmlFor="feature-name-input">Feature Name</label>
-      <select
-        id="feature-name-input"
-        onChange={(e) => setFeatureName(e.target.value)}
-        value={featureName}
-        >
-        <option value="{feature1.name}">{feature1.name}</option>
-        <option value="{feature2.name}">{feature2.name}</option>
-      </select>
-      <label htmlFor="nickname-input">Nickname</label>
-      <input
-        id="nickname-input"
-        type="text"
-        onChange={(e) => setNickname(e.target.value)}
-        value={nickname}
-        ></input>
-      <label htmlFor="details-input">Details</label>
-      <textarea
-        id="details-input"
-        onChange={(e) => setDetails(e.target.value)}
-        value={details}
-        ></textarea>
-      <label htmlFor="liked-input">Liked</label>
-      <input
-        id="liked-input"
-        type="radio"
-        value="liked"
-        onChange={(e) => setLiked(e.target.checked)}
-        checked={liked}
-        ></input>
-      <label htmlFor="disliked-input">Disliked</label>
-      <input
-        id="disliked-input"
-        type="radio"
-        value="not-liked"
-        onChange={(e) => setLiked(!e.target.checked)}
-        checked={!liked}
-        ></input>
-    </div>
-  )
-}
-
-
-function Homepage(props) {
-  //Homepage for registered users, appears upon successful login
-
-  // HOOKS
-  // State to determine conditional rendering
-  const [viewShops, setViewShops] = React.useState(true)
-  const [viewDrinks, setViewDrinks] = React.useState(false)
-  const [viewShopAspects, setViewShopAspects] = React.useState(false)
-  //State for zipcode
-  const [zipcode, setZipcode] = React.useState('')
-  const [drinks, setDrinks] = React.useState([])
-  const [shopAspects, setShopAspects] = React.useState([])
-  //Get info about a user upon rendering
-  React.useEffect( () => {
-    //send GET request to the get user information endpoint
-    fetch('/api/get-user-information')
-    .then(response => response.json())
-    .then(data => {
-      setZipcode(data.zipcode);
-      setDrinks(data.drink);
-      setShopAspects(data.shop_aspect)
-    })
-  }, [])
-
-  // Callback that changes what is viewed on the page
-  // Causes the component itself to rerender, since we are affecting its state(s)
-  const changeView = (event) => {
-    if (event.target.id === 'shops-view') {
-      setViewShops(true);
-      setViewDrinks(false);
-      setViewShopAspects(false);
-    }
-    if (event.target.id === 'drinks-view') {
-      setViewShops(false);
-      setViewDrinks(true);
-      setViewShopAspects(false);
-    }
-    if (event.target.id === 'shop-aspects-view') {
-      setViewShops(false);
-      setViewDrinks(false);
-      setViewShopAspects(true);
-    }
-  }
-
-  // Options for the mapcomponent to test it out
-  const options = {
-          center: { lat: 37.601773, lng: -122.202870},
-          zoom: 11
-        }
-  
-  return (
-    <div>
-      <h1>Honey, you're home!</h1>
-      <p>Searching in {zipcode}</p>
-      <MapComponent options={options} />
-      <button id="shops-view" onClick={changeView} >
-        Top Shops
-      </button>
-      <button id="drinks-view" onClick={changeView} >
-        Top Drinks
-      </button>
-      <button id="shop-aspects-view" onClick={changeView} >
-        Top Shop Aspects
-      </button>
-      {viewShops && <ListOfShops listOfUserFeatures={drinks.concat(shopAspects)} />}
-      {viewDrinks && <ListOfUserFeatures listOfUserFeatures={drinks} />}
-      {viewShopAspects && <ListOfUserFeatures listOfUserFeatures={shopAspects} />}
-    </div>
-  )
-}
-
-
-function About() {
-  // Explain what the app is about
-  return <div> This app lets you rank your favorite coffee shop drinks </div>
-}
-
-
-function Logout(props) { 
-  // Logs you out
-
-  // Hooks
-  let history = useHistory()
-  React.useEffect( () => {
-    fetch('/api/logout', 
-      {
-        method: 'POST',
-        credentials: 'include',
-        headers: {'Content-Type' : 'application/json'}
-      })
-    .then(response => response.json())
-    .then(data => {
-      alert(data.message)
-      history.push('/')
-      }
-    )
-  })
-  
-  return <div>Bye for now!</div>
-}
-
-
-// Main component that everything is rendered from
-function App() {
-  return (
-      // Creating Navigation
-      <Router>
-        <div>
-          <nav>
-            <ul>
-              <li>
-                  <Link to="/"> Landing Page </Link>
-              </li>
-              <li>
-                  <Link to="/about"> About </Link>
-              </li>
-              <li>
-                  <Link to="/homepage"> Homepage </Link>
-              </li>
-              <li>
-                  <Link to="/add-new-drink"> Add New Drink </Link>
-              </li>
-              <li>
-                  <Link to="/login"> Login </Link>
-              </li>
-              <li>
-                  <Link to="/logout"> Log Out</Link>
-              </li>
-              <li>
-                  <Link to="/create-account"> Create Account </Link>
-              </li>
-            </ul>
-          </nav>
-          <Switch>
-            <Route path="/homepage">
-              <Homepage />
-            </Route>
-            <Route path="/create-account">
-              <CreateAccount />
-            </Route>    
-            <Route path="/add-new-drink">
-              <AddNewUserFeature />
-            </Route>   
-            <Route path="/about">
-              <About />
-            </Route>
-            <Route path="/logout">
-              <Logout />
-            </Route>
-            <Route path="/login">
-              <Login />
-            </Route>
-            <Route path="/">
-              <LandingPage />
-            </Route>           
-          </Switch>
-        </div>
-      </Router>
-    );
-
-}
-
-ReactDOM.render(<App />, document.getElementById('root'))
 
 
 

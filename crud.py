@@ -86,6 +86,8 @@ def get_all_features():
 def get_feature_by_id(id_num):
     return db.session.query(Feature).get(id_num)
 
+def get_feature_by_name(name):
+    return db.session.query(Feature).filter_by(name=name).first()
 
 #*********************** UserFeature related functions ******************************#
 
