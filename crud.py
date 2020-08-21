@@ -82,7 +82,6 @@ def create_feature(name, type, description):
 def get_all_features():
     return db.session.query(Feature).all()
 
-
 def get_feature_by_id(id_num):
     return db.session.query(Feature).get(id_num)
 

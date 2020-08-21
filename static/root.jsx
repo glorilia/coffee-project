@@ -252,22 +252,17 @@ function AddNewUserFeature(props){
   return (
     <div>
       <label htmlFor="shop-input">Choose a Shop</label>
-      <SearchBox />
+      <ShopFinder />
       {/* <input
         id="shop-input"
         type="text"
         onChange={(e) => setShop(e.target.value)}
         value={shop}
         ></input> */}
-      <label htmlFor="feature-name-input">Feature Name</label>
-      <select
-        id="feature-name-input"
-        onChange={(e) => setFeatureName(e.target.value)}
-        value={featureName}
-        >
-        <option value="{feature1.name}">{feature1.name}</option>
-        <option value="{feature2.name}">{feature2.name}</option>
-      </select>
+      <FeatureNamePicker 
+        featureType={featureType}
+        featureName={featureName}
+        setFeatureName={setFeatureName}/>
       <label htmlFor="nickname-input">Nickname</label>
       <input
         id="nickname-input"
@@ -302,27 +297,33 @@ function AddNewUserFeature(props){
   )
 }
 
-
-function AddUserFeatureButton(props) {
-  // Button that allows you to add a feature and has label based on the view
-  let buttonLabel = null
-  for (const view in props.view) {
-    if (view === 'viewShops' && props.view[view] === true) {
-       buttonLabel = "Add Something New";
-    } else if (view === 'viewDrinks' && props.view[view] === true) {
-       buttonLabel = "Add a New Drink";
-    } else if (view === 'viewShopAspects' && props.view[view] === true) {
-       buttonLabel = "Add a New Shop Aspect"
-    }
-  }
-  if (!buttonLabel) {
-    return null;
-  }
+function FeatureNamePicker(props) {
+  const [features, setFeatures] = React.useState();
+  React.useEffect(() => {
+    fetch(`/api/get-features/${props.featureType}`)
+    .then(response => response.json())
+    .then(data => {
+      const all_features = []
+      for (const feature of data) {
+        all_features.push(<option key={feature.id} id={feature.name} 
+                          value={feature.name}>{feature.name}</option>)
+      }
+      setFeatures(all_features)
+    })
+  }, [])
 
   return (
-    <button>
-      {buttonLabel}
-    </button>
+    <React.Fragment>
+      <label htmlFor="feature-name-input">{props.featureType} Name</label>
+      <select 
+        id="feature-name-input"
+        onChange={(e) => props.setFeatureName(e.target.value)}
+        value={props.featureName}
+        >
+        <option key='def' value=''>Which {props.featureType} is it?</option>
+        {features}
+      </select>
+    </React.Fragment>
   )
 }
 
@@ -511,7 +512,6 @@ function SelectorAddButton() {
     const featureType = event.target.value
     history.push(`/add-new/${featureType}`)
   }
-
 
   return (
     <select id="selector-add-button" onChange={goToCreate}>
@@ -718,6 +718,32 @@ function ListOfShops(props) {
     </div>
   )
 }
+
+
+
+// function AddUserFeatureButton(props) {
+//   // Button that allows you to add a feature and has label based on the view
+//   let buttonLabel = null
+//   for (const view in props.view) {
+//     if (view === 'viewShops' && props.view[view] === true) {
+//        buttonLabel = "Add Something New";
+//     } else if (view === 'viewDrinks' && props.view[view] === true) {
+//        buttonLabel = "Add a New Drink";
+//     } else if (view === 'viewShopAspects' && props.view[view] === true) {
+//        buttonLabel = "Add a New Shop Aspect"
+//     }
+//   }
+//   if (!buttonLabel) {
+//     return null;
+//   }
+
+//   return (
+//     <button>
+//       {buttonLabel}
+//     </button>
+//   )
+// }
+
 
 
 // function MapComponent(props) {

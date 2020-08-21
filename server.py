@@ -176,7 +176,21 @@ def get_types():
 
     return jsonify(all_types)
 
+@app.route('/api/get-features/<feature_type>')
+def get_features(feature_type):
+    features = crud.get_all_features()
+    print(f'the features are {features}*************')
+    features_of_type = []
+    print(f'feature_type fed in is {feature_type}')
+    for feature in features:
+        print(f'this features type is {feature.type.name}')
+        if feature.type.name == feature_type:
+            print(f'adding a feature {feature.name} of type {feature.type.name}')
+            features_of_type.append({'id': feature.feature_id, 'name': feature.name})
 
+    print(f'*************{features_of_type}*************')
+
+    return jsonify(features_of_type)
 
 
 
