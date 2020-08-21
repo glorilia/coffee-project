@@ -240,7 +240,7 @@ function InfoContainer(props) {
 
   return (
     <div id="info-container">
-      <ListContainer dataToDisplay={userFeatureData[props.view]} />
+      <ListContainer view={props.view} dataToDisplay={userFeatureData[props.view]} />
       <ViewAllButton />
     </div>
   )
@@ -252,6 +252,33 @@ function ListContainer(props) {
   const dataList = []
   React.useEffect( () => {
     if(props.dataToDisplay) {
+
+      const organizedData = {};
+      if (props.view === 'shops') {
+        console.log('it is shops view')
+      } else{
+        for (const userFeature of props.dataToDisplay) {
+          //check to see if the userFeature.feature is in organizedData obj
+          if (userFeature.feature in organizedData){
+            // if it's in the object, add the userFeature.shop to the value
+            organizedData[userFeature.feature].push(userFeature.shop)
+  
+          } else{
+            organizedData[userFeature.feature] = [userFeature.shop]
+  
+          }
+        }
+      }
+    
+      if (organizedData) {
+        for (const key in organizedData) {
+          console.log(key, organizedData[key])
+        }
+      }
+      
+
+
+
       for (const userFeature of props.dataToDisplay) {
         // Add a ListItem the information from the userFeature to the all_data list
         dataList.push(
@@ -286,6 +313,8 @@ function ListContainer(props) {
 function ListItem(props) {
   return (
     <li>
+      <ItemTitle />
+      <ItemBodyList />
       <p>{props.feature}</p>
       <p>{props.shop}</p>
       <p>{props.nickname}</p>
@@ -295,6 +324,20 @@ function ListItem(props) {
     </li>
   )
 }
+
+function ItemTitle(props) {
+  return <p>title</p>
+}
+
+function ItemBodyList(props) {
+  return <ul><BodyListElement /></ul>
+}
+
+function BodyListElement(props) {
+  return <li>element</li>
+}
+
+
     // ViewAllButton
 function ViewAllButton() {
   return (
@@ -344,15 +387,17 @@ function AddNewUserFeature(){
   const [details, setDetails] = React.useState('');
   const [liked, setLiked] = React.useState(true);
   const [shop, setShop] = React.useState('');
-  
+
   const addToDB = () => {
     const formData = {
       'featureName': featureName,
       'nickname': nickname,
       'details': details,
       'liked': liked,
-      'shop': liked,
+      // 'shop': shop,
+      'shop': {shop_id: "ChIJNZnr24BBmYARjw4hFALEFgc", name: "Coffee N' Comics", address: "940 W Moana Ln, Reno, NV 89509, USA", lat: 39.4908072, lng: -119.8064269}
     }
+
     fetch('/api/add-user-feature',
       {
         method: 'POST',
@@ -363,35 +408,14 @@ function AddNewUserFeature(){
     .then(response => response.json())
     .then(data => {
       alert(data.message);
-      // if (data.status==='success') {
-        
-      // }
+
       })
   }
-
-  // React.useEffect( () => {
-  //   //send GET request to the get user information endpoint
-  //   fetch('/api/get-user-information')
-  //   .then(response => response.json())
-  //   .then(data => {
-  //     setZipcode(data.zipcode);
-  //     setDrinks(data.drink);
-  //     setShopAspects(data.shop_aspect)
-  //   })
-  // }, [])
-
-  console.log(`Creating a UF with the params ${featureType}`);
 
   return (
     <div>
       <label htmlFor="shop-input">Choose a Shop</label>
-      <ShopFinder />
-      {/* <input
-        id="shop-input"
-        type="text"
-        onChange={(e) => setShop(e.target.value)}
-        value={shop}
-        ></input> */}
+      <ShopFinder shop={shop} setShop={setShop} />
       <FeatureNamePicker 
         featureType={featureType}
         featureName={featureName}
@@ -425,7 +449,7 @@ function AddNewUserFeature(){
         onChange={(e) => setLiked(!e.target.checked)}
         checked={!liked}
         ></input>
-      <button onClick={addToDB}>Add Drink</button>
+      <button onClick={addToDB}>Add {featureType}</button>
     </div>
   )
 }
@@ -462,34 +486,26 @@ function FeatureNamePicker(props) {
 
 
 
-function ShopFinder() {
+function ShopFinder(props) {
   return (
     <div>
-      <SearchBox />
-      <ShopDisplayer />
+      <SearchBox setShop={props.setShop}/>
+      <ShopDisplayer shop={props.shop}/>
     </div>
   )
 }
 
 
-function SearchBox() {
+function SearchBox(props) {
   const ref = React.useRef();
-
   const [searchBox, setSearchBox] = React.useState();
-
   React.useEffect( () => {
-    // Initialize a map by updating the state of theMap to a new map object.
     const createSearchBox = () => setSearchBox(new window.google.maps.places.Autocomplete(ref.current));
-    //Create a script element with google url as src if none is found
     if (!window.google) { // Create an html element with a script tag in the DOM
       const script = document.createElement('script');
-      // Set the script tag's src attribute to the API URL
       script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
-      // Mount the script tag at the document's head
       document.head.append(script);
-      // Listen for it to load, then do createMap when it does
       script.addEventListener('load', createSearchBox);
-      //remove the event listener (we don't need it anymore)
       console.log("made google, then made search bar")
       return () => script.removeEventListener('load', createSearchBox);
     } else { // Initialize the map if a script element with google url IS found
@@ -497,29 +513,46 @@ function SearchBox() {
       console.log("made a search bar cause there was google already")
     }
   }, [])
-  console.log("rendered searchbox comp")
 
+  // Setting the fields that the place will return
   React.useEffect( () => {
     if (searchBox) {
       searchBox.setFields(
-      ['address_components', 'place_id', 'icon', 'name']);
+      ['formatted_address', 'place_id', 'name', 'geometry']);
+        // event listener for when the user picks a shop
+      searchBox.addListener('place_changed', makePlaceShop);
     }
   }, [searchBox])
+
+  const makePlaceShop = () => {
+    const place = searchBox.getPlace();
+
+    props.setShop({
+      'shop_id': place.place_id,
+      'name': place.name,
+      'address': place.formatted_address,
+      'lat': place.geometry.location.lat(),
+      'lng': place.geometry.location.lng()
+    })
+  }
 
   return (
     <input
       ref={ref}
-      id="shop-input"
+      id="search-box"
       type="text"
       placeholder="Type in the shop name"
     ></input>
   )
 }
 
-function ShopDisplayer() {
+
+function ShopDisplayer(props) {
+   const shop = props.shop
   return (
-    <div>
-      Shop goes here
+    <div id="shop-displayer">
+      <p>{shop.name}</p>
+      <p>{shop.address}</p>
     </div>
   )
 }

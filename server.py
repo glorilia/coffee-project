@@ -4,6 +4,7 @@ from flask import (Flask, render_template, request, session, redirect, jsonify)
 from flask_debugtoolbar import DebugToolbarExtension
 from model import connect_to_db
 import crud
+from datetime import datetime
 
 # Throw errors for undefined variables in Jinja2
 from jinja2 import StrictUndefined
@@ -141,7 +142,7 @@ def add_user_feature():
     nickname = data['nickname']
     details = data['details']
     liked = data['liked']
-    shop = data['shop']
+    shop_info = data['shop']
 
     # Get the user_id from the session
     user_id = session.get("user_id")
@@ -152,9 +153,18 @@ def add_user_feature():
     feature = crud.get_feature_by_name(feature_name)
 
     # Get the shop
-    # make request to the place api 
+    # see if there's a shop in the table with the same shop.shop_id id
+    possible_shop = crud.get_shop_by_id(shop_info['shop_id'])
+    if possible_shop:
+        shop = possible_shop
+        # if there is, make shop= that shop
+    else:
+        shop_id, name, address_street, lat, lng = shop_info.values()
+        shop = crud.create_shop(shop_id=shop_id, name=name, address_street=address_street,
+                                lat=lat, lng=lng)
+        # if there isn't, create a new shop and set shop = to that new shop
 
-
+    last_updated = datetime.now()
 
     user_feature = crud.create_user_feature(
                                 user=user,
@@ -164,6 +174,17 @@ def add_user_feature():
                                 nickname=nickname,
                                 last_updated=last_updated)
 
+    print(user_feature)
+
+    if user_feature:
+        status = "success"
+        message = f"Your {feature_name} has been added"
+    else:
+        status ="Error"
+        message = "Something went wrong, please try again."
+
+    return jsonify({'status': status, 'message': message, 'need_to_rank': liked})
+
 
 @app.route('/api/get-types')
 def get_types():
@@ -171,24 +192,16 @@ def get_types():
     all_types = []
     for a_type in types:
         all_types.append({'id': a_type.type_id, 'name': a_type.name})
-    
-    print(f'****************{all_types}**************')
 
     return jsonify(all_types)
 
 @app.route('/api/get-features/<feature_type>')
 def get_features(feature_type):
     features = crud.get_all_features()
-    print(f'the features are {features}*************')
     features_of_type = []
-    print(f'feature_type fed in is {feature_type}')
     for feature in features:
-        print(f'this features type is {feature.type.name}')
         if feature.type.name == feature_type:
-            print(f'adding a feature {feature.name} of type {feature.type.name}')
             features_of_type.append({'id': feature.feature_id, 'name': feature.name})
-
-    print(f'*************{features_of_type}*************')
 
     return jsonify(features_of_type)
 
