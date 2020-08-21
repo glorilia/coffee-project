@@ -2,6 +2,27 @@ const Router = ReactRouterDOM.BrowserRouter;
 const {useHistory, useParams, Redirect, Switch, Prompt, Link, Route} = ReactRouterDOM;
 
 
+function LandingPage() {
+  // First page anyone lands on, can login or create account
+
+  // HOOKS
+  let history = useHistory()
+  // Callback for create account button click
+  const handleClick = () => {
+    history.push('/create-account')
+  }
+
+  return (
+    <div> Dranks
+      <Login />
+      <h3>OR</h3>
+      <button id="create-account" onClick={handleClick}>
+        Create a New Account
+      </button>
+    </div>
+  )
+}
+
 function CreateAccount() {
   // A form to create a new user account
 
@@ -113,219 +134,8 @@ function Login() {
 }
 
 
-function LandingPage() {
-  // First page anyone lands on, can login or create account
-
-  // HOOKS
-  let history = useHistory()
-  // Callback for create account button click
-  const handleClick = () => {
-    history.push('/create-account')
-  }
-
-  return (
-    <div> Dranks
-      <Login />
-      <h3>OR</h3>
-      <button id="create-account" onClick={handleClick}>
-        Create a New Account
-      </button>
-    </div>
-  )
-}
 
 
-function ShopFinder() {
-  return (
-    <div>
-      <SearchBox />
-      <ShopDisplayer />
-    </div>
-  )
-}
-
-
-function SearchBox() {
-  const ref = React.useRef();
-
-  const [searchBox, setSearchBox] = React.useState();
-
-  React.useEffect( () => {
-    // Initialize a map by updating the state of theMap to a new map object.
-    const createSearchBox = () => setSearchBox(new window.google.maps.places.Autocomplete(ref.current));
-    //Create a script element with google url as src if none is found
-    if (!window.google) { // Create an html element with a script tag in the DOM
-      const script = document.createElement('script');
-      // Set the script tag's src attribute to the API URL
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
-      // Mount the script tag at the document's head
-      document.head.append(script);
-      // Listen for it to load, then do createMap when it does
-      script.addEventListener('load', createSearchBox);
-      //remove the event listener (we don't need it anymore)
-      console.log("made google, then made search bar")
-      return () => script.removeEventListener('load', createSearchBox);
-    } else { // Initialize the map if a script element with google url IS found
-      createSearchBox();
-      console.log("made a search bar cause there was google already")
-    }
-  }, [])
-  console.log("rendered searchbox comp")
-
-  React.useEffect( () => {
-    if (searchBox) {
-      searchBox.setFields(
-      ['address_components', 'place_id', 'icon', 'name']);
-    }
-  }, [searchBox])
-
-  return (
-    <input
-      ref={ref}
-      id="shop-input"
-      type="text"
-      placeholder="Type in the shop name"
-    ></input>
-  )
-}
-
-function ShopDisplayer() {
-  return (
-    <div>
-      Shop goes here
-    </div>
-  )
-}
-
-
-function AddNewUserFeature(props){
-  // Form to add a new user feature to the database
-  
-  // Hooks
-  const {featureType} = useParams();
-  const [featureName, setFeatureName] = React.useState('');
-  const [nickname, setNickname] = React.useState('');
-  const [details, setDetails] = React.useState('');
-  const [liked, setLiked] = React.useState(true);
-  const [shop, setShop] = React.useState('');
-  
-  const addToDB = () => {
-    const formData = {
-      'featureName': featureName,
-      'nickname': nickname,
-      'details': details,
-      'liked': liked,
-      'shop': liked,
-    }
-    fetch('/api/add-user-feature',
-      {
-        method: 'POST',
-        body: JSON.stringify(formData),
-        credentials: 'include',
-        headers: {'Content-Type': 'application/json'}
-      })
-    .then(response => response.json())
-    .then(data => {
-      alert(data.message);
-      // if (data.status==='success') {
-        
-      // }
-      })
-  }
-
-  // React.useEffect( () => {
-  //   //send GET request to the get user information endpoint
-  //   fetch('/api/get-user-information')
-  //   .then(response => response.json())
-  //   .then(data => {
-  //     setZipcode(data.zipcode);
-  //     setDrinks(data.drink);
-  //     setShopAspects(data.shop_aspect)
-  //   })
-  // }, [])
-
-  console.log(`Creating a UF with the params ${featureType}`);
-
-  const feature1 = {name: 'latte'};
-  const feature2 = {name: 'iced latte'};
-
-  return (
-    <div>
-      <label htmlFor="shop-input">Choose a Shop</label>
-      <ShopFinder />
-      {/* <input
-        id="shop-input"
-        type="text"
-        onChange={(e) => setShop(e.target.value)}
-        value={shop}
-        ></input> */}
-      <FeatureNamePicker 
-        featureType={featureType}
-        featureName={featureName}
-        setFeatureName={setFeatureName}/>
-      <label htmlFor="nickname-input">Nickname</label>
-      <input
-        id="nickname-input"
-        type="text"
-        onChange={(e) => setNickname(e.target.value)}
-        value={nickname}
-        ></input>
-      <label htmlFor="details-input">Details</label>
-      <textarea
-        id="details-input"
-        onChange={(e) => setDetails(e.target.value)}
-        value={details}
-        ></textarea>
-      <label htmlFor="liked-input">Liked</label>
-      <input
-        id="liked-input"
-        type="radio"
-        value="liked"
-        onChange={(e) => setLiked(e.target.checked)}
-        checked={liked}
-        ></input>
-      <label htmlFor="disliked-input">Disliked</label>
-      <input
-        id="disliked-input"
-        type="radio"
-        value="not-liked"
-        onChange={(e) => setLiked(!e.target.checked)}
-        checked={!liked}
-        ></input>
-      <button onClick={addToDB}>Add Drink</button>
-    </div>
-  )
-}
-
-function FeatureNamePicker(props) {
-  const [features, setFeatures] = React.useState();
-  React.useEffect(() => {
-    fetch(`/api/get-features/${props.featureType}`)
-    .then(response => response.json())
-    .then(data => {
-      const all_features = []
-      for (const feature of data) {
-        all_features.push(<option key={feature.id} id={feature.name} 
-                          value={feature.name}>{feature.name}</option>)
-      }
-      setFeatures(all_features)
-    })
-  }, [])
-
-  return (
-    <React.Fragment>
-      <label htmlFor="feature-name-input">{props.featureType} Name</label>
-      <select 
-        id="feature-name-input"
-        onChange={(e) => props.setFeatureName(e.target.value)}
-        value={props.featureName}
-        >
-        <option key='def' value=''>Which {props.featureType} is it?</option>
-        {features}
-      </select>
-    </React.Fragment>
-  )
-}
 
 
 const HOMEPAGE_VIEWS = {
@@ -520,6 +330,203 @@ function SelectorAddButton() {
     </select>
   )
 }
+
+
+
+
+function AddNewUserFeature(){
+  // Form to add a new user feature to the database
+  
+  // Hooks
+  const {featureType} = useParams();
+  const [featureName, setFeatureName] = React.useState('');
+  const [nickname, setNickname] = React.useState('');
+  const [details, setDetails] = React.useState('');
+  const [liked, setLiked] = React.useState(true);
+  const [shop, setShop] = React.useState('');
+  
+  const addToDB = () => {
+    const formData = {
+      'featureName': featureName,
+      'nickname': nickname,
+      'details': details,
+      'liked': liked,
+      'shop': liked,
+    }
+    fetch('/api/add-user-feature',
+      {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        credentials: 'include',
+        headers: {'Content-Type': 'application/json'}
+      })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);
+      // if (data.status==='success') {
+        
+      // }
+      })
+  }
+
+  // React.useEffect( () => {
+  //   //send GET request to the get user information endpoint
+  //   fetch('/api/get-user-information')
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     setZipcode(data.zipcode);
+  //     setDrinks(data.drink);
+  //     setShopAspects(data.shop_aspect)
+  //   })
+  // }, [])
+
+  console.log(`Creating a UF with the params ${featureType}`);
+
+  return (
+    <div>
+      <label htmlFor="shop-input">Choose a Shop</label>
+      <ShopFinder />
+      {/* <input
+        id="shop-input"
+        type="text"
+        onChange={(e) => setShop(e.target.value)}
+        value={shop}
+        ></input> */}
+      <FeatureNamePicker 
+        featureType={featureType}
+        featureName={featureName}
+        setFeatureName={setFeatureName}/>
+      <label htmlFor="nickname-input">Nickname</label>
+      <input
+        id="nickname-input"
+        type="text"
+        onChange={(e) => setNickname(e.target.value)}
+        value={nickname}
+        ></input>
+      <label htmlFor="details-input">Details</label>
+      <textarea
+        id="details-input"
+        onChange={(e) => setDetails(e.target.value)}
+        value={details}
+        ></textarea>
+      <label htmlFor="liked-input">Liked</label>
+      <input
+        id="liked-input"
+        type="radio"
+        value="liked"
+        onChange={(e) => setLiked(e.target.checked)}
+        checked={liked}
+        ></input>
+      <label htmlFor="disliked-input">Disliked</label>
+      <input
+        id="disliked-input"
+        type="radio"
+        value="not-liked"
+        onChange={(e) => setLiked(!e.target.checked)}
+        checked={!liked}
+        ></input>
+      <button onClick={addToDB}>Add Drink</button>
+    </div>
+  )
+}
+
+function FeatureNamePicker(props) {
+  const [features, setFeatures] = React.useState();
+  React.useEffect(() => {
+    fetch(`/api/get-features/${props.featureType}`)
+    .then(response => response.json())
+    .then(data => {
+      const all_features = []
+      for (const feature of data) {
+        all_features.push(<option key={feature.id} id={feature.name} 
+                          value={feature.name}>{feature.name}</option>)
+      }
+      setFeatures(all_features)
+    })
+  }, [])
+
+  return (
+    <React.Fragment>
+      <label htmlFor="feature-name-input">{props.featureType} Name</label>
+      <select 
+        id="feature-name-input"
+        onChange={(e) => props.setFeatureName(e.target.value)}
+        value={props.featureName}
+        >
+        <option key='def' value=''>Which {props.featureType} is it?</option>
+        {features}
+      </select>
+    </React.Fragment>
+  )
+}
+
+
+
+function ShopFinder() {
+  return (
+    <div>
+      <SearchBox />
+      <ShopDisplayer />
+    </div>
+  )
+}
+
+
+function SearchBox() {
+  const ref = React.useRef();
+
+  const [searchBox, setSearchBox] = React.useState();
+
+  React.useEffect( () => {
+    // Initialize a map by updating the state of theMap to a new map object.
+    const createSearchBox = () => setSearchBox(new window.google.maps.places.Autocomplete(ref.current));
+    //Create a script element with google url as src if none is found
+    if (!window.google) { // Create an html element with a script tag in the DOM
+      const script = document.createElement('script');
+      // Set the script tag's src attribute to the API URL
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
+      // Mount the script tag at the document's head
+      document.head.append(script);
+      // Listen for it to load, then do createMap when it does
+      script.addEventListener('load', createSearchBox);
+      //remove the event listener (we don't need it anymore)
+      console.log("made google, then made search bar")
+      return () => script.removeEventListener('load', createSearchBox);
+    } else { // Initialize the map if a script element with google url IS found
+      createSearchBox();
+      console.log("made a search bar cause there was google already")
+    }
+  }, [])
+  console.log("rendered searchbox comp")
+
+  React.useEffect( () => {
+    if (searchBox) {
+      searchBox.setFields(
+      ['address_components', 'place_id', 'icon', 'name']);
+    }
+  }, [searchBox])
+
+  return (
+    <input
+      ref={ref}
+      id="shop-input"
+      type="text"
+      placeholder="Type in the shop name"
+    ></input>
+  )
+}
+
+function ShopDisplayer() {
+  return (
+    <div>
+      Shop goes here
+    </div>
+  )
+}
+
+
+
+
 
 
 
