@@ -253,46 +253,34 @@ function ListContainer(props) {
   React.useEffect( () => {
     if(props.dataToDisplay) {
 
+      let orgBy = 'feature';
+      let toAdd = 'shop'
       const organizedData = {};
       if (props.view === 'shops') {
-        console.log('it is shops view')
-      } else{
-        for (const userFeature of props.dataToDisplay) {
-          //check to see if the userFeature.feature is in organizedData obj
-          if (userFeature.feature in organizedData){
-            // if it's in the object, add the userFeature.shop to the value
-            organizedData[userFeature.feature].push(userFeature.shop)
-  
-          } else{
-            organizedData[userFeature.feature] = [userFeature.shop]
-  
-          }
-        }
-      }
-    
-      if (organizedData) {
-        for (const key in organizedData) {
-          console.log(key, organizedData[key])
-        }
-      }
+        orgBy = 'shop';
+        toAdd = 'feature'
+      } 
       
-
-
-
       for (const userFeature of props.dataToDisplay) {
-        // Add a ListItem the information from the userFeature to the all_data list
+        //check to see if the userFeature.feature is in organizedData obj
+        if (userFeature[orgBy] in organizedData){
+          // if it's in the object, add the userFeature.toAdd to its value list
+          organizedData[userFeature[orgBy]].push(userFeature[toAdd])
+        } else{
+          organizedData[userFeature[orgBy]] = [userFeature[toAdd]]
+        }
+      }
+
+      for (const dataKey in organizedData) {
+        // Add a ListItem the information from organizedData
         dataList.push(
           <ListItem
-            key={userFeature.user_feature_id}
-            feature={userFeature.feature}
-            shop={userFeature.shop}
-            nickname={userFeature.nickname}
-            details={userFeature.details}
-            ranking={userFeature.ranking}
-            last_updated={userFeature.last_updated}
+            title={dataKey}
+            bodyList={organizedData[dataKey]}
             />
         );
       }
+
       setAllData(dataList)
     }
   },[props.dataToDisplay])
@@ -313,28 +301,25 @@ function ListContainer(props) {
 function ListItem(props) {
   return (
     <li>
-      <ItemTitle />
-      <ItemBodyList />
-      <p>{props.feature}</p>
-      <p>{props.shop}</p>
-      <p>{props.nickname}</p>
-      <p>{props.details}</p>
-      <p>{props.ranking}</p>
-      <p>{props.last_updated}</p>
+      <p>{props.title}</p>
+      <ItemBodyList bodyList={props.bodyList}/>
     </li>
   )
 }
 
-function ItemTitle(props) {
-  return <p>title</p>
-}
 
 function ItemBodyList(props) {
-  return <ul><BodyListElement /></ul>
+  const allBodyListElements = []
+  for (const bodyListElement of props.bodyList) {
+    allBodyListElements.push(<BodyListElement 
+                              bodyListElement={bodyListElement}/>)
+  }
+
+  return <ul>{allBodyListElements}</ul>
 }
 
 function BodyListElement(props) {
-  return <li>element</li>
+  return <li>{props.bodyListElement}</li>
 }
 
 
