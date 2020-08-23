@@ -105,6 +105,9 @@ def create_user_feature(user, feature, shop, details, last_updated,
 def get_all_ufs_for_user(user):
     return db.session.query(UserFeature).options(db.joinedload('feature','type'), db.joinedload('shop')).filter_by(user=user).all()
 
+def get_specific_feature_ufs_for_user(user, feature):
+    return db.session.query(UserFeature).options(db.joinedload('feature'), db.joinedload('shop')).filter_by(user=user,feature=feature).all()
+
 
 def get_user_feature_by_id(id_num):
     return db.session.query(UserFeature).get(id_num)

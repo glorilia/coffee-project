@@ -251,6 +251,7 @@ function InfoContainer(props) {
 function ListContainer(props) {
   // state of the data to be sent to the list
   const [showModal, setShowModal] = React.useState(false);
+  const [modalContent, setModalContent] = React.useState();
   const [allData, setAllData] = React.useState([]);
   const dataList = [];
   React.useEffect(() => {
@@ -290,6 +291,7 @@ function ListContainer(props) {
         dataList.push(
           <ListItem
             setShowModal={setShowModal}
+            setModalContent = {setModalContent}
             title={dataKey}
             bodyList={organizedData[dataKey]}
           />
@@ -307,7 +309,9 @@ function ListContainer(props) {
       <ul>
         {allData}
       </ul>
-      <Modal showModal={showModal} setShowModal={setShowModal}>Inside the Modal</Modal>
+      <Modal showModal={showModal} setShowModal={setShowModal}>
+        <RankedListContainer modalContent={modalContent}/>
+      </Modal>
     </div>
   )
 }
@@ -316,7 +320,10 @@ function ListContainer(props) {
 function ListItem(props) {
   return (
     <li 
-      onClick={ () => props.setShowModal(true) }
+      onClick={ (e) => {
+        props.setShowModal(true) 
+        props.setModalContent(e.target.innerText)
+        }}
       >
       <p>{props.title}</p>
       <ItemBodyList bodyList={props.bodyList} />
@@ -357,7 +364,82 @@ function Modal(props) {
     console.log(`In modal: do I want to show the modal? ${props.showModal}`)
   
   return props.showModal ? modalContent : null;
+}
+
+
+function RankedListContainer(props) {
+  const [rankings, setRankings] = React.useState();
+  // const [likedItems, setLikedItems] = React.useState();
+  // const [dislikedItems, setDislikedItems] = React.useState();
+  React.useEffect( () => {
+    if (props.modalContent) {
+      fetch(`api/rankings/${props.modalContent}`)
+      .then(response => response.json())
+      .then(data => {
+        // filter data by having a 0 ranking
+        let unrankedItems = data
+          .filter(arrayElement =>
+            //only keeps stuff that has a zero rank
+            arrayElement.ranking == 0
+          )
   
+        let rankedItems = data 
+          .filter(arrayElement => 
+            arrayElement.ranking != 0
+          )
+          .sort((a,b) => {
+            return a.ranking - b.ranking
+          })
+        
+        setRankings(rankedItems.concat(unrankedItems));
+  
+      })
+    }
+  }, [props.modalContent])
+
+  console.log(`ranked items are ${rankings}`)
+  // console.log(`liked items are ${likedItems}`)
+
+  const itemsToDisplay = []
+  if (rankings) {
+    for (const item of rankings) {
+      itemsToDisplay.push(
+        <RankedListItem 
+          key ={item.user_feature_id}
+          shop={item.shop}
+          nickname={item.nickname}
+          details={item.details}
+          lastUpdated={item.last_updated}
+          ranking={item.ranking}
+        />
+      )
+    }
+  }
+
+  return (
+    <div>
+      <h2>Top {props.modalContent}</h2>
+      <ul>{itemsToDisplay}</ul>
+    </div>
+  )
+}
+
+
+function RankedListItem(props) {
+  let nickname 
+  if (props.nickname) {
+    nickname = ` (${props.nickname})`
+  }
+  return(
+    <li>
+      {props.ranking}.
+      <br></br>
+      {props.shop}{nickname},  {props.details},  
+      Last Updated: {props.lastUpdated}
+    </li>
+  )
+}
+
 
 //   const modalContent =  showModal && (
 //     <div className="overlay">
@@ -375,7 +457,7 @@ function Modal(props) {
 //   )
 
 // return (modalContent)
-}
+
 
 
 

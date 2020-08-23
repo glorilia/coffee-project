@@ -205,8 +205,30 @@ def get_features(feature_type):
 
     return jsonify(features_of_type)
 
+@app.route('/api/rankings/<modal_content>')
+def get_content_for_modal(modal_content):
+    feature_name = modal_content
+    feature = crud.get_feature_by_name(feature_name)
+    user_id = session.get("user_id")
+    user = crud.get_user_by_id(user_id)
 
+    user_features = crud.get_specific_feature_ufs_for_user(user=user, feature=feature)
 
+    uf_data = []
+    for uf in user_features:
+        uf_data.append(
+            {
+            'user_feature_id': uf.user_feature_id,
+            'feature': uf.feature.name,
+            'shop': uf.shop.name,
+            'nickname': uf.nickname,
+            'details': uf.details,
+            'ranking': uf.ranking,
+            'last_updated': uf.last_updated
+            }
+        )
+
+    return jsonify(uf_data)
 
 
 
