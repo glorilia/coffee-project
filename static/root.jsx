@@ -1,5 +1,5 @@
 const Router = ReactRouterDOM.BrowserRouter;
-const {useHistory, useParams, Redirect, Switch, Prompt, Link, Route} = ReactRouterDOM;
+const { useHistory, useParams, Redirect, Switch, Prompt, Link, Route } = ReactRouterDOM;
 
 
 function LandingPage() {
@@ -34,45 +34,47 @@ function CreateAccount() {
   const [homeZipcode, setHomeZipcode] = React.useState('')
 
   // Callback for create account event
-  const logIn = (event) => { 
+  const logIn = (event) => {
     event.preventDefault();
-    const formData = {'email': email, 
-                      'password': password,
-                      'homeZipcode': homeZipcode};
-    fetch('/api/create-account', 
+    const formData = {
+      'email': email,
+      'password': password,
+      'homeZipcode': homeZipcode
+    };
+    fetch('/api/create-account',
       {
         method: 'POST',
         body: JSON.stringify(formData),
         credentials: 'include',
-        headers: {'Content-Type' : 'application/json'}
+        headers: { 'Content-Type': 'application/json' }
       })
-    .then(response => response.json())
-    .then(data => {
-      alert(data.message)
-      history.push('/')
-    })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message)
+        history.push('/')
+      })
   };
 
   return (
     <div>
       <label htmlFor="create-email-input">Email:</label>
-      <input 
-        id="create-email-input" 
+      <input
+        id="create-email-input"
         type="text"
         onChange={(e) => setEmail(e.target.value)}
         value={email}
       ></input>
       <label htmlFor="create-password-input">Password:</label>
-      <input 
-        id="create-password-input" 
+      <input
+        id="create-password-input"
         type="password"
         onChange={(e) => setPassword(e.target.value)}
         value={password}
       ></input>
       <label htmlFor="create-home-zipcode-input">Home Zipcode:</label>
       (we'll find coffee near you)
-      <input 
-        id="home-create-home-zipcode-input" 
+      <input
+        id="home-create-home-zipcode-input"
         type="text"
         onChange={(e) => setHomeZipcode(e.target.value)}
         value={homeZipcode}
@@ -83,7 +85,7 @@ function CreateAccount() {
 }
 
 
-function Login() { 
+function Login() {
   // a form to gather login info from a user
 
   // HOOKS
@@ -93,37 +95,37 @@ function Login() {
   const [password, setPassword] = React.useState('')
 
   // Callback for login event
-  const logIn = (event) => { 
+  const logIn = (event) => {
     event.preventDefault();
-    const formData = {'email': email, 'password': password};
-    fetch('/api/login', 
+    const formData = { 'email': email, 'password': password };
+    fetch('/api/login',
       {
         method: 'POST',
         body: JSON.stringify(formData),
         credentials: 'include',
-        headers: {'Content-Type' : 'application/json'}
+        headers: { 'Content-Type': 'application/json' }
       })
-    .then(response => response.json())
-    .then(data => {
-      alert(data.message)
-      if (data.status == 'success') {
-        history.push('/homepage')
-      }
-    })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message)
+        if (data.status == 'success') {
+          history.push('/homepage')
+        }
+      })
   };
-  
+
   return (
     <form>
       <label htmlFor="email-input">Email:</label>
-      <input 
-        id="email-input" 
+      <input
+        id="email-input"
         type="text"
         onChange={(e) => setEmail(e.target.value)}
         value={email}
       ></input>
       <label htmlFor="password-input">Password:</label>
       <input
-        id="password-input" 
+        id="password-input"
         type="password"
         onChange={(e) => setPassword(e.target.value)}
         value={password}
@@ -154,15 +156,16 @@ function Homepage() {
   return (
     <div id="homepage">
       <ButtonBar setView={setView} />
-      <MapContainer view={view} />
+      {/* <MapContainer view={view} /> */}
       <InfoContainer view={view} />
       <SelectorAddButton view={view} />
     </div>
   )
 }
-  // ButtonBar
-function ButtonBar(props) {
 
+// ButtonBar
+function ButtonBar(props) {
+  // Callback for a button's click event
   const changeView = (event) => {
     const newView = event.target.textContent; // want to get the inner contents of the event.target
     props.setView(HOMEPAGE_VIEWS[newView]);  // setview to that view according to the HOMEPAGE_VIEWS obj
@@ -173,30 +176,31 @@ function ButtonBar(props) {
       <button onClick={changeView} >Top Shops</button>
       <button onClick={changeView} >Top Drinks</button>
       <button onClick={changeView} >Top Shop Aspects</button>
-    </div>    
-  )
-}
-
-  // MapContainer
-function MapContainer(props) {
-  return (
-    <div id="map-container">
-      <LocationSetter />
-      <MapComponent options= { {center: { lat: 37.601773, lng: -122.202870}, zoom: 11} } />
     </div>
   )
 }
 
-    // LocationSetter
+// MapContainer
+function MapContainer(props) {
+  return (
+    <div id="map-container">
+      <LocationSetter />
+      <MapComponent options={{ center: { lat: 37.601773, lng: -122.202870 }, zoom: 11 }} />
+    </div>
+  )
+}
+
+// LocationSetter
 function LocationSetter(props) {
   return <input id="location-setter" type="text"></input>
 }
-    // Map Component
+
+// Map Component
 function MapComponent(props) {
   const options = props.options;
   const ref = React.useRef();
   const [theMap, setTheMap] = React.useState();
-  React.useEffect( () => {
+  React.useEffect(() => {
     const createMap = () => setTheMap(new window.google.maps.Map(ref.current, options));
     if (!window.google) { // Create an html element with a script tag in the DOM
       const script = document.createElement('script');
@@ -211,62 +215,72 @@ function MapComponent(props) {
 
   return (
     <div id="map-div"
-      style = {{ height: `60vh`, margin: `1em 0`, borderRadius: `0.5em`, width: '50%' }}
-      ref = {ref}
+      style={{ height: `60vh`, margin: `1em 0`, borderRadius: `0.5em`, width: '50%' }}
+      ref={ref}
     ></div>
   )
 }
 
-  // InfoContainer
+// InfoContainer
 function InfoContainer(props) {
   //get the user's user features' information (all of it at the same time)
   const [userFeatureData, setUserFeatureData] = React.useState({});
-  React.useEffect( () => {
+  React.useEffect(() => {
     //send GET request to the get user information endpoint
     fetch('/api/get-user-information')
-    .then(response => response.json())
-    .then(data => {
-      setUserFeatureData({drinks: data.drink, 
-                        shopAspects: data.shop_aspect,
-                        shops: data.drink.concat(data.shop_aspect)})
-    })
+      .then(response => response.json())
+      .then(data => {
+        setUserFeatureData({
+          drinks: data.drink,
+          shopAspects: data.shop_aspect,
+          shops: data.drink.concat(data.shop_aspect)
+        })
+      })
   }, [])
-
-  // const view = props.view;
-  // console.log(`rendered drinks to be ${userFeatureData.drinks}`);
-  // console.log(`rendered shopAspects to be ${userFeatureData.shopAspects}`);
-  // console.log(`for this view, ${props.view}, we must show ${userFeatureData[props.view]}`)
-
 
   return (
     <div id="info-container">
       <ListContainer view={props.view} dataToDisplay={userFeatureData[props.view]} />
-      <ViewAllButton />
+      {/* <ViewAllButton /> */}
+
     </div>
   )
 }
-    // ListContainer
-function ListContainer(props) {
-  // console.log(`the data to display is ${props.dataToDisplay}`)
-  const [allData, setAllData] = React.useState([]);
-  const dataList = []
-  React.useEffect( () => {
-    if(props.dataToDisplay) {
 
+// ListContainer
+function ListContainer(props) {
+  // state of the data to be sent to the list
+  const [showModal, setShowModal] = React.useState(false);
+  const [allData, setAllData] = React.useState([]);
+  const dataList = [];
+  React.useEffect(() => {
+    if (props.dataToDisplay) {
+      // 1. Depending on view, set what to organize the data by & what to add to its list
       let orgBy = 'feature';
       let toAdd = 'shop'
-      const organizedData = {};
       if (props.view === 'shops') {
         orgBy = 'shop';
         toAdd = 'feature'
-      } 
+      }
+
+      // 2. Make new array that has no zero ranked uf's and is sorted in asc order 
+      let rankedData = props.dataToDisplay
+        .filter(arrayElement =>
+          //only keeps stuff that meets its condition
+          arrayElement.ranking != 0
+        )
+        .sort((a, b) => {
+          return a.ranking - b.ranking
+        })
       
-      for (const userFeature of props.dataToDisplay) {
+      // 3. Organize data by orgBy and make value a list of toAdd's
+      const organizedData = {};
+      for (const userFeature of rankedData) {
         //check to see if the userFeature.feature is in organizedData obj
-        if (userFeature[orgBy] in organizedData){
+        if (userFeature[orgBy] in organizedData) {
           // if it's in the object, add the userFeature.toAdd to its value list
           organizedData[userFeature[orgBy]].push(userFeature[toAdd])
-        } else{
+        } else {
           organizedData[userFeature[orgBy]] = [userFeature[toAdd]]
         }
       }
@@ -275,34 +289,37 @@ function ListContainer(props) {
         // Add a ListItem the information from organizedData
         dataList.push(
           <ListItem
+            setShowModal={setShowModal}
             title={dataKey}
             bodyList={organizedData[dataKey]}
-            />
+          />
         );
       }
-
       setAllData(dataList)
     }
-  },[props.dataToDisplay])
+  }, [props.dataToDisplay])
 
-  // console.log(`allData is now ${allData}`)
+  console.log(`In ListContainer: do I want to show the modal? ${showModal}`)
 
   return (
     <div id="list-container">
-      <h1>Title Goes Here</h1>
+      <h1>Top {props.view}</h1>
       <ul>
         {allData}
       </ul>
+      <Modal showModal={showModal} setShowModal={setShowModal}>Inside the Modal</Modal>
     </div>
   )
 }
 
-      // ListItem
+// ListItem
 function ListItem(props) {
   return (
-    <li>
+    <li 
+      onClick={ () => props.setShowModal(true) }
+      >
       <p>{props.title}</p>
-      <ItemBodyList bodyList={props.bodyList}/>
+      <ItemBodyList bodyList={props.bodyList} />
     </li>
   )
 }
@@ -310,9 +327,9 @@ function ListItem(props) {
 
 function ItemBodyList(props) {
   const allBodyListElements = []
-  for (const bodyListElement of props.bodyList) {
-    allBodyListElements.push(<BodyListElement 
-                              bodyListElement={bodyListElement}/>)
+  for (const bodyListElement of props.bodyList.slice(0, 3)) {
+    allBodyListElements.push(<BodyListElement
+      bodyListElement={bodyListElement} />)
   }
 
   return <ul>{allBodyListElements}</ul>
@@ -322,28 +339,72 @@ function BodyListElement(props) {
   return <li>{props.bodyListElement}</li>
 }
 
+function Modal(props) {
+  const modalContent =  (
+      <div className="overlay">
+        <div className="modal">
+          <div className="modal-body">{props.children}</div>
+          <button
+            // className="modal-close"
+            type="button"
+            onClick= {() => props.setShowModal(false)}
+          >
+            X
+          </button>
+        </div>
+     </div>
+    )
+    console.log(`In modal: do I want to show the modal? ${props.showModal}`)
+  
+  return props.showModal ? modalContent : null;
+  
 
-    // ViewAllButton
+//   const modalContent =  showModal && (
+//     <div className="overlay">
+//       <div className="modal">
+//         <div className="modal-body">{children}</div>
+//         <button
+//           // className="modal-close"
+//           type="button"
+//           onClick= {() => setShowModal(false)}
+//         >
+//           X
+//         </button>
+//       </div>
+//    </div>
+//   )
+
+// return (modalContent)
+}
+
+
+
+
+
+
+
+
+// ViewAllButton
 function ViewAllButton() {
   return (
     <button id="view-all-button">View All</button>
   )
 }
-  // SelectorAddButton
+// SelectorAddButton
 function SelectorAddButton() {
   let history = useHistory()
   const [types, setTypes] = React.useState();
   React.useEffect(() => {
     fetch('/api/get-types')
-    .then(response => response.json())
-    .then(data => {
-      const typesList = [];
-      for (const a_type of data) {
-        typesList.push(<option 
-                        key={a_type.id} id={a_type.name} value={a_type.name}>{a_type.name}</option>);
-      }
-      setTypes(typesList);
-    })
+      .then(response => response.json())
+      .then(data => {
+        const typesList = [];
+        for (const a_type of data) {
+          typesList.push(<option
+            key={a_type.id} id={a_type.name} value={a_type.name}>{a_type.name}</option>);
+        }
+        setTypes(typesList);
+      })
   }, []);
 
   const goToCreate = (event) => {
@@ -362,11 +423,11 @@ function SelectorAddButton() {
 
 
 
-function AddNewUserFeature(){
+function AddNewUserFeature() {
   // Form to add a new user feature to the database
-  
+
   // Hooks
-  const {featureType} = useParams();
+  const { featureType } = useParams();
   const [featureName, setFeatureName] = React.useState('');
   const [nickname, setNickname] = React.useState('');
   const [details, setDetails] = React.useState('');
@@ -379,8 +440,7 @@ function AddNewUserFeature(){
       'nickname': nickname,
       'details': details,
       'liked': liked,
-      // 'shop': shop,
-      'shop': {shop_id: "ChIJNZnr24BBmYARjw4hFALEFgc", name: "Coffee N' Comics", address: "940 W Moana Ln, Reno, NV 89509, USA", lat: 39.4908072, lng: -119.8064269}
+      'shop': shop
     }
 
     fetch('/api/add-user-feature',
@@ -388,11 +448,11 @@ function AddNewUserFeature(){
         method: 'POST',
         body: JSON.stringify(formData),
         credentials: 'include',
-        headers: {'Content-Type': 'application/json'}
+        headers: { 'Content-Type': 'application/json' }
       })
-    .then(response => response.json())
-    .then(data => {
-      alert(data.message);
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
 
       })
   }
@@ -401,23 +461,23 @@ function AddNewUserFeature(){
     <div>
       <label htmlFor="shop-input">Choose a Shop</label>
       <ShopFinder shop={shop} setShop={setShop} />
-      <FeatureNamePicker 
+      <FeatureNamePicker
         featureType={featureType}
         featureName={featureName}
-        setFeatureName={setFeatureName}/>
+        setFeatureName={setFeatureName} />
       <label htmlFor="nickname-input">Nickname</label>
       <input
         id="nickname-input"
         type="text"
         onChange={(e) => setNickname(e.target.value)}
         value={nickname}
-        ></input>
+      ></input>
       <label htmlFor="details-input">Details</label>
       <textarea
         id="details-input"
         onChange={(e) => setDetails(e.target.value)}
         value={details}
-        ></textarea>
+      ></textarea>
       <label htmlFor="liked-input">Liked</label>
       <input
         id="liked-input"
@@ -425,7 +485,7 @@ function AddNewUserFeature(){
         value="liked"
         onChange={(e) => setLiked(e.target.checked)}
         checked={liked}
-        ></input>
+      ></input>
       <label htmlFor="disliked-input">Disliked</label>
       <input
         id="disliked-input"
@@ -433,7 +493,7 @@ function AddNewUserFeature(){
         value="not-liked"
         onChange={(e) => setLiked(!e.target.checked)}
         checked={!liked}
-        ></input>
+      ></input>
       <button onClick={addToDB}>Add {featureType}</button>
     </div>
   )
@@ -443,25 +503,25 @@ function FeatureNamePicker(props) {
   const [features, setFeatures] = React.useState();
   React.useEffect(() => {
     fetch(`/api/get-features/${props.featureType}`)
-    .then(response => response.json())
-    .then(data => {
-      const all_features = []
-      for (const feature of data) {
-        all_features.push(<option key={feature.id} id={feature.name} 
-                          value={feature.name}>{feature.name}</option>)
-      }
-      setFeatures(all_features)
-    })
+      .then(response => response.json())
+      .then(data => {
+        const all_features = []
+        for (const feature of data) {
+          all_features.push(<option key={feature.id} id={feature.name}
+            value={feature.name}>{feature.name}</option>)
+        }
+        setFeatures(all_features)
+      })
   }, [])
 
   return (
     <React.Fragment>
       <label htmlFor="feature-name-input">{props.featureType} Name</label>
-      <select 
+      <select
         id="feature-name-input"
         onChange={(e) => props.setFeatureName(e.target.value)}
         value={props.featureName}
-        >
+      >
         <option key='def' value=''>Which {props.featureType} is it?</option>
         {features}
       </select>
@@ -474,8 +534,8 @@ function FeatureNamePicker(props) {
 function ShopFinder(props) {
   return (
     <div>
-      <SearchBox setShop={props.setShop}/>
-      <ShopDisplayer shop={props.shop}/>
+      <SearchBox setShop={props.setShop} />
+      <ShopDisplayer shop={props.shop} />
     </div>
   )
 }
@@ -484,7 +544,7 @@ function ShopFinder(props) {
 function SearchBox(props) {
   const ref = React.useRef();
   const [searchBox, setSearchBox] = React.useState();
-  React.useEffect( () => {
+  React.useEffect(() => {
     const createSearchBox = () => setSearchBox(new window.google.maps.places.Autocomplete(ref.current));
     if (!window.google) { // Create an html element with a script tag in the DOM
       const script = document.createElement('script');
@@ -500,11 +560,11 @@ function SearchBox(props) {
   }, [])
 
   // Setting the fields that the place will return
-  React.useEffect( () => {
+  React.useEffect(() => {
     if (searchBox) {
       searchBox.setFields(
-      ['formatted_address', 'place_id', 'name', 'geometry']);
-        // event listener for when the user picks a shop
+        ['formatted_address', 'place_id', 'name', 'geometry']);
+      // event listener for when the user picks a shop
       searchBox.addListener('place_changed', makePlaceShop);
     }
   }, [searchBox])
@@ -533,7 +593,7 @@ function SearchBox(props) {
 
 
 function ShopDisplayer(props) {
-   const shop = props.shop
+  const shop = props.shop
   return (
     <div id="shop-displayer">
       <p>{shop.name}</p>
@@ -555,26 +615,26 @@ function About() {
 }
 
 
-function Logout(props) { 
+function Logout(props) {
   // Logs you out
 
   // Hooks
   let history = useHistory()
-  React.useEffect( () => {
-    fetch('/api/logout', 
+  React.useEffect(() => {
+    fetch('/api/logout',
       {
         method: 'POST',
         credentials: 'include',
-        headers: {'Content-Type' : 'application/json'}
+        headers: { 'Content-Type': 'application/json' }
       })
-    .then(response => response.json())
-    .then(data => {
-      alert(data.message)
-      history.push('/')
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message)
+        history.push('/')
       }
-    )
+      )
   })
-  
+
   return <div>Bye for now!</div>
 }
 
@@ -582,60 +642,60 @@ function Logout(props) {
 // Main component that everything is rendered from
 function App() {
   return (
-      // Creating Navigation
-      <Router>
-        <div>
-          <nav>
-            <ul>
-              <li>
-                  <Link to="/"> Landing Page </Link>
-              </li>
-              <li>
-                  <Link to="/about"> About </Link>
-              </li>
-              <li>
-                  <Link to="/homepage"> Homepage </Link>
-              </li>
-              <li>
-                  <Link to="/add-new-drink"> Add New Drink </Link>
-              </li>
-              <li>
-                  <Link to="/login"> Login </Link>
-              </li>
-              <li>
-                  <Link to="/logout"> Log Out</Link>
-              </li>
-              <li>
-                  <Link to="/create-account"> Create Account </Link>
-              </li>
-            </ul>
-          </nav>
-          <Switch>
-            <Route path="/homepage">
-              <Homepage />
-            </Route>
-            <Route path="/create-account">
-              <CreateAccount />
-            </Route>    
-            <Route path="/add-new/:featureType">
-              <AddNewUserFeature />
-            </Route>   
-            <Route path="/about">
-              <About />
-            </Route>
-            <Route path="/logout">
-              <Logout />
-            </Route>
-            <Route path="/login">
-              <Login />
-            </Route>
-            <Route path="/">
-              <LandingPage />
-            </Route>           
-          </Switch>
-        </div>
-      </Router>
-    );
+    // Creating Navigation
+    <Router>
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/"> Landing Page </Link>
+            </li>
+            <li>
+              <Link to="/about"> About </Link>
+            </li>
+            <li>
+              <Link to="/homepage"> Homepage </Link>
+            </li>
+            <li>
+              <Link to="/add-new-drink"> Add New Drink </Link>
+            </li>
+            <li>
+              <Link to="/login"> Login </Link>
+            </li>
+            <li>
+              <Link to="/logout"> Log Out</Link>
+            </li>
+            <li>
+              <Link to="/create-account"> Create Account </Link>
+            </li>
+          </ul>
+        </nav>
+        <Switch>
+          <Route path="/homepage">
+            <Homepage />
+          </Route>
+          <Route path="/create-account">
+            <CreateAccount />
+          </Route>
+          <Route path="/add-new/:featureType">
+            <AddNewUserFeature />
+          </Route>
+          <Route path="/about">
+            <About />
+          </Route>
+          <Route path="/logout">
+            <Logout />
+          </Route>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/">
+            <LandingPage />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
+  );
 
 }
 
@@ -729,8 +789,8 @@ function ListOfShops(props) {
       ufsHtmlList.push(<li>{uf.feature}</li>)
     }
     all_shops.push(
-      <ShopWithUserFeatures 
-        key = {featuredShops[shop][0].user_feature_id}
+      <ShopWithUserFeatures
+        key={featuredShops[shop][0].user_feature_id}
         shopName={shop}
         ufsHtmlList={ufsHtmlList}
       /> // Need a key for the above list items
