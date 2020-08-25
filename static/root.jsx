@@ -1,11 +1,10 @@
 const Router = ReactRouterDOM.BrowserRouter;
 const { useHistory, useParams, Redirect, Switch, Prompt, Link, Route } = ReactRouterDOM;
+// const {range, inRange} = lodash;
 
 
-function LandingPage() {
-  // First page anyone lands on, can login or create account
+function LandingPage() { // First page anyone lands on, can login or create account
 
-  // HOOKS
   let history = useHistory()
   // Callback for create account button click
   const handleClick = () => {
@@ -23,12 +22,11 @@ function LandingPage() {
   )
 }
 
+
 function CreateAccount() {
   // A form to create a new user account
 
-  // HOOKS
   let history = useHistory()
-  // States for values of input fields
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [homeZipcode, setHomeZipcode] = React.useState('')
@@ -88,9 +86,7 @@ function CreateAccount() {
 function Login() {
   // a form to gather login info from a user
 
-  // HOOKS
   let history = useHistory()
-  // State hooks for the input fields
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
 
@@ -138,8 +134,6 @@ function Login() {
 
 
 
-
-
 const HOMEPAGE_VIEWS = {
   'Top Shops': 'shops',
   'Top Drinks': 'drinks',
@@ -148,10 +142,7 @@ const HOMEPAGE_VIEWS = {
 
 // Homepage
 function Homepage() {
-  // *state of the view
   const [view, setView] = React.useState('shops');
-
-  console.log(`now rendering the ${view} view`)
 
   return (
     <div id="homepage">
@@ -222,11 +213,9 @@ function MapComponent(props) {
 }
 
 // InfoContainer
-function InfoContainer(props) {
-  //get the user's user features' information (all of it at the same time)
+function InfoContainer(props) { //get the user's user features' information (all of it at the same time)
   const [userFeatureData, setUserFeatureData] = React.useState({});
   React.useEffect(() => {
-    //send GET request to the get user information endpoint
     fetch('/api/get-user-information')
       .then(response => response.json())
       .then(data => {
@@ -242,14 +231,12 @@ function InfoContainer(props) {
     <div id="info-container">
       <ListContainer view={props.view} dataToDisplay={userFeatureData[props.view]} />
       {/* <ViewAllButton /> */}
-
     </div>
   )
 }
 
 // ListContainer
 function ListContainer(props) {
-  // state of the data to be sent to the list
   const [showModal, setShowModal] = React.useState(false);
   const [modalContent, setModalContent] = React.useState();
   const [allData, setAllData] = React.useState([]);
@@ -287,7 +274,7 @@ function ListContainer(props) {
       }
 
       for (const dataKey in organizedData) {
-        // Add a ListItem the information from organizedData
+        // Add a ListItem with the information from organizedData
         dataList.push(
           <ListItem
             setShowModal={setShowModal}
@@ -300,8 +287,6 @@ function ListContainer(props) {
       setAllData(dataList)
     }
   }, [props.dataToDisplay])
-
-  console.log(`In ListContainer: do I want to show the modal? ${showModal}`)
 
   return (
     <div id="list-container">
@@ -318,15 +303,19 @@ function ListContainer(props) {
 
 // ListItem
 function ListItem(props) {
+  // ** How do I make it so that I can setModalContent to the 
+  // innerText of the <p></p>, not the rest of it?
   return (
-    <li 
-      onClick={ (e) => {
+    <li>
+      <div 
+        onClick={ (e) => {
         props.setShowModal(true) 
-        props.setModalContent(e.target.innerText)
+        props.setModalContent(props.title)
         }}
       >
-      <p>{props.title}</p>
-      <ItemBodyList bodyList={props.bodyList} />
+        <p>{props.title}</p>
+        <ItemBodyList bodyList={props.bodyList} />
+      </div>
     </li>
   )
 }
@@ -342,9 +331,11 @@ function ItemBodyList(props) {
   return <ul>{allBodyListElements}</ul>
 }
 
+
 function BodyListElement(props) {
   return <li>{props.bodyListElement}</li>
 }
+
 
 function Modal(props) {
   const modalContent =  (
@@ -361,16 +352,13 @@ function Modal(props) {
         </div>
      </div>
     )
-    console.log(`In modal: do I want to show the modal? ${props.showModal}`)
-  
+
   return props.showModal ? modalContent : null;
 }
 
 
 function RankedListContainer(props) {
   const [rankings, setRankings] = React.useState();
-  // const [likedItems, setLikedItems] = React.useState();
-  // const [dislikedItems, setDislikedItems] = React.useState();
   React.useEffect( () => {
     if (props.modalContent) {
       fetch(`api/rankings/${props.modalContent}`)
@@ -392,13 +380,9 @@ function RankedListContainer(props) {
           })
         
         setRankings(rankedItems.concat(unrankedItems));
-  
       })
     }
   }, [props.modalContent])
-
-  console.log(`ranked items are ${rankings}`)
-  // console.log(`liked items are ${likedItems}`)
 
   const itemsToDisplay = []
   if (rankings) {
@@ -424,21 +408,180 @@ function RankedListContainer(props) {
   )
 }
 
+const MAX = 5;
+const HEIGHT = 80;
 
 function RankedListItem(props) {
+  const items = _.range(MAX);
+  const [state, setState] = React.useState({
+    order: items,
+    dragOrder: items,
+    draggedIndex: null
+  })
+
+  const handleDrag = React.useCallback(({translation, id}) => {
+    const delta = Math.round(translation.y / HEIGHT);
+    const index = state.order.indexOf(id);
+    const dragOrder = state.order.filter(index => index !== id);
+
+    if (!_.inRange(index + delta, 0, items.length)){
+      return;
+    }
+
+    dragOrder.splice(index + delta, 0, id);
+
+    setState(state => ({
+      ...state,
+      draggedIndex: id,
+      dragOrder
+    }));
+  }, [state.order, items.length]);
+
+  const handleDragEnd = React.useCallback(() => {
+    setState(state => ({
+      ...state,
+      order: state.dragOrder,
+      draggedIndex: null
+    }));
+  }, []);
+
+
+
   let nickname 
   if (props.nickname) {
     nickname = ` (${props.nickname})`
   }
+
   return(
-    <li>
-      {props.ranking}.
-      <br></br>
-      {props.shop}{nickname},  {props.details},  
-      Last Updated: {props.lastUpdated}
-    </li>
+    <Container>
+    {items.map(index => {
+      const isDragging = state.draggedIndex === index;
+      const top = state.dragOrder.indexOf(index) * (HEIGHT + 10);
+      const draggedTop = state.order.indexOf(index) * (HEIGHT + 10);
+      
+      return (
+        <Draggable
+          key={index}
+          id={index}
+          onDrag={handleDrag}
+          onDragEnd={handleDragEnd}
+        >
+          <Rect
+            isDragging={isDragging}
+            top={isDragging ? draggedTop : top}
+          >
+          {props.ranking}.
+          <br></br>
+          {props.shop}{nickname},  {props.details},  
+          Last Updated: {props.lastUpdated}
+          </Rect>
+        </Draggable>
+      );
+    })}
+  </Container>
+  );
+}
+    
+const Container = window.styled.div`
+  width: 100vw;
+  min-height: 100vh;
+`;
+
+const Rect = window.styled.div.attrs(props => ({
+  style: {
+    transition: props.isDragging ? 'none' : 'all 500ms'
+  }
+}))`
+  width: 300px;
+  user-select: none;
+  height: ${HEIGHT}px;
+  background: #fff;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: ${({top}) => 100 + top}px;
+  left: calc(50vw - 150px);
+  font-size: 20px;
+  color: #777;
+`;
+
+
+
+const POSITION = {x:0, y:0};
+
+
+function Draggable(props) {
+  const id = props.id
+  const children = props.children
+  const onDrag = props.onDrag
+  const onDragEnd = props.onDragEnd
+
+  const [state, setState] = React.useState({
+    isDragging: false,
+    origin: POSITION,
+    translation: POSITION
+  });
+
+  const handleMouseDown = React.useCallback(({clientX, clientY}) => {
+    setState(state => ({
+      ...state,
+      isDragging: true,
+      origin: {x: clientX, y: clientY}
+    }));
+  }, []);
+
+  const handleMouseMove = React.useCallback(({clientX, clientY}) => {
+    const translation = {x: clientX - state.origin.x, y: clientY - state.origin.y};
+    
+    setState( state => ({
+      ...state,
+      translation
+    }));
+
+    onDrag({translation, id});
+  }, [state.origin, onDrag, id])
+
+  const handleMouseUp = React.useCallback(() => {
+    setState(state => ({
+      ...state,
+      isDragging: false
+    }));
+
+    onDragEnd();
+  }, [onDragEnd]);
+
+  React.useEffect(() => {
+    if (state.isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp)
+
+      setState(state => ({...state, translation: {x:0, y:0}}));
+    }
+  }, [state.isDragging, handleMouseMove, handleMouseUp]);
+
+  const styles = React.useMemo(() => ({
+    cursor: state.isDragging ? '-webkit-grabbing' : '-webkit-grab',
+    transform: `translate(${state.translation.x}px, ${state.translation.y}px)`,
+    transition: state.isDragging ? 'none' : 'transform 500ms',
+    zIndex: state.isDragging ? 2 : 1,
+    position: state.isDragging ? 'absolute' : 'relative'
+  }), [state.isDragging, state.translation]);
+
+  return (
+    <div style={styles} onMouseDown={handleMouseDown}>
+      {children}
+    </div>
   )
 }
+
+
+
+
 
 
 //   const modalContent =  showModal && (
