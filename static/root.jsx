@@ -173,6 +173,7 @@ function ButtonBar(props) {
 
 // MapContainer
 function MapContainer(props) {
+  
   return (
     <div id="map-container">
       <LocationSetter />
@@ -303,8 +304,6 @@ function ListContainer(props) {
 
 // ListItem
 function ListItem(props) {
-  // ** How do I make it so that I can setModalContent to the 
-  // innerText of the <p></p>, not the rest of it?
   return (
     <li>
       <div 
@@ -341,7 +340,9 @@ function Modal(props) {
   const modalContent =  (
       <div className="overlay">
         <div className="modal">
-          <div className="modal-body">{props.children}</div>
+          <div className="modal-body">
+            {props.children}
+          </div>
           <button
             // className="modal-close"
             type="button"
@@ -358,7 +359,7 @@ function Modal(props) {
 
 
 function RankedListContainer(props) {
-  const [rankings, setRankings] = React.useState();
+  const [rankings, setRankings] = React.useState([]);
   React.useEffect( () => {
     if (props.modalContent) {
       fetch(`api/rankings/${props.modalContent}`)
@@ -384,35 +385,50 @@ function RankedListContainer(props) {
     }
   }, [props.modalContent])
 
-  const itemsToDisplay = []
-  if (rankings) {
-    for (const item of rankings) {
-      itemsToDisplay.push(
-        <RankedListItem 
-          key ={item.user_feature_id}
-          shop={item.shop}
-          nickname={item.nickname}
-          details={item.details}
-          lastUpdated={item.last_updated}
-          ranking={item.ranking}
-        />
-      )
-    }
-  }
+  if (rankings.length !== 0) {
+    console.log(rankings)
+    return <AreaForDragging items={rankings} />
+  } else return null;
+  
 
-  return (
-    <div>
-      <h2>Top {props.modalContent}</h2>
-      <ul>{itemsToDisplay}</ul>
-    </div>
-  )
+  // const itemsToDisplay = []
+  // if (rankings) {
+  //   for (const item of rankings) {
+  //     itemsToDisplay.push(
+  //       <RankedListItem 
+  //         key ={item.user_feature_id}
+  //         shop={item.shop}
+  //         nickname={item.nickname}
+  //         details={item.details}
+  //         lastUpdated={item.last_updated}
+  //         ranking={item.ranking}
+  //       />
+  //     )
+  //   }
+  // }
+
+
+  // return (
+  //   <div>
+  //     <h2>Top {props.modalContent}</h2>
+  //     <ul>{itemsToDisplay}</ul>
+  //   </div>
+  // )
 }
+
+
+// function RankedListItem(props) {
+  
+// }
+
 
 const MAX = 5;
 const HEIGHT = 80;
 
-function RankedListItem(props) {
-  const items = _.range(MAX);
+function AreaForDragging(props) {
+
+  const items = props.items;
+  console.log(`items in the area for draggin: ${items}`)
   const [state, setState] = React.useState({
     order: items,
     dragOrder: items,
@@ -444,43 +460,48 @@ function RankedListItem(props) {
       draggedIndex: null
     }));
   }, []);
+  
 
-
-
-  let nickname 
-  if (props.nickname) {
-    nickname = ` (${props.nickname})`
-  }
-
-  return(
-    <Container>
-    {items.map(index => {
-      const isDragging = state.draggedIndex === index;
-      const top = state.dragOrder.indexOf(index) * (HEIGHT + 10);
-      const draggedTop = state.order.indexOf(index) * (HEIGHT + 10);
-      
-      return (
-        <Draggable
-          key={index}
-          id={index}
-          onDrag={handleDrag}
-          onDragEnd={handleDragEnd}
-        >
-          <Rect
-            isDragging={isDragging}
-            top={isDragging ? draggedTop : top}
+  if (items){
+    return(
+      <Container> Helloooooo
+      {items.map((item, index) => {
+        const isDragging = state.draggedIndex === index;
+        const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
+        const draggedTop = state.order.indexOf(item) * (HEIGHT + 10);
+        console.log(`start of dragorder, item, dragorderindexof, orderindexof`)
+        console.log(state.dragOrder)
+        console.log(item)
+        console.log(state.dragOrder.indexOf(item))
+        console.log(state.order.indexOf(item))
+        // const top = index * (HEIGHT + 10);
+        // const draggedTop = index * (HEIGHT + 10);
+        
+        return (
+          <Draggable
+            key={index}
+            id={item}
+            onDrag={handleDrag}
+            onDragEnd={handleDragEnd}
           >
-          {props.ranking}.
-          <br></br>
-          {props.shop}{nickname},  {props.details},  
-          Last Updated: {props.lastUpdated}
-          </Rect>
-        </Draggable>
-      );
-    })}
-  </Container>
-  );
+            <Rect
+              isDragging={isDragging}
+              top={isDragging ? draggedTop : top}
+            >
+            {item.ranking}.
+            <br></br>
+            {item.shop} ({item.nickname}),  {item.details},  
+            Last Updated: {item.lastUpdated}
+            </Rect>
+          </Draggable>
+        );
+      })}
+    </Container>
+    );
+  } else return null;
 }
+
+
     
 const Container = window.styled.div`
   width: 100vw;
