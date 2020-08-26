@@ -238,8 +238,9 @@ function InfoContainer(props) { //get the user's user features' information (all
 
 // ListContainer
 function ListContainer(props) {
-  const [showModal, setShowModal] = React.useState(false);
-  const [modalContent, setModalContent] = React.useState();
+  // const  [toRank, setToRank] = React.useState();
+  // const [showModal, setShowModal] = React.useState(false);
+  // const [modalContent, setModalContent] = React.useState();
   const [allData, setAllData] = React.useState([]);
   const dataList = [];
   React.useEffect(() => {
@@ -278,8 +279,9 @@ function ListContainer(props) {
         // Add a ListItem with the information from organizedData
         dataList.push(
           <ListItem
-            setShowModal={setShowModal}
-            setModalContent = {setModalContent}
+            // setShowModal={setShowModal}
+            // setModalContent = {setModalContent}
+            // setToRank={setToRank}
             title={dataKey}
             bodyList={organizedData[dataKey]}
           />
@@ -295,21 +297,25 @@ function ListContainer(props) {
       <ul>
         {allData}
       </ul>
-      <Modal showModal={showModal} setShowModal={setShowModal}>
+      {/* <Modal showModal={showModal} setShowModal={setShowModal}>
         <RankedListContainer modalContent={modalContent}/>
-      </Modal>
+      </Modal> */}
     </div>
   )
 }
 
 // ListItem
 function ListItem(props) {
+  let history = useHistory();
   return (
     <li>
       <div 
         onClick={ (e) => {
-        props.setShowModal(true) 
-        props.setModalContent(props.title)
+        // props.setShowModal(true) 
+        // props.setModalContent(props.title)
+          const toRank = props.title;
+          console.log(`going to rank all: ${toRank}`)
+          history.push(`/rankings/${toRank}`)
         }}
       >
         <p>{props.title}</p>
@@ -336,33 +342,16 @@ function BodyListElement(props) {
 }
 
 
-function Modal(props) {
-  const modalContent =  (
-      <div className="overlay">
-        <div className="modal">
-          <div className="modal-body">
-            {props.children}
-          </div>
-          <button
-            // className="modal-close"
-            type="button"
-            onClick= {() => props.setShowModal(false)}
-          >
-            X
-          </button>
-        </div>
-     </div>
-    )
 
-  return props.showModal ? modalContent : null;
-}
 
 
 function RankedListContainer(props) {
+  const { toRank } = useParams();
+  console.log(`in rankedListContainer, ranking: ${toRank}`)
   const [rankings, setRankings] = React.useState([]);
   React.useEffect( () => {
-    if (props.modalContent) {
-      fetch(`api/rankings/${props.modalContent}`)
+    if (toRank) {
+      fetch(`/api/rankings/${toRank}`)
       .then(response => response.json())
       .then(data => {
         // filter data by having a 0 ranking
@@ -383,10 +372,12 @@ function RankedListContainer(props) {
         setRankings(rankedItems.concat(unrankedItems));
       })
     }
-  }, [props.modalContent])
+  }, [
+    toRank
+  ]);
 
   if (rankings.length !== 0) {
-    console.log(rankings)
+    console.log(`the rankings ${rankings}`)
     return <AreaForDragging items={rankings} />
   } else return null;
   
@@ -926,6 +917,9 @@ function App() {
           <Route path="/add-new/:featureType">
             <AddNewUserFeature />
           </Route>
+          <Route path="/rankings/:toRank">
+            <RankedListContainer />
+          </Route>
           <Route path="/about">
             <About />
           </Route>
@@ -946,6 +940,32 @@ function App() {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
+
+
+
+
+
+
+function Modal(props) {
+  const modalContent =  (
+      <div className="overlay">
+        <div className="modal">
+          <div className="modal-body">
+            {props.children}
+          </div>
+          <button
+            // className="modal-close"
+            type="button"
+            onClick= {() => props.setShowModal(false)}
+          >
+            X
+          </button>
+        </div>
+     </div>
+    )
+
+  return props.showModal ? modalContent : null;
+}
 
 
 
