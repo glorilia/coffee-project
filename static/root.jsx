@@ -529,7 +529,7 @@ function AreaForDragging(props) {
   } else return null;
 }
 
-
+const newThing = 'the newest';
     
 const Container = window.styled.div`
   width: 100vw;
