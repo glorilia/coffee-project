@@ -174,16 +174,21 @@ def add_user_feature():
                                 nickname=nickname,
                                 last_updated=last_updated)
 
-    print(user_feature)
-
+    print(f'our new user feature: {user_feature}')
+    
+    uf_id = None
+    feature_name = None
     if user_feature:
+        uf_id = user_feature.user_feature_id
+        feature_name = user_feature.feature.name
         status = "success"
         message = f"Your {feature_name} has been added"
     else:
         status ="Error"
         message = "Something went wrong, please try again."
 
-    return jsonify({'status': status, 'message': message, 'need_to_rank': liked})
+    return jsonify({'status': status, 'message': message, 'need_to_rank': liked,
+                    'uf_id': uf_id, 'feature_name': feature_name})
 
 
 @app.route('/api/get-types')
@@ -205,7 +210,7 @@ def get_features(feature_type):
 
     return jsonify(features_of_type)
 
-@app.route('/api/rankings/<to_rank>/<new_UF')
+@app.route('/api/rankings/<to_rank>')
 def get_content_for_modal(to_rank):
     feature_name = to_rank
     feature = crud.get_feature_by_name(feature_name)
@@ -213,8 +218,6 @@ def get_content_for_modal(to_rank):
     user = crud.get_user_by_id(user_id)
 
     user_features = crud.get_specific_feature_ufs_for_user(user=user, feature=feature)
-
-    
 
     uf_data = []
     for uf in user_features:
@@ -232,8 +235,18 @@ def get_content_for_modal(to_rank):
 
     return jsonify(uf_data)
 
+@app.route('/api/update-rankings', methods=['POST'])
+def update_user_feature_rankings():
+    # expecting to receive a list of dictionaries (or objects?)
+    data = request.get_json()
+    for index, updated_user_feature in enumerate(data):
+        user_feature_id = updated_user_feature['user_feature_id']
+        new_ranking = index + 1
+        crud.update_user_feature_ranking(user_feature_id=user_feature_id, new_ranking=new_ranking)
 
+    message = 'Saved!'
 
+    return jsonify({'message': message})
 
 if __name__ == '__main__':
     # Connect to db first, then app can access it.

@@ -360,18 +360,18 @@ function RankedListContainer(props) {
         //     //only keeps stuff that has a zero rank
         //     arrayElement.ranking == 0
         //   )
+
+        let newItem = data
+          .filter(element => element.user_feature_id == userFeatureId)
         
-  
         let rankedItems = data 
-          .filter(arrayElement => 
-            arrayElement.ranking != 0
-          )
+          .filter(arrayElement =>  arrayElement.ranking != 0)
           .sort((a,b) => {
             return a.ranking - b.ranking
           })
         
         // setRankings(rankedItems.concat(unrankedItems));
-        setRankings(rankedItems)
+        setRankings(newItem.concat(rankedItems))
       })
     }
   }, [
@@ -424,7 +424,7 @@ const MAX = 5;
 const HEIGHT = 80;
 
 function AreaForDragging(props) {
-
+  let history = useHistory()
   const items = props.items;
   // console.log(`items in the area for draggin: ${items}`)
   const [state, setState] = React.useState({
@@ -464,8 +464,24 @@ function AreaForDragging(props) {
   }, []);
   
   const saveRankings = React.useCallback(() => {
-    console.log(state.order)
+    const userFeaturesByRanking = state.order
+    fetch('/api/update-rankings',
+      {
+        method: 'POST',
+        body: JSON.stringify(userFeaturesByRanking),
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message)
+      history.push('/homepage')
+    })
   }, [state.order])
+
+
+
+
 
   // console.log(`This is the official order: ${state.order[0].shop}, ${state.order[1].shop}, ${state.order[2].shop}`)
   if (items){
@@ -503,7 +519,7 @@ function AreaForDragging(props) {
             {item.ranking}.
             <br></br>
             {item.shop} ({item.nickname}),  {item.details},  
-            Last Updated: {item.lastUpdated}
+            Last Updated: {item.last_updated}
             </Rect>
           </Draggable>
         );
@@ -685,6 +701,7 @@ function AddNewUserFeature() {
   // Form to add a new user feature to the database
 
   // Hooks
+  let history = useHistory();
   const { featureType} = useParams();
   const [featureName, setFeatureName] = React.useState('');
   const [nickname, setNickname] = React.useState('');
@@ -711,7 +728,9 @@ function AddNewUserFeature() {
       .then(response => response.json())
       .then(data => {
         alert(data.message);
-
+        const toRank = data.feature_name;
+        const userFeatureId = data.uf_id;
+        history.push(`/rankings/${toRank}/${userFeatureId}`)
       })
   }
 

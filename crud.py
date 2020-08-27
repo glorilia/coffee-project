@@ -112,7 +112,7 @@ def get_user_feature_by_id(id_num):
     return db.session.query(UserFeature).get(id_num)
 
 def update_user_feature_ranking(user_feature_id, new_ranking):
-    user_feature = get_user_feature_by_id(id_num)
+    user_feature = get_user_feature_by_id(user_feature_id)
     #update the user_feature to have a ranking of new_ranking
     user_feature.ranking = new_ranking
     db.session.commit()
