@@ -315,7 +315,7 @@ function ListItem(props) {
         // props.setModalContent(props.title)
           const toRank = props.title;
           console.log(`going to rank all: ${toRank}`)
-          history.push(`/rankings/${toRank}`)
+          history.push(`/rankings/${toRank}/none`)
         }}
       >
         <p>{props.title}</p>
@@ -346,7 +346,7 @@ function BodyListElement(props) {
 
 
 function RankedListContainer(props) {
-  const { toRank } = useParams();
+  const { toRank, userFeatureId} = useParams();
   console.log(`in rankedListContainer, ranking: ${toRank}`)
   const [rankings, setRankings] = React.useState([]);
   React.useEffect( () => {
@@ -354,12 +354,13 @@ function RankedListContainer(props) {
       fetch(`/api/rankings/${toRank}`)
       .then(response => response.json())
       .then(data => {
-        // filter data by having a 0 ranking
-        let unrankedItems = data
-          .filter(arrayElement =>
-            //only keeps stuff that has a zero rank
-            arrayElement.ranking == 0
-          )
+        // // filter data by having a 0 ranking
+        // let unrankedItems = data
+        //   .filter(arrayElement =>
+        //     //only keeps stuff that has a zero rank
+        //     arrayElement.ranking == 0
+        //   )
+        
   
         let rankedItems = data 
           .filter(arrayElement => 
@@ -369,7 +370,8 @@ function RankedListContainer(props) {
             return a.ranking - b.ranking
           })
         
-        setRankings(rankedItems.concat(unrankedItems));
+        // setRankings(rankedItems.concat(unrankedItems));
+        setRankings(rankedItems)
       })
     }
   }, [
@@ -377,8 +379,13 @@ function RankedListContainer(props) {
   ]);
 
   if (rankings.length !== 0) {
-    console.log(`the rankings ${rankings}`)
-    return <AreaForDragging items={rankings} />
+    // console.log(`the rankings ${rankings}`)
+    return (
+      <React.Fragment>
+        <h1>Top {toRank}s</h1>
+        <AreaForDragging items={rankings} />
+      </React.Fragment>
+    )
   } else return null;
   
 
@@ -419,7 +426,7 @@ const HEIGHT = 80;
 function AreaForDragging(props) {
 
   const items = props.items;
-  console.log(`items in the area for draggin: ${items}`)
+  // console.log(`items in the area for draggin: ${items}`)
   const [state, setState] = React.useState({
     order: items,
     dragOrder: items,
@@ -429,42 +436,56 @@ function AreaForDragging(props) {
   const handleDrag = React.useCallback(({translation, id}) => {
     const delta = Math.round(translation.y / HEIGHT);
     const index = state.order.indexOf(id);
-    const dragOrder = state.order.filter(index => index !== id);
-
+    const dragOrder = state.order.filter(item => item !== id);
+    // console.log(`drag order after filter, before splice: ${dragOrder[0].shop}, ${dragOrder[1].shop}`)
     if (!_.inRange(index + delta, 0, items.length)){
       return;
     }
 
     dragOrder.splice(index + delta, 0, id);
+    // console.log(`drag order after splice: ${dragOrder[0].shop}, ${dragOrder[1].shop}, ${dragOrder[2].shop}`)
 
     setState(state => ({
       ...state,
       draggedIndex: id,
       dragOrder
     }));
+    // console.log(`now the dragorder of the state is ${state.dragOrder[0].shop}, ${state.dragOrder[1].shop}, ${state.dragOrder[2].shop}`)
   }, [state.order, items.length]);
 
   const handleDragEnd = React.useCallback(() => {
+ 
     setState(state => ({
       ...state,
       order: state.dragOrder,
       draggedIndex: null
     }));
+
   }, []);
   
+  const saveRankings = React.useCallback(() => {
+    console.log(state.order)
+  }, [state.order])
 
+  // console.log(`This is the official order: ${state.order[0].shop}, ${state.order[1].shop}, ${state.order[2].shop}`)
   if (items){
     return(
-      <Container> Helloooooo
+      <Container> 
+        <button 
+          id="save-rankings-button" 
+          onClick={saveRankings}
+          >
+            Save
+        </button>
       {items.map((item, index) => {
         const isDragging = state.draggedIndex === index;
         const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
         const draggedTop = state.order.indexOf(item) * (HEIGHT + 10);
-        console.log(`start of dragorder, item, dragorderindexof, orderindexof`)
-        console.log(state.dragOrder)
-        console.log(item)
-        console.log(state.dragOrder.indexOf(item))
-        console.log(state.order.indexOf(item))
+        // console.log(`start of dragorder, item, dragorderindexof, orderindexof`)
+        // console.log(state.dragOrder)
+        // console.log(item)
+        // console.log(state.dragOrder.indexOf(item))
+        // console.log(state.order.indexOf(item))
         // const top = index * (HEIGHT + 10);
         // const draggedTop = index * (HEIGHT + 10);
         
@@ -664,7 +685,7 @@ function AddNewUserFeature() {
   // Form to add a new user feature to the database
 
   // Hooks
-  const { featureType } = useParams();
+  const { featureType} = useParams();
   const [featureName, setFeatureName] = React.useState('');
   const [nickname, setNickname] = React.useState('');
   const [details, setDetails] = React.useState('');
@@ -917,7 +938,7 @@ function App() {
           <Route path="/add-new/:featureType">
             <AddNewUserFeature />
           </Route>
-          <Route path="/rankings/:toRank">
+          <Route path="/rankings/:toRank/:userFeatureId">
             <RankedListContainer />
           </Route>
           <Route path="/about">

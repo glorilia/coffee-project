@@ -108,9 +108,15 @@ def get_all_ufs_for_user(user):
 def get_specific_feature_ufs_for_user(user, feature):
     return db.session.query(UserFeature).options(db.joinedload('feature'), db.joinedload('shop')).filter_by(user=user,feature=feature).all()
 
-
 def get_user_feature_by_id(id_num):
     return db.session.query(UserFeature).get(id_num)
+
+def update_user_feature_ranking(user_feature_id, new_ranking):
+    user_feature = get_user_feature_by_id(id_num)
+    #update the user_feature to have a ranking of new_ranking
+    user_feature.ranking = new_ranking
+    db.session.commit()
+    return
 
 def set_seed_rankings(all_users):
     for user in all_users:
