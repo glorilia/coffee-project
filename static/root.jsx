@@ -356,9 +356,9 @@ function ItemBodyList(props) {
     numLeft = (props.bodyList).length - numItemsToShow
     needNumLeft = numLeft > 0;
   }
-  console.log(`For the body list ${props.bodyList}`)
-  console.log(`needNumLeft looks like it's: ${needNumLeft}`)
-  console.log(`numLeft, ${(props.bodyList) ? (props.bodyList).length : null} - ${numItemsToShow}, looks like it's: ${numLeft}`)
+  // console.log(`For the body list ${props.bodyList}`)
+  // console.log(`needNumLeft looks like it's: ${needNumLeft}`)
+  // console.log(`numLeft, ${(props.bodyList) ? (props.bodyList).length : null} - ${numItemsToShow}, looks like it's: ${numLeft}`)
   return (
     <React.Fragment>
       <ul>{allBodyListElements}</ul>
@@ -372,6 +372,7 @@ function ItemBodyList(props) {
       //   (<p>{props.dislikedCount} {props.dislikedCount==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></p>
       //   )
       } 
+      {(needNumLeft && (props.dislikedCount > 0)) && <span>, </span>}
       { (props.dislikedCount > 0) && <span> {props.dislikedCount} {props.dislikedCount==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
       
     </React.Fragment>
@@ -391,17 +392,18 @@ function RankedListContainer(props) {
   const { toRank, userFeatureId} = useParams();
   console.log(`in rankedListContainer, ranking: ${toRank}`)
   const [rankings, setRankings] = React.useState([]);
+  const [unranked, setUnranked] = React.useState([])
   React.useEffect( () => {
     if (toRank) {
       fetch(`/api/rankings/${toRank}`)
       .then(response => response.json())
       .then(data => {
-        // // filter data by having a 0 ranking
-        // let unrankedItems = data
-        //   .filter(arrayElement =>
-        //     //only keeps stuff that has a zero rank
-        //     arrayElement.ranking == 0
-        //   )
+        // filter data by having a 0 ranking
+        let unrankedItems = data
+          .filter(arrayElement =>
+            //only keeps stuff that has a zero rank
+            arrayElement.ranking == 0
+          )
 
         let newItem = data
           .filter(element => element.user_feature_id == userFeatureId)
@@ -412,20 +414,31 @@ function RankedListContainer(props) {
             return a.ranking - b.ranking
           })
         
+        // let unrankedItems = data
+        // .filter(arrayElement =>
+        //   //only keeps stuff that has a zero rank
+        //   arrayElement.ranking == 0
+        // )
+        
         // setRankings(rankedItems.concat(unrankedItems));
         setRankings(newItem.concat(rankedItems))
+        setUnranked(unrankedItems)
       })
     }
   }, [
     toRank
   ]);
 
+  console.log(`in RankedListContainer, unranked items: ${unranked}`)
+
   if (rankings.length !== 0) {
-    // console.log(`the rankings ${rankings}`)
+    console.log(`the rankings ${rankings}`)
     return (
       <React.Fragment>
         <h1>Top {toRank}s</h1>
-        <AreaForDragging items={rankings} />
+        <AreaForDragging items={rankings} unranked={unranked} />
+        {/* {(unranked !== undefined) && <AreaOfDislikes items={unranked} />} */}
+        {/* {(unranked !== undefined) && <p>unranked has something in it, it's not undefined</p>}  */}
       </React.Fragment>
     )
   } else return null;
@@ -467,6 +480,7 @@ const HEIGHT = 80;
 
 function AreaForDragging(props) {
   let history = useHistory()
+  const unranked=props.unranked;
   const items = props.items;
   // console.log(`items in the area for draggin: ${items}`)
   const [state, setState] = React.useState({
@@ -566,13 +580,54 @@ function AreaForDragging(props) {
           </Draggable>
         );
       })}
+      {unranked.map( (item, index) => {
+          return (
+            <div style={{position: "relative"}}>
+              <Rect
+                key={index}
+                top={(index + state.order.length)* (HEIGHT + 10)}
+              >
+                {item.ranking}.
+                <br></br>
+                {item.shop} ({item.nickname}),  {item.details},  
+                Last Updated: {item.last_updated}
+              </Rect>
+            </div>
+          )
+        })
+        }
     </Container>
     );
   } else return null;
 }
 
-const newThing = 'the newest';
-const difference = "the difference is here"
+// {(unranked !== undefined) && <AreaOfDislikes items={unranked} />}
+function AreaOfDislikes (props) {
+  console.log(`in props, unranked items are ${props.items}`)
+  const items = props.items;
+  console.log(`The unranked items are ${items}`)
+  if (items !== undefined) {
+    return (
+      <Container>
+        {items.map( (item, index) => {
+          return (
+            <Rect
+              key={index}
+              top={index * (HEIGHT + 10)}
+            >
+              {item.ranking}.
+              <br></br>
+              {item.shop} ({item.nickname}),  {item.details},  
+              Last Updated: {item.last_updated}
+            </Rect>
+          )
+        })
+        }
+      </Container>
+    )
+  } else return null;
+}
+
     
 const Container = window.styled.div`
   width: 100vw;
@@ -584,17 +639,17 @@ const Rect = window.styled.div.attrs(props => ({
     transition: props.isDragging ? 'none' : 'all 500ms'
   }
 }))`
-  width: 300px;
+  width: 600px;
   user-select: none;
   height: ${HEIGHT}px;
   background: #fff;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: start;
+  justify-content: start;
   position: absolute;
-  top: ${({top}) => 100 + top}px;
-  left: calc(50vw - 150px);
+  top: ${({top}) => 20 + top}px;
+  left: calc(50vw - 350px);
   font-size: 20px;
   color: #777;
 `;
