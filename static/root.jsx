@@ -263,17 +263,33 @@ function ListContainer(props) {
           return a.ranking - b.ranking
         })
       
-      // 3. Organize data by orgBy and make value a list of toAdd's
+      //2b. Make new array with disliked items aka unranked (has ranking of 0)
+      let unrankedItems = props.dataToDisplay
+          .filter(arrayElement =>
+            //only keeps stuff that has a zero rank
+            arrayElement.ranking == 0
+          )
+      
+      
+      // 3. Organize data by orgBy and make value obj have a liked a list of toAdd's
+      // and a disliked list to add to later
       const organizedData = {};
-      for (const userFeature of rankedData) {
-        //check to see if the userFeature.feature is in organizedData obj
+      rankedData.forEach((userFeature) => {
         if (userFeature[orgBy] in organizedData) {
-          // if it's in the object, add the userFeature.toAdd to its value list
-          organizedData[userFeature[orgBy]].push(userFeature[toAdd])
+          organizedData[userFeature[orgBy]].liked.push(userFeature[toAdd])
         } else {
-          organizedData[userFeature[orgBy]] = [userFeature[toAdd]]
+          organizedData[userFeature[orgBy]] = {'liked':[userFeature[toAdd]], 'disliked':0} 
+        }        
+      })
+
+      //4. Add a count of dislikes for each orgBy key in organized data.
+      unrankedItems.forEach((userFeature) => {
+        if (userFeature[orgBy] in organizedData) {
+          organizedData[userFeature[orgBy]].disliked += 1
+        } else {
+          organizedData[userFeature[orgBy]] = {'liked': null, 'disliked': 1}
         }
-      }
+      })
 
       for (const dataKey in organizedData) {
         // Add a ListItem with the information from organizedData
@@ -283,7 +299,8 @@ function ListContainer(props) {
             // setModalContent = {setModalContent}
             // setToRank={setToRank}
             title={dataKey}
-            bodyList={organizedData[dataKey]}
+            bodyList={organizedData[dataKey].liked}
+            dislikedCount={organizedData[dataKey].disliked}
           />
         );
       }
@@ -319,7 +336,7 @@ function ListItem(props) {
         }}
       >
         <p>{props.title}</p>
-        <ItemBodyList bodyList={props.bodyList} />
+        <ItemBodyList bodyList={props.bodyList} dislikedCount={props.dislikedCount} />
       </div>
     </li>
   )
@@ -327,13 +344,38 @@ function ListItem(props) {
 
 
 function ItemBodyList(props) {
-  const allBodyListElements = []
-  for (const bodyListElement of props.bodyList.slice(0, 3)) {
-    allBodyListElements.push(<BodyListElement
-      bodyListElement={bodyListElement} />)
+  let needNumLeft = false;
+  let numLeft = 0
+  const allBodyListElements = [];
+  const numItemsToShow = 3;
+  if (props.bodyList != null) {
+    for (const bodyListElement of props.bodyList.slice(0, numItemsToShow)) {
+      allBodyListElements.push(<BodyListElement
+        bodyListElement={bodyListElement} />)
+    }
+    numLeft = (props.bodyList).length - numItemsToShow
+    needNumLeft = numLeft > 0;
   }
-
-  return <ul>{allBodyListElements}</ul>
+  console.log(`For the body list ${props.bodyList}`)
+  console.log(`needNumLeft looks like it's: ${needNumLeft}`)
+  console.log(`numLeft, ${(props.bodyList) ? (props.bodyList).length : null} - ${numItemsToShow}, looks like it's: ${numLeft}`)
+  return (
+    <React.Fragment>
+      <ul>{allBodyListElements}</ul>
+      {
+        needNumLeft && <span>+{numLeft} more <i className="fas fa-thumbs-up"></i></span>
+        
+      // needNumLeft ? 
+      //   (<p> +{numLeft} more <i className="fas fa-thumbs-up"></i> , 
+      //   {props.dislikedCount} disliked <i className="fas fa-thumbs-down"></i></p>
+      //   ): 
+      //   (<p>{props.dislikedCount} {props.dislikedCount==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></p>
+      //   )
+      } 
+      { (props.dislikedCount > 0) && <span> {props.dislikedCount} {props.dislikedCount==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
+      
+    </React.Fragment>
+  )
 }
 
 
@@ -530,6 +572,7 @@ function AreaForDragging(props) {
 }
 
 const newThing = 'the newest';
+const difference = "the difference is here"
     
 const Container = window.styled.div`
   width: 100vw;
@@ -728,9 +771,11 @@ function AddNewUserFeature() {
       .then(response => response.json())
       .then(data => {
         alert(data.message);
-        const toRank = data.feature_name;
-        const userFeatureId = data.uf_id;
-        history.push(`/rankings/${toRank}/${userFeatureId}`)
+        if (data.need_to_rank) {
+          const toRank = data.feature_name;
+          const userFeatureId = data.uf_id;
+          history.push(`/rankings/${toRank}/${userFeatureId}`)
+        } else { history.push('/homepage')}
       })
   }
 
