@@ -67,13 +67,17 @@ def get_all_types():
 def get_type_by_id(id_num):
     return db.session.query(Type).get(id_num)
 
+def get_type_by_name(name):
+    return db.session.query(Type).filter_by(name=name).first()
+    
+
 
 #*********************** Feature related functions ******************************#
 
-def create_feature(name, type, description):
+def create_feature(name, feature_type, description):
     """Create a feature, add to db, return feature."""
 
-    feature = Feature(name=name, type=type, description=description)
+    feature = Feature(name=name, type=feature_type, description=description)
     db.session.add(feature)
     db.session.commit()
     return feature

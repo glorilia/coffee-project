@@ -214,10 +214,17 @@ def get_features(feature_type):
 def get_rankings(to_rank):
     feature_name = to_rank
     feature = crud.get_feature_by_name(feature_name)
+
     user_id = session.get("user_id")
     user = crud.get_user_by_id(user_id)
 
-    user_features = crud.get_specific_feature_ufs_for_user(user=user, feature=feature)
+    user_features = None
+    if feature:
+        user_features = crud.get_specific_feature_ufs_for_user(user=user, feature=feature)
+    else:
+        shop_name = to_rank
+        shop = crud.get_shop_by_name(shop_name)
+        user_features= crud.get_specific_shop_ufs_for_user(user=user, shop=shop)
 
     uf_data = []
     for uf in user_features:
@@ -287,15 +294,27 @@ def edit_user_feature():
         changes_made += 1
         crud.update_user_feature_details(user_feature_id=user_feature_id,
                                         new_details=updated_details)
-    current_liked = user_feature.ranking > 0 
+    current_ranking = user_feature.ranking
+    current_liked = current_ranking > 0 
 
     need_to_rerank = False
     if updated_liked != current_liked:
         changes_made += 1
-        # if they now dislike it, change the ranking to 0
+        # if they now dislike it, rerank here and change the edited uf's ranking to 0
         if updated_liked == False:
-            crud.update_user_feature_ranking(user_feature_id=user_feature_id,
-                                        new_ranking=0)
+            feature = user_feature.feature
+            user_id = session.get("user_id")
+            user = crud.get_user_by_id(user_id)
+            user_features = crud.get_specific_feature_ufs_for_user(user=user, feature=feature)
+            ranked_user_features = list(filter(lambda uf: uf.ranking > 0, user_features))
+            for uf in ranked_user_features:
+                if uf.ranking == current_ranking:
+                    crud.update_user_feature_ranking(user_feature_id=uf.user_feature_id,
+                                                    new_ranking=0)
+                elif uf.ranking > current_ranking:
+                    new_ranking = uf.ranking - 1
+                    crud.update_user_feature_ranking(user_feature_id=uf.user_feature_id,
+                                                    new_ranking=new_ranking)
             need_to_rerank = False
         #if they now like it, note it somehow?
         else:
@@ -306,6 +325,24 @@ def edit_user_feature():
                                         new_last_updated=datetime.now())
 
     return jsonify({'message': 'Saved changes', 'need_to_rerank': need_to_rerank })
+
+@app.route('/api/add-new-feature', methods=['POST'])
+def add_new_feature():
+    # expecting a dict with name, description, and type
+    data = request.get_json()
+    name = data['name']
+    description = data['description']
+    feature_type_name = data['type']
+
+    feature_type = crud.get_type_by_name(feature_type_name)
+
+    feature = crud.create_feature(name=name, feature_type=feature_type, description=description)
+
+    print(f'********************* feature is: {feature}************')
+    message = f"Your new {feature_type_name}, {feature.name}, has been added!"
+
+    return jsonify({'message': message})
+
 
 
 if __name__ == '__main__':

@@ -392,7 +392,7 @@ function BodyListElement(props) {
 function RankedListContainer(props) {
   const { toRank, userFeatureId} = useParams();
   console.log(`in rankedListContainer, ranking: ${toRank}`)
-  const [changesMade, setChangesMade] = React.useState(0);
+
   const [rankings, setRankings] = React.useState([]);
   const [unranked, setUnranked] = React.useState([])
   React.useEffect( () => {
@@ -428,8 +428,7 @@ function RankedListContainer(props) {
       })
     }
   }, [
-    // toRank,
-    changesMade
+    toRank
   ]);
 
   console.log(`in RankedListContainer, unranked items: ${unranked}`)
@@ -440,10 +439,9 @@ function RankedListContainer(props) {
       <React.Fragment>
         <h1>Top {toRank}s</h1>
         <AreaForDragging 
+          toRank={toRank}
           items={rankings} 
-          unranked={unranked}
-          changesMade ={changesMade}
-          setChangesMade={setChangesMade} />
+          unranked={unranked} />
       </React.Fragment>
     )
   } else return null;
@@ -536,7 +534,7 @@ function AreaForDragging(props) {
     .then(response => response.json())
     .then(data => {
       alert(data.message)
-      history.push('/homepage')
+      history.push(`/redirect-rankings/${props.toRank}/none`)
     })
   }, [state.order])
 
@@ -586,9 +584,7 @@ function AreaForDragging(props) {
                   <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
                 >
                   <EditUserFeature 
-                    userFeatureId={item.user_feature_id}
-                    changesMade={props.changesMade}
-                    setChangesMade={props.setChangesMade} />
+                    userFeatureId={item.user_feature_id}/>
               </Modal>
             </Rect>
           </Draggable>
@@ -610,9 +606,7 @@ function AreaForDragging(props) {
                   <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
                 >
                   <EditUserFeature 
-                    userFeatureId={item.user_feature_id}
-                    changesMade={props.changesMade}
-                    setChangesMade={props.setChangesMade} />
+                    userFeatureId={item.user_feature_id}/>
                 </Modal>
               </Rect>
             </div>
@@ -677,9 +671,8 @@ function EditUserFeature(props) {
     .then(response => response.json())
     .then(data => {
       alert(data.message);
-      props.setChangesMade(props.changesMade + 1);
+      const toRank = featureName
       if(data.need_to_rerank) {
-        const toRank = featureName
         history.push(`/redirect-rankings/${toRank}/${userFeatureId}`)
       } else { history.push(`/redirect-rankings/${toRank}/none`)}
     })
@@ -977,6 +970,7 @@ function AddNewUserFeature() {
         featureType={featureType}
         featureName={featureName}
         setFeatureName={setFeatureName} />
+      <p><Link to={`/add-feature/${featureType}`}>Add A New {featureType}</Link></p>
       <label htmlFor="nickname-input">Nickname</label>
       <input
         id="nickname-input"
@@ -1115,7 +1109,52 @@ function ShopDisplayer(props) {
 }
 
 
+function NewFeature() {
+  //should eventually go back to where we came from
+  let history = useHistory()
+  const {featureType} = useParams();
+  const [name, setName] = React.useState('');
+  const [description, setDescription] = React.useState();
 
+  const addFeature = () => {
+    const formData = {
+      'name': name, 
+      'description': description,
+      'type': featureType}
+    fetch('/api/add-new-feature', 
+      {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message)
+      history.goBack()
+    })
+  }
+
+  return (
+    <div>
+      <p>What's the new {featureType}?</p>
+      <label htmlFor="name-input">Name</label>
+      <input
+        id="name-input"
+        type="text"
+        onChange={(e) => setName(e.target.value)}
+        value={name}
+        ></input>
+      <label htmlFor="details-input">Details</label>
+      <textarea
+        id="description-input"
+        onChange={(e) => setDescription(e.target.value)}
+        value={description}
+      ></textarea>
+      <button onClick={addFeature}>Add New Feature</button>
+    </div>
+  )
+}
 
 
 
@@ -1200,6 +1239,9 @@ function App() {
           </Route>
           <Route path='/edit-user-feature/:userFeatureId'>
             <EditUserFeature />
+          </Route>
+          <Route path="/add-feature/:featureType">
+            <NewFeature />
           </Route>
           <Route path="/about">
             <About />
