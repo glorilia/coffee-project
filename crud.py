@@ -118,6 +118,25 @@ def update_user_feature_ranking(user_feature_id, new_ranking):
     db.session.commit()
     return
 
+def update_user_feature_details(user_feature_id, new_details):
+    user_feature = get_user_feature_by_id(user_feature_id)
+    user_feature.details = new_details
+    db.session.commit()
+    return
+
+def update_user_feature_nickname(user_feature_id, new_nickname):
+    user_feature = get_user_feature_by_id(user_feature_id)
+    user_feature.nickname = new_nickname
+    db.session.commit()
+    return
+
+def update_user_feature_last_updated(user_feature_id, new_last_updated):
+    user_feature = get_user_feature_by_id(user_feature_id)
+    user_feature.last_updated = new_last_updated
+    db.session.commit()
+    return
+
+
 def set_seed_rankings(all_users):
     for user in all_users:
         # every user has a list of user_features assoc. w/ it 

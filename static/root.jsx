@@ -1,5 +1,6 @@
 const Router = ReactRouterDOM.BrowserRouter;
 const { useHistory, useParams, Redirect, Switch, Prompt, Link, Route } = ReactRouterDOM;
+const createPortal = ReactDOM.createPortal
 // const {range, inRange} = lodash;
 
 
@@ -391,6 +392,7 @@ function BodyListElement(props) {
 function RankedListContainer(props) {
   const { toRank, userFeatureId} = useParams();
   console.log(`in rankedListContainer, ranking: ${toRank}`)
+  const [changesMade, setChangesMade] = React.useState(0);
   const [rankings, setRankings] = React.useState([]);
   const [unranked, setUnranked] = React.useState([])
   React.useEffect( () => {
@@ -426,7 +428,8 @@ function RankedListContainer(props) {
       })
     }
   }, [
-    toRank
+    // toRank,
+    changesMade
   ]);
 
   console.log(`in RankedListContainer, unranked items: ${unranked}`)
@@ -436,9 +439,11 @@ function RankedListContainer(props) {
     return (
       <React.Fragment>
         <h1>Top {toRank}s</h1>
-        <AreaForDragging items={rankings} unranked={unranked} />
-        {/* {(unranked !== undefined) && <AreaOfDislikes items={unranked} />} */}
-        {/* {(unranked !== undefined) && <p>unranked has something in it, it's not undefined</p>}  */}
+        <AreaForDragging 
+          items={rankings} 
+          unranked={unranked}
+          changesMade ={changesMade}
+          setChangesMade={setChangesMade} />
       </React.Fragment>
     )
   } else return null;
@@ -572,10 +577,19 @@ function AreaForDragging(props) {
               isDragging={isDragging}
               top={isDragging ? draggedTop : top}
             >
-            {item.ranking}.
-            <br></br>
-            {item.shop} ({item.nickname}),  {item.details},  
-            Last Updated: {item.last_updated}
+              {item.ranking}.
+              <br></br>
+              {item.shop} ({item.nickname}),  {item.details},  
+              Last Updated: {item.last_updated}
+              <Modal
+                activator={({setShowModal}) => (
+                  <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
+                >
+                  <EditUserFeature 
+                    userFeatureId={item.user_feature_id}
+                    changesMade={props.changesMade}
+                    setChangesMade={props.setChangesMade} />
+              </Modal>
             </Rect>
           </Draggable>
         );
@@ -591,6 +605,15 @@ function AreaForDragging(props) {
                 <br></br>
                 {item.shop} ({item.nickname}),  {item.details},  
                 Last Updated: {item.last_updated}
+                <Modal
+                activator={({setShowModal}) => (
+                  <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
+                >
+                  <EditUserFeature 
+                    userFeatureId={item.user_feature_id}
+                    changesMade={props.changesMade}
+                    setChangesMade={props.setChangesMade} />
+                </Modal>
               </Rect>
             </div>
           )
@@ -601,32 +624,144 @@ function AreaForDragging(props) {
   } else return null;
 }
 
-// {(unranked !== undefined) && <AreaOfDislikes items={unranked} />}
-function AreaOfDislikes (props) {
-  console.log(`in props, unranked items are ${props.items}`)
-  const items = props.items;
-  console.log(`The unranked items are ${items}`)
-  if (items !== undefined) {
-    return (
-      <Container>
-        {items.map( (item, index) => {
-          return (
-            <Rect
-              key={index}
-              top={index * (HEIGHT + 10)}
-            >
-              {item.ranking}.
-              <br></br>
-              {item.shop} ({item.nickname}),  {item.details},  
-              Last Updated: {item.last_updated}
-            </Rect>
-          )
-        })
-        }
-      </Container>
-    )
-  } else return null;
+
+function EditButton(props) {
+  let history = useHistory();
+
+  const editDetails = () => {
+    const userFeatureId = props.userFeatureId;
+    history.push(`/edit-user-feature/${userFeatureId}`)
+  }
+
+  return <button onClick={editDetails}>Edit Details</button>
 }
+
+function EditUserFeature(props) {
+  // const {userFeatureId} = useParams();
+  const userFeatureId = props.userFeatureId;
+  let history = useHistory();
+  // const [info, setInfo] = React.useState({});
+  const [featureName, setFeatureName] = React.useState('');
+  const [nickname, setNickname] = React.useState('');
+  const [details, setDetails] = React.useState('');
+  const [liked, setLiked] = React.useState();
+  const [shop, setShop] = React.useState('');
+  // Get the specific user feature's info from database
+  React.useEffect( () => {
+    fetch(`/api/specific-uf-info/${userFeatureId}`)
+    .then(response => response.json())
+    .then(data => {
+      setFeatureName(data.feature)
+      setNickname(data.nickname)
+      setDetails(data.details)
+      setLiked(data.ranking > 0)
+      setShop(data.shop)
+
+    })
+  }, [])
+
+  const saveToDB = () => {
+    const formData = {
+      'userFeatureId': userFeatureId,
+      'nickname': nickname,
+      'details': details,
+      'liked': liked,
+    }
+
+    fetch('/api/edit-user-feature', {
+      method: 'POST',
+      body: JSON.stringify(formData),
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);
+      props.setChangesMade(props.changesMade + 1);
+      if(data.need_to_rerank) {
+        const toRank = featureName
+        history.push(`/redirect-rankings/${toRank}/${userFeatureId}`)
+      } else { history.push(`/redirect-rankings/${toRank}/none`)}
+    })
+  }
+
+
+// return <p>The user feature's info is {info.feature} {info.details}</p>
+  return (
+    <div>
+      <h1>{featureName} from {shop}</h1>
+      <label htmlFor="nickname-input">Nickname</label>
+      <input
+        id="nickname-input"
+        type="text"
+        onChange={(e) => setNickname(e.target.value)}
+        value={nickname}
+      ></input>
+      <label htmlFor="details-input">Details</label>
+      <textarea
+        id="details-input"
+        onChange={(e) => setDetails(e.target.value)}
+        value={details}
+      ></textarea>
+      <label htmlFor="liked-input">Liked</label>
+      <input
+        id="liked-input"
+        type="radio"
+        value="liked"
+        onChange={(e) => setLiked(e.target.checked)}
+        checked={liked}
+      ></input>
+      <label htmlFor="disliked-input">Disliked</label>
+      <input
+        id="disliked-input"
+        type="radio"
+        value="not-liked"
+        onChange={(e) => setLiked(!e.target.checked)}
+        checked={!liked}
+      ></input>
+      <button onClick={saveToDB}>Save Changes</button>
+    </div>
+  )
+}
+
+
+function BackToRankings() {
+  const {toRank, userFeatureId} = useParams();
+  let history = useHistory();
+  React.useEffect(() => {
+    history.push(`/rankings/${toRank}/${userFeatureId}`)
+  }, [])
+  return <p>reloading rankings...</p>
+}
+
+
+// {(unranked !== undefined) && <AreaOfDislikes items={unranked} />}
+// function AreaOfDislikes (props) {
+//   console.log(`in props, unranked items are ${props.items}`)
+//   const items = props.items;
+//   console.log(`The unranked items are ${items}`)
+//   if (items !== undefined) {
+//     return (
+//       <Container>
+//         {items.map( (item, index) => {
+//           return (
+//             <Rect
+//               key={index}
+//               top={index * (HEIGHT + 10)}
+//             >
+//               {item.ranking}.
+//               <br></br>
+//               {item.shop} ({item.nickname}),  {item.details},  
+//               Last Updated: {item.last_updated}
+//               <button>Edit Details</button>
+//             </Rect>
+//           )
+//         })
+//         }
+//       </Container>
+//     )
+//   } else return null;
+// }
 
     
 const Container = window.styled.div`
@@ -1060,6 +1195,12 @@ function App() {
           <Route path="/rankings/:toRank/:userFeatureId">
             <RankedListContainer />
           </Route>
+          <Route path="/redirect-rankings/:toRank/:userFeatureId">
+            <BackToRankings />
+          </Route>
+          <Route path='/edit-user-feature/:userFeatureId'>
+            <EditUserFeature />
+          </Route>
           <Route path="/about">
             <About />
           </Route>
@@ -1087,6 +1228,8 @@ ReactDOM.render(<App />, document.getElementById('root'))
 
 
 function Modal(props) {
+  const [showModal, setShowModal] = React.useState(false)
+  const activator = props.activator;
   const modalContent =  (
       <div className="overlay">
         <div className="modal">
@@ -1096,15 +1239,21 @@ function Modal(props) {
           <button
             // className="modal-close"
             type="button"
-            onClick= {() => props.setShowModal(false)}
+            onClick= {() => setShowModal(false)}
           >
-            X
+            Cancel
           </button>
         </div>
      </div>
     )
 
-  return props.showModal ? modalContent : null;
+  return (
+    <React.Fragment>
+      {activator({setShowModal})}
+      {createPortal(showModal ? modalContent : null, document.body)}
+      {/* {showModal ? modalContent : null} */}
+    </React.Fragment>
+  )
 }
 
 

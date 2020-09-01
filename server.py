@@ -211,7 +211,7 @@ def get_features(feature_type):
     return jsonify(features_of_type)
 
 @app.route('/api/rankings/<to_rank>')
-def get_content_for_modal(to_rank):
+def get_rankings(to_rank):
     feature_name = to_rank
     feature = crud.get_feature_by_name(feature_name)
     user_id = session.get("user_id")
@@ -247,6 +247,66 @@ def update_user_feature_rankings():
     message = 'Saved!'
 
     return jsonify({'message': message})
+
+@app.route('/api/specific-uf-info/<user_feature_id>')
+def get_specific_uf_info(user_feature_id):
+    user_feature = crud.get_user_feature_by_id(user_feature_id)
+    uf_data = {
+        'user_feature_id': user_feature.user_feature_id,
+        'feature': user_feature.feature.name,
+        'shop': user_feature.shop.name,
+        'nickname': user_feature.nickname,
+        'details': user_feature.details,
+        'ranking': user_feature.ranking,
+        'last_updated': user_feature.last_updated
+    }
+
+    return jsonify(uf_data)
+
+@app.route('/api/edit-user-feature', methods=['POST'])
+def edit_user_feature():
+    # expecting to receive a dictionary with nickname, details, and liked as keys
+    # get dictionary of data from form on front-end
+    data = request.get_json()
+
+    # get the user_feature_id and use it to get the user_feature from the db
+    user_feature_id = data['userFeatureId']
+    user_feature = crud.get_user_feature_by_id(user_feature_id)
+
+    updated_nickname = data['nickname']
+    updated_details = data['details']
+    updated_liked = data['liked']
+
+    changes_made = 0
+
+    if updated_nickname != user_feature.nickname:
+        changes_made += 1
+        crud.update_user_feature_nickname(user_feature_id=user_feature_id,
+                                        new_nickname=updated_nickname)
+    if updated_details != user_feature.details:
+        changes_made += 1
+        crud.update_user_feature_details(user_feature_id=user_feature_id,
+                                        new_details=updated_details)
+    current_liked = user_feature.ranking > 0 
+
+    need_to_rerank = False
+    if updated_liked != current_liked:
+        changes_made += 1
+        # if they now dislike it, change the ranking to 0
+        if updated_liked == False:
+            crud.update_user_feature_ranking(user_feature_id=user_feature_id,
+                                        new_ranking=0)
+            need_to_rerank = False
+        #if they now like it, note it somehow?
+        else:
+            need_to_rerank = True
+
+    if changes_made > 0:
+        crud.update_user_feature_last_updated(user_feature_id=user_feature_id,
+                                        new_last_updated=datetime.now())
+
+    return jsonify({'message': 'Saved changes', 'need_to_rerank': need_to_rerank })
+
 
 if __name__ == '__main__':
     # Connect to db first, then app can access it.
