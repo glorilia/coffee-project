@@ -48,6 +48,10 @@ def get_all_shops():
 def get_shop_by_id(id_num):
     return db.session.query(Shop).get(id_num)
 
+def get_shop_by_name(name):
+    return db.session.query(Shop).filter_by(name=name).first()
+    # this doesn't account for the fact that many shops might have the same name
+
 
 #*********************** Type related functions ******************************#
 
@@ -111,6 +115,10 @@ def get_all_ufs_for_user(user):
 
 def get_specific_feature_ufs_for_user(user, feature):
     return db.session.query(UserFeature).options(db.joinedload('feature'), db.joinedload('shop')).filter_by(user=user,feature=feature).all()
+
+def get_specific_shop_ufs_for_user(user, shop):
+    return db.session.query(UserFeature).options(db.joinedload('feature'), db.joinedload('shop')).filter_by(user=user,shop=shop).all()
+
 
 def get_user_feature_by_id(id_num):
     return db.session.query(UserFeature).get(id_num)

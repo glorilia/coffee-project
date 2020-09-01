@@ -299,6 +299,7 @@ function ListContainer(props) {
             // setShowModal={setShowModal}
             // setModalContent = {setModalContent}
             // setToRank={setToRank}
+            view={props.view}
             title={dataKey}
             bodyList={organizedData[dataKey].liked}
             dislikedCount={organizedData[dataKey].disliked}
@@ -329,11 +330,14 @@ function ListItem(props) {
     <li>
       <div 
         onClick={ (e) => {
-        // props.setShowModal(true) 
-        // props.setModalContent(props.title)
-          const toRank = props.title;
-          console.log(`going to rank all: ${toRank}`)
-          history.push(`/rankings/${toRank}/none`)
+          if (props.view == 'shops') {
+            const shopName = props.title
+            history.push(`/shop-info/${shopName}`)
+          } else {
+            const toRank = props.title;
+            console.log(`going to rank all: ${toRank}`)
+            history.push(`/rankings/${toRank}/none`)
+          }
         }}
       >
         <p>{props.title}</p>
@@ -392,7 +396,7 @@ function BodyListElement(props) {
 function RankedListContainer(props) {
   const { toRank, userFeatureId} = useParams();
   console.log(`in rankedListContainer, ranking: ${toRank}`)
-
+  const [changesMade, setChangesMade] = React.useState(0);
   const [rankings, setRankings] = React.useState([]);
   const [unranked, setUnranked] = React.useState([])
   React.useEffect( () => {
@@ -428,20 +432,23 @@ function RankedListContainer(props) {
       })
     }
   }, [
-    toRank
+    toRank,
+    userFeatureId,
+    changesMade
   ]);
 
   console.log(`in RankedListContainer, unranked items: ${unranked}`)
 
-  if (rankings.length !== 0) {
+  if (rankings.length >0 || unranked.length > 0) {
     console.log(`the rankings ${rankings}`)
     return (
       <React.Fragment>
         <h1>Top {toRank}s</h1>
         <AreaForDragging 
-          toRank={toRank}
           items={rankings} 
-          unranked={unranked} />
+          unranked={unranked}
+          changesMade ={changesMade}
+          setChangesMade={setChangesMade} />
       </React.Fragment>
     )
   } else return null;
@@ -534,7 +541,7 @@ function AreaForDragging(props) {
     .then(response => response.json())
     .then(data => {
       alert(data.message)
-      history.push(`/redirect-rankings/${props.toRank}/none`)
+      history.push(`/rankings/${props.toRank}/none`)
     })
   }, [state.order])
 
@@ -584,7 +591,9 @@ function AreaForDragging(props) {
                   <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
                 >
                   <EditUserFeature 
-                    userFeatureId={item.user_feature_id}/>
+                    userFeatureId={item.user_feature_id}
+                    changesMade={props.changesMade}
+                    setChangesMade={props.setChangesMade} />
               </Modal>
             </Rect>
           </Draggable>
@@ -606,7 +615,9 @@ function AreaForDragging(props) {
                   <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
                 >
                   <EditUserFeature 
-                    userFeatureId={item.user_feature_id}/>
+                    userFeatureId={item.user_feature_id}
+                    changesMade={props.changesMade}
+                    setChangesMade={props.setChangesMade} />
                 </Modal>
               </Rect>
             </div>
@@ -671,10 +682,11 @@ function EditUserFeature(props) {
     .then(response => response.json())
     .then(data => {
       alert(data.message);
+      props.setChangesMade(props.changesMade + 1);
       const toRank = featureName
       if(data.need_to_rerank) {
-        history.push(`/redirect-rankings/${toRank}/${userFeatureId}`)
-      } else { history.push(`/redirect-rankings/${toRank}/none`)}
+        history.push(`/rankings/${toRank}/${userFeatureId}`)
+      } 
     })
   }
 
@@ -856,25 +868,55 @@ function Draggable(props) {
 
 
 
+function ShopInfo(){
+  const {shopName} = useParams();
+  const [userFeatures, setUserFeatures] = React.useState();
+  React.useEffect( () => {
+    fetch(`/api/shop-info/${shopName}`)
+    .then(response => response.json())
+    .then(data => {
+      let rankedItems = data
+        .filter((item) => item.ranking != 0)
+        .sort( (a,b) => a.ranking-b.ranking)
+      
+      let unrankedItems = data
+        .filter((item) => item.ranking == 0)
 
+      setUserFeatures(rankedItems.concat(unrankedItems))
+    })
+  }, [])
+  if (userFeatures != undefined) {
+    return (
+      <Container>
+        Info about {shopName}
+        {userFeatures.map( (item, index) => {
+            return (
+              <div style={{position: "relative"}}>
+                <Rect
+                  key={index}
+                  top={(index )* (HEIGHT + 10)}
+                >
+                  {item.ranking}.
+                  <br></br>
+                  {item.feature} ({item.nickname}),  {item.details},  
+                  Last Updated: {item.last_updated}
+                  <Modal
+                  activator={({setShowModal}) => (
+                    <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
+                  >
+                    <EditUserFeature 
+                      userFeatureId={item.user_feature_id}/>
+                  </Modal>
+                </Rect>
+              </div>
+            )
+          })
+          }
+      </Container>
+    )
+  } else {return null;}
+}
 
-
-//   const modalContent =  showModal && (
-//     <div className="overlay">
-//       <div className="modal">
-//         <div className="modal-body">{children}</div>
-//         <button
-//           // className="modal-close"
-//           type="button"
-//           onClick= {() => setShowModal(false)}
-//         >
-//           X
-//         </button>
-//       </div>
-//    </div>
-//   )
-
-// return (modalContent)
 
 
 
@@ -1242,6 +1284,9 @@ function App() {
           </Route>
           <Route path="/add-feature/:featureType">
             <NewFeature />
+          </Route>
+          <Route path="/shop-info/:shopName">
+            <ShopInfo />
           </Route>
           <Route path="/about">
             <About />

@@ -218,13 +218,7 @@ def get_rankings(to_rank):
     user_id = session.get("user_id")
     user = crud.get_user_by_id(user_id)
 
-    user_features = None
-    if feature:
-        user_features = crud.get_specific_feature_ufs_for_user(user=user, feature=feature)
-    else:
-        shop_name = to_rank
-        shop = crud.get_shop_by_name(shop_name)
-        user_features= crud.get_specific_shop_ufs_for_user(user=user, shop=shop)
+    user_features = crud.get_specific_feature_ufs_for_user(user=user, feature=feature)
 
     uf_data = []
     for uf in user_features:
@@ -342,6 +336,30 @@ def add_new_feature():
     message = f"Your new {feature_type_name}, {feature.name}, has been added!"
 
     return jsonify({'message': message})
+
+@app.route('/api/shop-info/<shopName>')
+def get_shop_user_features(shopName):
+    shop = crud.get_shop_by_name(shopName)
+    user_id = session.get("user_id")
+    user = crud.get_user_by_id(user_id)
+    user_features = crud.get_specific_shop_ufs_for_user(user=user, shop=shop)
+
+    uf_data = []
+    for uf in user_features:
+        uf_data.append(
+            {
+            'user_feature_id': uf.user_feature_id,
+            'feature': uf.feature.name,
+            'shop': uf.shop.name,
+            'nickname': uf.nickname,
+            'details': uf.details,
+            'ranking': uf.ranking,
+            'last_updated': uf.last_updated
+            }
+        )
+    
+    return jsonify(uf_data)
+
 
 
 
