@@ -5,7 +5,6 @@ const createPortal = ReactDOM.createPortal
 
 
 function LandingPage() { // First page anyone lands on, can login or create account
-
   let history = useHistory()
   // Callback for create account button click
   const handleClick = () => {
@@ -24,14 +23,11 @@ function LandingPage() { // First page anyone lands on, can login or create acco
 }
 
 
-function CreateAccount() {
-  // A form to create a new user account
-
+function CreateAccount() { // A form to create a new user account
   let history = useHistory()
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [homeZipcode, setHomeZipcode] = React.useState('')
-
   // Callback for create account event
   const logIn = (event) => {
     event.preventDefault();
@@ -84,13 +80,10 @@ function CreateAccount() {
 }
 
 
-function Login() {
-  // a form to gather login info from a user
-
+function Login() { // a form to gather login info from a user
   let history = useHistory()
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
-
   // Callback for login event
   const logIn = (event) => {
     event.preventDefault();
@@ -141,7 +134,7 @@ const HOMEPAGE_VIEWS = {
   'Top Shop Aspects': 'shopAspects'
 };
 
-// Homepage
+
 function Homepage() {
   const [view, setView] = React.useState('shops');
 
@@ -155,7 +148,7 @@ function Homepage() {
   )
 }
 
-// ButtonBar
+
 function ButtonBar(props) {
   // Callback for a button's click event
   const changeView = (event) => {
@@ -218,7 +211,7 @@ function MapComponent(props) {
 function InfoContainer(props) { //get the user's user features' information (all of it at the same time)
   const [userFeatureData, setUserFeatureData] = React.useState({});
   React.useEffect(() => {
-    fetch('/api/get-user-information')
+    fetch(`/api/get-user-information/${props.view}`)
       .then(response => response.json())
       .then(data => {
         setUserFeatureData({
@@ -227,21 +220,17 @@ function InfoContainer(props) { //get the user's user features' information (all
           shops: data.drink.concat(data.shop_aspect)
         })
       })
-  }, [])
+  }, [props.view])
 
   return (
     <div id="info-container">
       <ListContainer view={props.view} dataToDisplay={userFeatureData[props.view]} />
-      {/* <ViewAllButton /> */}
     </div>
   )
 }
 
 // ListContainer
 function ListContainer(props) {
-  // const  [toRank, setToRank] = React.useState();
-  // const [showModal, setShowModal] = React.useState(false);
-  // const [modalContent, setModalContent] = React.useState();
   const [allData, setAllData] = React.useState([]);
   const dataList = [];
   React.useEffect(() => {
