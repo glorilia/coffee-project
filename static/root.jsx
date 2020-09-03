@@ -308,119 +308,112 @@ function BodyListElement(props) {
 }
 
 
+const MAX = 5;
+const HEIGHT = 80;
 
 
 function RankedListContainer() {
   const { toRank, userFeatureId} = useParams();
-  console.log(`1. in RankedListContainer, ranking: ${toRank}`)
-  console.log(`2. in RankedListContainer, reranking id is: ${userFeatureId}`)
   const [changesMade, setChangesMade] = React.useState(0);
-  const [rankings, setRankings] = React.useState([]);
-  const [unranked, setUnranked] = React.useState([]);
+  const [allUserFeatures, setAllUserFeatures] = React.useState({});
+  const [showModal, setShowModal] = React.useState(false);
+  const [idToEdit, setIdToEdit] = React.useState('');
+
   React.useEffect( () => {
       fetch(`/api/rankings/${toRank}/${userFeatureId}`)
       .then(response => response.json())
-      .then(data => {
-        setRankings(data.liked)
-        setUnranked(data.disliked)
-      })
-  
+      .then(data => setAllUserFeatures(data))
   }, [
-    toRank,
-    userFeatureId,
+    // userFeatureId,
     changesMade
   ]);
 
-  console.log(`in RankedListContainer, unranked items: ${unranked}`)
+  console.log(`1. In RankedListContainer, allUserFeatures liked is ${allUserFeatures.liked}`)
+  console.log(`2. In RankedListContainer, allUserFeatures disliked is ${allUserFeatures.disliked}`)
 
-  if (rankings.length >0 || unranked.length > 0) {
-    console.log(`the rankings ${rankings}`)
+  if (Object.keys(allUserFeatures).length > 0) {
     return (
       <div id="ranked-list-container">
         <h1>Top {toRank}s</h1>
         <AreaForDragging 
-          items={rankings} 
-          unranked={unranked}
+          allUserFeatures={allUserFeatures}
           changesMade ={changesMade}
-          setChangesMade={setChangesMade} />
+          setChangesMade={setChangesMade} 
+          showModal={showModal}
+          setShowModal={setShowModal}
+          setIdToEdit={setIdToEdit}
+        />
+        <Modal showModal={showModal} setShowModal={setShowModal}>
+          <EditUserFeature 
+            userFeatureId={idToEdit}
+            setShowModal={setShowModal}
+            setChangesMade={setChangesMade}
+            changesMade={changesMade}/>
+        </Modal>
       </div>
     )
   } else return null;
-  
-
-  // const itemsToDisplay = []
-  // if (rankings) {
-  //   for (const item of rankings) {
-  //     itemsToDisplay.push(
-  //       <RankedListItem 
-  //         key ={item.user_feature_id}
-  //         shop={item.shop}
-  //         nickname={item.nickname}
-  //         details={item.details}
-  //         lastUpdated={item.last_updated}
-  //         ranking={item.ranking}
-  //       />
-  //     )
-  //   }
-  // }
-
-
-  // return (
-  //   <div>
-  //     <h2>Top {props.modalContent}</h2>
-  //     <ul>{itemsToDisplay}</ul>
-  //   </div>
-  // )
 }
 
 
-// function RankedListItem(props) {
-  
-// }
+function Modal(props) {
+  // const [showModal, setShowModal] = React.useState(false)
+  // const activator = props.activator;
+  const modalContent =  (
+      <div className="overlay">
+        <div className="modal">
+          <div className="modal-body">
+            {props.children}
+          </div>
+          <button
+            // className="modal-close"
+            type="button"
+            onClick= {() => props.setShowModal(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    )
 
+  return createPortal(props.showModal ? modalContent : null, document.body)
+}
 
-const MAX = 5;
-const HEIGHT = 80;
 
 function AreaForDragging(props) {
   let history = useHistory()
-  const unranked=props.unranked;
-  const items = props.items;
-  // console.log(`items in the area for draggin: ${items}`)
+  const unranked=props.allUserFeatures.disliked;
+  const items = props.allUserFeatures.liked;
   const [state, setState] = React.useState({
     order: items,
     dragOrder: items,
     draggedIndex: null
   })
 
+  console.log(`3. In AreaForDragging, items is: ${items}`)
+  console.log(`4. In AreaForDragging, unranked is: ${unranked}`)
+
   const handleDrag = React.useCallback(({translation, id}) => {
     const delta = Math.round(translation.y / HEIGHT);
     const index = state.order.indexOf(id);
     const dragOrder = state.order.filter(item => item !== id);
-    // console.log(`drag order after filter, before splice: ${dragOrder[0].shop}, ${dragOrder[1].shop}`)
     if (!_.inRange(index + delta, 0, items.length)){
       return;
     }
-
     dragOrder.splice(index + delta, 0, id);
-    // console.log(`drag order after splice: ${dragOrder[0].shop}, ${dragOrder[1].shop}, ${dragOrder[2].shop}`)
-
     setState(state => ({
       ...state,
       draggedIndex: id,
       dragOrder
     }));
-    // console.log(`now the dragorder of the state is ${state.dragOrder[0].shop}, ${state.dragOrder[1].shop}, ${state.dragOrder[2].shop}`)
   }, [state.order, items.length]);
 
   const handleDragEnd = React.useCallback(() => {
- 
     setState(state => ({
       ...state,
       order: state.dragOrder,
       draggedIndex: null
     }));
-
   }, []);
   
   const saveRankings = React.useCallback(() => {
@@ -434,28 +427,24 @@ function AreaForDragging(props) {
       })
     .then(response => response.json())
     .then(data => {
-      alert(data.message)
-      history.push(`/rankings/${props.toRank}/none`)
+      props.setChangesMade(props.changesMade + 1);
+      alert(data.message);
     })
   }, [state.order])
 
 
-
-
-
-  // console.log(`This is the official order: ${state.order[0].shop}, ${state.order[1].shop}, ${state.order[2].shop}`)
-  if (items){
-    return(
-      <Container> 
-        <button 
-          id="save-rankings-button" 
-          onClick={saveRankings}
-          >
-            Save
-        </button>
+  return(
+    <Container> 
+      <button 
+        id="save-rankings-button" 
+        onClick={saveRankings}
+        >
+          Save Rankings
+      </button>
       {items.map((item, index) => {
         const isDragging = state.draggedIndex === index;
         const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
+        console.log(`top: ${top}`)
         const draggedTop = state.order.indexOf(item) * (HEIGHT + 10);
         
         return (
@@ -466,73 +455,60 @@ function AreaForDragging(props) {
             onDragEnd={handleDragEnd}
           >
             <Rect
+              key={item.user_feature_id}
               isDragging={isDragging}
               top={isDragging ? draggedTop : top}
             >
               {item.ranking}.
               <br></br>
-              {item.shop} ({item.nickname}),  {item.details},  
+              {item.shop.name} ({item.nickname}),  {item.details},  
               Last Updated: {item.last_updated}
-              <Modal
-                activator={({setShowModal}) => (
-                  <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
-                >
-                  <EditUserFeature 
-                    userFeatureId={item.user_feature_id}
-                    changesMade={props.changesMade}
-                    setChangesMade={props.setChangesMade} />
-              </Modal>
+              <button 
+                style={{zIndex: 3}} 
+                onClick={() => {
+                  props.setShowModal(true)
+                  props.setIdToEdit(item.user_feature_id)
+                }}
+              >
+                Edit Details
+              </button>
             </Rect>
           </Draggable>
         );
       })}
       {unranked.map( (item, index) => {
           return (
-            <div style={{position: "relative"}}>
+            <div key={index} style={{position: "relative"}}>
               <Rect
-                key={index}
+                key={item.user_feature_id}
                 top={(index + state.order.length)* (HEIGHT + 10)}
               >
                 {item.ranking}.
                 <br></br>
-                {item.shop} ({item.nickname}),  {item.details},  
+                {item.shop.name} ({item.nickname}),  {item.details},  
                 Last Updated: {item.last_updated}
-                <Modal
-                activator={({setShowModal}) => (
-                  <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
+                <button 
+                  style={{zIndex: 3}} 
+                  onClick={() => {
+                    props.setShowModal(true)
+                    props.setIdToEdit(item.user_feature_id)
+                  }}
                 >
-                  <EditUserFeature 
-                    userFeatureId={item.user_feature_id}
-                    changesMade={props.changesMade}
-                    setChangesMade={props.setChangesMade} />
-                </Modal>
+                  Edit Details
+                </button>
               </Rect>
             </div>
           )
         })
         }
-    </Container>
-    );
-  } else return null;
+  </Container>
+  );
 }
 
-
-function EditButton(props) {
-  let history = useHistory();
-
-  const editDetails = () => {
-    const userFeatureId = props.userFeatureId;
-    history.push(`/edit-user-feature/${userFeatureId}`)
-  }
-
-  return <button onClick={editDetails}>Edit Details</button>
-}
 
 function EditUserFeature(props) {
-  // const {userFeatureId} = useParams();
   const userFeatureId = props.userFeatureId;
   let history = useHistory();
-  // const [info, setInfo] = React.useState({});
   const [featureName, setFeatureName] = React.useState('');
   const [nickname, setNickname] = React.useState('');
   const [details, setDetails] = React.useState('');
@@ -548,7 +524,6 @@ function EditUserFeature(props) {
       setDetails(data.details)
       setLiked(data.ranking > 0)
       setShop(data.shop)
-
     })
   }, [])
 
@@ -559,7 +534,6 @@ function EditUserFeature(props) {
       'details': details,
       'liked': liked,
     }
-
     fetch('/api/edit-user-feature', {
       method: 'POST',
       body: JSON.stringify(formData),
@@ -568,10 +542,11 @@ function EditUserFeature(props) {
     })
     .then(response => response.json())
     .then(data => {
-      alert(data.message);
       props.setChangesMade(props.changesMade + 1);
-      const toRank = featureName
+      alert(data.message);
+      props.setShowModal(false);
       if(data.need_to_rerank) {
+        const toRank = featureName
         history.push(`/rankings/${toRank}/${userFeatureId}`)
       } 
     })
@@ -752,6 +727,9 @@ function Draggable(props) {
     </div>
   )
 }
+
+
+
 
 
 
@@ -1201,34 +1179,34 @@ ReactDOM.render(<App />, document.getElementById('root'))
 
 
 
-function Modal(props) {
-  const [showModal, setShowModal] = React.useState(false)
-  const activator = props.activator;
-  const modalContent =  (
-      <div className="overlay">
-        <div className="modal">
-          <div className="modal-body">
-            {props.children}
-          </div>
-          <button
-            // className="modal-close"
-            type="button"
-            onClick= {() => setShowModal(false)}
-          >
-            Cancel
-          </button>
-        </div>
-     </div>
-    )
+// function Modal(props) {
+//   const [showModal, setShowModal] = React.useState(false)
+//   const activator = props.activator;
+//   const modalContent =  (
+//       <div className="overlay">
+//         <div className="modal">
+//           <div className="modal-body">
+//             {props.children}
+//           </div>
+//           <button
+//             // className="modal-close"
+//             type="button"
+//             onClick= {() => setShowModal(false)}
+//           >
+//             Cancel
+//           </button>
+//         </div>
+//      </div>
+//     )
 
-  return (
-    <React.Fragment>
-      {activator({setShowModal})}
-      {createPortal(showModal ? modalContent : null, document.body)}
-      {/* {showModal ? modalContent : null} */}
-    </React.Fragment>
-  )
-}
+//   return (
+//     <React.Fragment>
+//       {activator({setShowModal})}
+//       {createPortal(showModal ? modalContent : null, document.body)}
+//       {/* {showModal ? modalContent : null} */}
+//     </React.Fragment>
+//   )
+// }
 
 
 

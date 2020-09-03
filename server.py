@@ -296,9 +296,13 @@ def get_rankings(to_rank, user_feature_id):
         'disliked': []
     }
     for uf in user_info: # go through array of specific feature's user feature dicts
-        if uf['user_feature_id'] == user_feature_id:
+        print(f'looking for the uf_id: {user_feature_id}')
+        if str(uf['user_feature_id']) == user_feature_id:
             special_uf = uf
+            print('found it!')
         else:
+            print(f'not this one, which has uf_id:')
+            print(uf['user_feature_id'])
             if uf['ranking'] > 0:
                 # add it to the liked list in organized_user_info
                 organized_user_info['liked'].append(uf)
@@ -306,6 +310,7 @@ def get_rankings(to_rank, user_feature_id):
             else:
                 organized_user_info['disliked'].append(uf)
 
+    print(f'*************** special_uf is {special_uf}*****************')
     if special_uf:
         organized_user_info['liked'].insert(0, special_uf)
         # make organized_user_info look like: {
@@ -336,11 +341,9 @@ def get_rankings(to_rank, user_feature_id):
             'last_updated': uf.last_updated
             }
         )
-    print('***************** the organized data****************')
-    print(organized_user_info['liked'])
-    print(organized_user_info['disliked'])
-    # return jsonify(organized_user_info)
-    return jsonify(uf_data)
+
+    return jsonify(organized_user_info)
+    # return jsonify(uf_data)
 
 @app.route('/api/update-rankings', methods=['POST'])
 def update_user_feature_rankings():
