@@ -259,13 +259,70 @@ def get_features(feature_type):
             features_of_type.append({'id': feature.feature_id, 'name': feature.name})
     return jsonify(features_of_type)
 
-@app.route('/api/rankings/<to_rank>')
-def get_rankings(to_rank):
+@app.route('/api/rankings/<to_rank>/<user_feature_id>')
+def get_rankings(to_rank, user_feature_id):
     feature_name = to_rank
     feature = crud.get_feature_by_name(feature_name)
     user_id = session.get("user_id")
     user = crud.get_user_by_id(user_id)
     user_features = crud.get_specific_feature_ufs_for_user(user=user, feature=feature)
+    user_info = []  # will be filled with a dict for each user feature, as detailed below
+    for uf in user_features:
+        user_info.append(
+            {
+            'user_feature_id': uf.user_feature_id,
+            'feature': { 
+                'name': uf.feature.name, 
+                'feature_id': uf.feature.feature_id, 
+                'description': uf.feature.description,
+                'type_name': uf.feature.type.name
+                },
+            'shop': { 
+                'name': uf.shop.name, 
+                'shop_id': uf.shop.shop_id, 
+                'lat': uf.shop.lat, 
+                'lng': uf.shop.lng
+                },
+            'nickname': uf.nickname,
+            'details': uf.details,
+            'ranking': uf.ranking,
+            'last_updated': uf.last_updated
+            }
+        )
+    
+    special_uf = None
+    organized_user_info = {
+        'liked': [],
+        'disliked': []
+    }
+    for uf in user_info: # go through array of specific feature's user feature dicts
+        if uf['user_feature_id'] == user_feature_id:
+            special_uf = uf
+        else:
+            if uf['ranking'] > 0:
+                # add it to the liked list in organized_user_info
+                organized_user_info['liked'].append(uf)
+                organized_user_info['liked'].sort(key=lambda item: item.get('ranking'))
+            else:
+                organized_user_info['disliked'].append(uf)
+
+    if special_uf:
+        organized_user_info['liked'].insert(0, special_uf)
+        # make organized_user_info look like: {
+        #   'liked' : [
+        #               {'user_feature_id': 201, 'feature': {name: latte, description: ...}},
+        #               {'user_feature_id': 209, 'feature': {name: cold brew, description: ...}}
+        #            ]
+        #   'disliked': [
+        #               {'user_feature_id': 201, 'feature': {name: latte, description: ...}},
+        #                {'user_feature_id': 209, 'feature': {name: cold brew, description: ...}}
+        #           ]
+        #       }
+
+    # Add in the user feature with user_feature_id to the front of like if it's not none
+
+
+    # THE OLD WAY
     uf_data = []
     for uf in user_features:
         uf_data.append(
@@ -279,6 +336,10 @@ def get_rankings(to_rank):
             'last_updated': uf.last_updated
             }
         )
+    print('***************** the organized data****************')
+    print(organized_user_info['liked'])
+    print(organized_user_info['disliked'])
+    # return jsonify(organized_user_info)
     return jsonify(uf_data)
 
 @app.route('/api/update-rankings', methods=['POST'])

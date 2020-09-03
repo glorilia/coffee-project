@@ -211,7 +211,7 @@ function MapComponent(props) {
 // InfoContainer
 function InfoContainer(props) { //get the user's user features' information according to the view
   const [listItems, setListItems] = React.useState([]);
-  
+  // function that creates list of ListItem components after getting db data
   const makeListItems = (data) => {
     const allListItems = []
     for (const item in data) {
@@ -224,7 +224,7 @@ function InfoContainer(props) { //get the user's user features' information acco
         />)}
     setListItems(allListItems);
   }
-
+  // gets information about user features from db according to view
   React.useEffect(() => {
     fetch(`/api/get-user-information/${props.view}`)
     .then(response => response.json())
@@ -244,7 +244,9 @@ function InfoContainer(props) { //get the user's user features' information acco
 
 function ListItem(props) {
   let history = useHistory();
-
+  // calculate what label will be in item body list according to view
+  const label = props.view == 'shops' ? 'feature' : 'shop';
+  // send to page about the feature or shop according to view
   const handleListItemClick = () => {
     if (props.view == 'shops') {
       const shopName = props.title
@@ -254,45 +256,42 @@ function ListItem(props) {
       history.push(`/rankings/${toRank}/none`)
     }
   }
-  
+
   return (
     <li onClick={handleListItemClick}>
       <p>{props.title}</p>
-      <ItemBodyList view={props.view} allUserFeatures={props.allUserFeatures}/>
+      <ItemBodyList 
+        label={label} 
+        likedList={props.allUserFeatures.liked}
+        dislikedList={props.allUserFeatures.disliked}/>
     </li>
   )
 }
 
 
 function ItemBodyList(props) {
-  const [listElements, setListElements] = React.useState('');
+  const [listElements, setListElements] = React.useState([]);
   const numItemsToShow = 3;
-  const likedList = props.allUserFeatures.liked;
-  const dislikedList = props.allUserFeatures.disliked;
-  const numLikesLeft = likedList.length - numItemsToShow;
-  const numDislikes = dislikedList.length;
+  const numLikesLeft = props.likedList.length - numItemsToShow;
+  const numDislikes = props.dislikedList.length;
   const needNumLikesLeft = numLikesLeft > 0;
   const needNumDislikes= numDislikes > 0;
-
-  const makeListElements = (label) => {
+  // creates list of BodyListElement components, according to numItemsToShow and props.likedList
+  const makeListElements = () => {
     const allListElements = [];
-    for (const listElement of likedList.slice(0, numItemsToShow)) {
+    for (const listElement of props.likedList.slice(0, numItemsToShow)) {
       allListElements.push(
         <BodyListElement
           key={listElement.user_feature_id}
-          bodyListElement={listElement[label].name} 
-        />)
-    }
+          bodyListElement={listElement[props.label].name} 
+        />)}
     setListElements(allListElements)
   }
 
   React.useEffect( ()=> {
-    props.view == 'shops' ? makeListElements('feature') : makeListElements('shop'); 
-  }, [props.view]);
+    makeListElements()
+  }, [props.label, props.likedList, props.dislikedList]);
   
-  // console.log(`For the body list ${props.bodyList}`)
-  // console.log(`needNumLeft looks like it's: ${needNumLeft}`)
-  // console.log(`numLeft, ${(props.bodyList) ? (props.bodyList).length : null} - ${numItemsToShow}, looks like it's: ${numLeft}`)
   return (
     <React.Fragment>
       <ul>{listElements}</ul>
@@ -311,45 +310,21 @@ function BodyListElement(props) {
 
 
 
-
-function RankedListContainer(props) {
+function RankedListContainer() {
   const { toRank, userFeatureId} = useParams();
-  console.log(`in rankedListContainer, ranking: ${toRank}`)
+  console.log(`1. in RankedListContainer, ranking: ${toRank}`)
+  console.log(`2. in RankedListContainer, reranking id is: ${userFeatureId}`)
   const [changesMade, setChangesMade] = React.useState(0);
   const [rankings, setRankings] = React.useState([]);
-  const [unranked, setUnranked] = React.useState([])
+  const [unranked, setUnranked] = React.useState([]);
   React.useEffect( () => {
-    if (toRank) {
-      fetch(`/api/rankings/${toRank}`)
+      fetch(`/api/rankings/${toRank}/${userFeatureId}`)
       .then(response => response.json())
       .then(data => {
-        // filter data by having a 0 ranking
-        let unrankedItems = data
-          .filter(arrayElement =>
-            //only keeps stuff that has a zero rank
-            arrayElement.ranking == 0
-          )
-
-        let newItem = data
-          .filter(element => element.user_feature_id == userFeatureId)
-        
-        let rankedItems = data 
-          .filter(arrayElement =>  arrayElement.ranking != 0)
-          .sort((a,b) => {
-            return a.ranking - b.ranking
-          })
-        
-        // let unrankedItems = data
-        // .filter(arrayElement =>
-        //   //only keeps stuff that has a zero rank
-        //   arrayElement.ranking == 0
-        // )
-        
-        // setRankings(rankedItems.concat(unrankedItems));
-        setRankings(newItem.concat(rankedItems))
-        setUnranked(unrankedItems)
+        setRankings(data.liked)
+        setUnranked(data.disliked)
       })
-    }
+  
   }, [
     toRank,
     userFeatureId,
@@ -361,14 +336,14 @@ function RankedListContainer(props) {
   if (rankings.length >0 || unranked.length > 0) {
     console.log(`the rankings ${rankings}`)
     return (
-      <React.Fragment>
+      <div id="ranked-list-container">
         <h1>Top {toRank}s</h1>
         <AreaForDragging 
           items={rankings} 
           unranked={unranked}
           changesMade ={changesMade}
           setChangesMade={setChangesMade} />
-      </React.Fragment>
+      </div>
     )
   } else return null;
   
@@ -482,13 +457,6 @@ function AreaForDragging(props) {
         const isDragging = state.draggedIndex === index;
         const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
         const draggedTop = state.order.indexOf(item) * (HEIGHT + 10);
-        // console.log(`start of dragorder, item, dragorderindexof, orderindexof`)
-        // console.log(state.dragOrder)
-        // console.log(item)
-        // console.log(state.dragOrder.indexOf(item))
-        // console.log(state.order.indexOf(item))
-        // const top = index * (HEIGHT + 10);
-        // const draggedTop = index * (HEIGHT + 10);
         
         return (
           <Draggable
