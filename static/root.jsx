@@ -12,7 +12,8 @@ function LandingPage() { // First page anyone lands on, can login or create acco
   }
 
   return (
-    <div> Dranks
+    <div id="landing-page"> 
+      <h1>Dranks</h1>
       <Login />
       <h3>OR</h3>
       <button id="create-account" onClick={handleClick}>
@@ -208,23 +209,19 @@ function MapComponent(props) {
 }
 
 // InfoContainer
-function InfoContainer(props) { //get the user's user features' information (all of it at the same time)
+function InfoContainer(props) { //get the user's user features' information according to the view
   const [listItems, setListItems] = React.useState([]);
-  // viewBasedData is a massive, nested object.
+  
   const makeListItems = (data) => {
-    console.log(`inside makeListItems, dataObject is: ${dataObject}`);
     const allListItems = []
     for (const item in data) {
-      console.log(`for the item ${data[item].name}, all_user_features is: ${data[item].all_user_features}`);
       allListItems.push(
         <ListItem
           key={item}
           view={props.view}
-          title={item.name}
-          allUserFeatures={item.all_user_features}
-        />
-      )
-    }
+          title={data[item].name}
+          allUserFeatures={data[item].all_user_features}
+        />)}
     setListItems(allListItems);
   }
 
@@ -234,20 +231,20 @@ function InfoContainer(props) { //get the user's user features' information (all
     .then(data => makeListItems(data))
   }, [props.view])
 
-  // console.log(`inside InfoContainer, listItems is: ${listItems}`)
   return (
-    <React.Fragment>
+    <div id="info-container">
       <h1>Top {props.view}</h1>
       <ul id="list-of-user-features">
         {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
       </ul>
-    </React.Fragment>
+    </div>
   )
 }
 
 
 function ListItem(props) {
   let history = useHistory();
+
   const handleListItemClick = () => {
     if (props.view == 'shops') {
       const shopName = props.title
@@ -257,6 +254,7 @@ function ListItem(props) {
       history.push(`/rankings/${toRank}/none`)
     }
   }
+  
   return (
     <li onClick={handleListItemClick}>
       <p>{props.title}</p>
@@ -267,11 +265,7 @@ function ListItem(props) {
 
 
 function ItemBodyList(props) {
-  if (props.view == 'shops') {
-    const label = 'feature';
-  } else {
-    const label = 'shop';
-  }
+  const [listElements, setListElements] = React.useState('');
   const numItemsToShow = 3;
   const likedList = props.allUserFeatures.liked;
   const dislikedList = props.allUserFeatures.disliked;
@@ -279,22 +273,29 @@ function ItemBodyList(props) {
   const numDislikes = dislikedList.length;
   const needNumLikesLeft = numLikesLeft > 0;
   const needNumDislikes= numDislikes > 0;
-  const allBodyListElements = [];
-  // if (props.bodyList != null) {
-  for (const listElement of likedList.slice(0, numItemsToShow)) {
-    allBodyListElements.push(
-      <BodyListElement
-        key={listElement.user_feature_id}
-        bodyListElement={listElement[label].name} 
-      />)
+
+  const makeListElements = (label) => {
+    const allListElements = [];
+    for (const listElement of likedList.slice(0, numItemsToShow)) {
+      allListElements.push(
+        <BodyListElement
+          key={listElement.user_feature_id}
+          bodyListElement={listElement[label].name} 
+        />)
+    }
+    setListElements(allListElements)
   }
 
+  React.useEffect( ()=> {
+    props.view == 'shops' ? makeListElements('feature') : makeListElements('shop'); 
+  }, [props.view]);
+  
   // console.log(`For the body list ${props.bodyList}`)
   // console.log(`needNumLeft looks like it's: ${needNumLeft}`)
   // console.log(`numLeft, ${(props.bodyList) ? (props.bodyList).length : null} - ${numItemsToShow}, looks like it's: ${numLeft}`)
   return (
     <React.Fragment>
-      <ul>{allBodyListElements}</ul>
+      <ul>{listElements}</ul>
       { needNumLikesLeft && <span>+{numLikesLeft} more <i className="fas fa-thumbs-up"></i></span>} 
       { (needNumLikesLeft && needNumDislikes) && <span>, </span>}
       { needNumDislikes && <span> {numDislikes} {numDislikes==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
