@@ -138,12 +138,13 @@ const HOMEPAGE_VIEWS = {
 
 function Homepage() {
   const [view, setView] = React.useState('shops');
+  const [locationBounds, setLocationBounds] = React.useState()
 
   return (
     <div id="homepage">
       <ButtonBar setView={setView} />
-      {/* <MapContainer view={view} /> */}
-      <InfoContainer view={view} />
+      <MapContainer view={view} setLocationBounds={setLocationBounds}/>
+      <InfoContainer view={view} locationBounds={locationBounds}/>
       <SelectorAddButton view={view} />
     </div>
   )
@@ -168,11 +169,18 @@ function ButtonBar(props) {
 
 // MapContainer
 function MapContainer(props) {
-  
+  const [ map, setMap] = React.useState();
+  const [ options, setOptions] = React.useState({
+    center: { lat: 39.5296, lng: -119.8138},
+    zoom: 13
+  });
+  // Have the options state initialize at the coordinates of the user's zipcode
+
   return (
     <div id="map-container">
       <LocationSetter />
-      <MapComponent options={{ center: { lat: 37.601773, lng: -122.202870 }, zoom: 11 }} />
+      <MapComponent setMap={setMap} options={options} />
+      {/* <ShopMarkers map={map}/> */}
     </div>
   )
 }
@@ -186,9 +194,8 @@ function LocationSetter(props) {
 function MapComponent(props) {
   const options = props.options;
   const ref = React.useRef();
-  const [theMap, setTheMap] = React.useState();
   React.useEffect(() => {
-    const createMap = () => setTheMap(new window.google.maps.Map(ref.current, options));
+    const createMap = () => props.setMap(new window.google.maps.Map(ref.current, options));
     if (!window.google) { // Create an html element with a script tag in the DOM
       const script = document.createElement('script');
       script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
@@ -207,6 +214,12 @@ function MapComponent(props) {
     ></div>
   )
 }
+
+
+function ShopMarkers(props) {
+
+}
+
 
 // InfoContainer
 function InfoContainer(props) { //get the user's user features' information according to the view
@@ -381,6 +394,146 @@ function Modal(props) {
 
 
 function AreaForDragging(props) {
+  let history = useHistory();
+  const unranked=props.allUserFeatures.disliked;
+  const items = props.allUserFeatures.liked;
+  const [state, setState] = React.useState({
+    order: items,
+    dragOrder: items,
+    draggedIndex: null
+  })
+
+  React.useEffect( () => {
+    setState({
+      order: items,
+      dragOrder: items,
+      draggedIndex: null
+    })
+  }, [items])
+
+  console.log(`3. In AreaForDragging, items is:`)
+  console.table(items)
+  console.log(`4. In AreaForDragging, unranked is: ${unranked}`)
+  console.log(`4. state.dragOrder is:`)
+  console.table(state.dragOrder)
+  console.log(`5. is state.dragOrder == items? ${_.isEqual(items, state.dragOrder)}`)
+
+  const handleDrag = React.useCallback(({translation, id}) => {
+    const delta = Math.round(translation.y / HEIGHT);
+    const index = state.order.indexOf(id);
+    const dragOrder = state.order.filter(item => item !== id);
+    if (!_.inRange(index + delta, 0, items.length)){
+      return;
+    }
+    dragOrder.splice(index + delta, 0, id);
+    setState(state => ({
+      ...state,
+      draggedIndex: id,
+      dragOrder
+    }));
+  }, [state.order, items.length]);
+
+  const handleDragEnd = React.useCallback(() => {
+    setState(state => ({
+      ...state,
+      order: state.dragOrder,
+      draggedIndex: null
+    }));
+  }, []);
+  
+  const saveRankings = React.useCallback(() => {
+    const userFeaturesByRanking = state.order
+    fetch('/api/update-rankings',
+      {
+        method: 'POST',
+        body: JSON.stringify(userFeaturesByRanking),
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      })
+    .then(response => response.json())
+    .then(data => {
+      props.setChangesMade(props.changesMade + 1);
+      alert(data.message);
+    })
+  }, [state.order])
+
+
+  return(
+    <Container> 
+      <button 
+        id="save-rankings-button" 
+        onClick={saveRankings}
+        >
+          Save Rankings
+      </button>
+      {items.map((item, index) => {
+        const isDragging = state.draggedIndex === index;
+        const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
+        console.log(`OG index${index}-> state.dragOrder.indexOf(item->${item.shop.name}): ${state.dragOrder.indexOf(item)}`)
+        console.log(`OG index${index}-> top: ${top}`)
+        const draggedTop = state.order.indexOf(item) * (HEIGHT + 10);
+        console.log(`OG index${index}-> draggedTop: ${draggedTop}`)
+
+        return (
+          <Draggable
+            key={index}
+            id={item}
+            onDrag={handleDrag}
+            onDragEnd={handleDragEnd}
+          >
+            <Rect
+              key={item.user_feature_id}
+              isDragging={isDragging}
+              top={isDragging ? draggedTop : top}
+            >
+              {item.ranking}.
+              <br></br>
+              {item.shop.name} ({item.nickname}),  {item.details},  
+              Last Updated: {item.last_updated}
+              <button 
+                style={{zIndex: 3}} 
+                onClick={() => {
+                  props.setShowModal(true)
+                  props.setIdToEdit(item.user_feature_id)
+                }}
+              >
+                Edit Details
+              </button>
+            </Rect>
+          </Draggable>
+        );
+      })}
+      {unranked.map( (item, index) => {
+          return (
+            <div key={index} style={{position: "relative"}}>
+              <Rect
+                key={item.user_feature_id}
+                top={(index + state.order.length)* (HEIGHT + 10)}
+              >
+                {item.ranking}.
+                <br></br>
+                {item.shop.name} ({item.nickname}),  {item.details},  
+                Last Updated: {item.last_updated}
+                <button 
+                  style={{zIndex: 3}} 
+                  onClick={() => {
+                    props.setShowModal(true)
+                    props.setIdToEdit(item.user_feature_id)
+                  }}
+                >
+                  Edit Details
+                </button>
+              </Rect>
+            </div>
+          )
+        })
+        }
+  </Container>
+  );
+}
+
+
+function OGAreaForDragging(props) {
   let history = useHistory()
   const unranked=props.allUserFeatures.disliked;
   const items = props.allUserFeatures.liked;
