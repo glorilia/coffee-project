@@ -209,166 +209,95 @@ function MapComponent(props) {
 
 // InfoContainer
 function InfoContainer(props) { //get the user's user features' information (all of it at the same time)
-  const [userFeatureData, setUserFeatureData] = React.useState({});
+  const [listItems, setListItems] = React.useState([]);
+  // viewBasedData is a massive, nested object.
+  const makeListItems = (data) => {
+    console.log(`inside makeListItems, dataObject is: ${dataObject}`);
+    const allListItems = []
+    for (const item in data) {
+      console.log(`for the item ${data[item].name}, all_user_features is: ${data[item].all_user_features}`);
+      allListItems.push(
+        <ListItem
+          key={item}
+          view={props.view}
+          title={item.name}
+          allUserFeatures={item.all_user_features}
+        />
+      )
+    }
+    setListItems(allListItems);
+  }
+
   React.useEffect(() => {
     fetch(`/api/get-user-information/${props.view}`)
-      .then(response => response.json())
-      .then(data => {
-        setUserFeatureData({
-          drinks: data.drink,
-          shopAspects: data.shop_aspect,
-          shops: data.drink.concat(data.shop_aspect)
-        })
-      })
+    .then(response => response.json())
+    .then(data => makeListItems(data))
   }, [props.view])
 
+  // console.log(`inside InfoContainer, listItems is: ${listItems}`)
   return (
-    <div id="info-container">
-      <ListContainer view={props.view} dataToDisplay={userFeatureData[props.view]} />
-    </div>
-  )
-}
-
-// ListContainer
-function ListContainer(props) {
-  const [allData, setAllData] = React.useState([]);
-  const dataList = [];
-  React.useEffect(() => {
-    if (props.dataToDisplay) {
-      // 1. Depending on view, set what to organize the data by & what to add to its list
-      let orgBy = 'feature';
-      let toAdd = 'shop'
-      if (props.view === 'shops') {
-        orgBy = 'shop';
-        toAdd = 'feature'
-      }
-
-      // 2. Make new array that has no zero ranked uf's and is sorted in asc order 
-      let rankedData = props.dataToDisplay
-        .filter(arrayElement =>
-          //only keeps stuff that meets its condition
-          arrayElement.ranking != 0
-        )
-        .sort((a, b) => {
-          return a.ranking - b.ranking
-        })
-      
-      //2b. Make new array with disliked items aka unranked (has ranking of 0)
-      let unrankedItems = props.dataToDisplay
-          .filter(arrayElement =>
-            //only keeps stuff that has a zero rank
-            arrayElement.ranking == 0
-          )
-      
-      
-      // 3. Organize data by orgBy and make value obj have a liked a list of toAdd's
-      // and a disliked list to add to later
-      const organizedData = {};
-      rankedData.forEach((userFeature) => {
-        if (userFeature[orgBy] in organizedData) {
-          organizedData[userFeature[orgBy]].liked.push(userFeature[toAdd])
-        } else {
-          organizedData[userFeature[orgBy]] = {'liked':[userFeature[toAdd]], 'disliked':0} 
-        }        
-      })
-
-      //4. Add a count of dislikes for each orgBy key in organized data.
-      unrankedItems.forEach((userFeature) => {
-        if (userFeature[orgBy] in organizedData) {
-          organizedData[userFeature[orgBy]].disliked += 1
-        } else {
-          organizedData[userFeature[orgBy]] = {'liked': null, 'disliked': 1}
-        }
-      })
-
-      for (const dataKey in organizedData) {
-        // Add a ListItem with the information from organizedData
-        dataList.push(
-          <ListItem
-            // setShowModal={setShowModal}
-            // setModalContent = {setModalContent}
-            // setToRank={setToRank}
-            view={props.view}
-            title={dataKey}
-            bodyList={organizedData[dataKey].liked}
-            dislikedCount={organizedData[dataKey].disliked}
-          />
-        );
-      }
-      setAllData(dataList)
-    }
-  }, [props.dataToDisplay])
-
-  return (
-    <div id="list-container">
+    <React.Fragment>
       <h1>Top {props.view}</h1>
-      <ul>
-        {allData}
+      <ul id="list-of-user-features">
+        {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
       </ul>
-      {/* <Modal showModal={showModal} setShowModal={setShowModal}>
-        <RankedListContainer modalContent={modalContent}/>
-      </Modal> */}
-    </div>
+    </React.Fragment>
   )
 }
 
-// ListItem
+
 function ListItem(props) {
   let history = useHistory();
+  const handleListItemClick = () => {
+    if (props.view == 'shops') {
+      const shopName = props.title
+      history.push(`/shop-info/${shopName}`)
+    } else {
+      const toRank = props.title;
+      history.push(`/rankings/${toRank}/none`)
+    }
+  }
   return (
-    <li>
-      <div 
-        onClick={ (e) => {
-          if (props.view == 'shops') {
-            const shopName = props.title
-            history.push(`/shop-info/${shopName}`)
-          } else {
-            const toRank = props.title;
-            console.log(`going to rank all: ${toRank}`)
-            history.push(`/rankings/${toRank}/none`)
-          }
-        }}
-      >
-        <p>{props.title}</p>
-        <ItemBodyList bodyList={props.bodyList} dislikedCount={props.dislikedCount} />
-      </div>
+    <li onClick={handleListItemClick}>
+      <p>{props.title}</p>
+      <ItemBodyList view={props.view} allUserFeatures={props.allUserFeatures}/>
     </li>
   )
 }
 
 
 function ItemBodyList(props) {
-  let needNumLeft = false;
-  let numLeft = 0
-  const allBodyListElements = [];
-  const numItemsToShow = 3;
-  if (props.bodyList != null) {
-    for (const bodyListElement of props.bodyList.slice(0, numItemsToShow)) {
-      allBodyListElements.push(<BodyListElement
-        bodyListElement={bodyListElement} />)
-    }
-    numLeft = (props.bodyList).length - numItemsToShow
-    needNumLeft = numLeft > 0;
+  if (props.view == 'shops') {
+    const label = 'feature';
+  } else {
+    const label = 'shop';
   }
+  const numItemsToShow = 3;
+  const likedList = props.allUserFeatures.liked;
+  const dislikedList = props.allUserFeatures.disliked;
+  const numLikesLeft = likedList.length - numItemsToShow;
+  const numDislikes = dislikedList.length;
+  const needNumLikesLeft = numLikesLeft > 0;
+  const needNumDislikes= numDislikes > 0;
+  const allBodyListElements = [];
+  // if (props.bodyList != null) {
+  for (const listElement of likedList.slice(0, numItemsToShow)) {
+    allBodyListElements.push(
+      <BodyListElement
+        key={listElement.user_feature_id}
+        bodyListElement={listElement[label].name} 
+      />)
+  }
+
   // console.log(`For the body list ${props.bodyList}`)
   // console.log(`needNumLeft looks like it's: ${needNumLeft}`)
   // console.log(`numLeft, ${(props.bodyList) ? (props.bodyList).length : null} - ${numItemsToShow}, looks like it's: ${numLeft}`)
   return (
     <React.Fragment>
       <ul>{allBodyListElements}</ul>
-      {
-        needNumLeft && <span>+{numLeft} more <i className="fas fa-thumbs-up"></i></span>
-        
-      // needNumLeft ? 
-      //   (<p> +{numLeft} more <i className="fas fa-thumbs-up"></i> , 
-      //   {props.dislikedCount} disliked <i className="fas fa-thumbs-down"></i></p>
-      //   ): 
-      //   (<p>{props.dislikedCount} {props.dislikedCount==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></p>
-      //   )
-      } 
-      {(needNumLeft && (props.dislikedCount > 0)) && <span>, </span>}
-      { (props.dislikedCount > 0) && <span> {props.dislikedCount} {props.dislikedCount==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
-      
+      { needNumLikesLeft && <span>+{numLikesLeft} more <i className="fas fa-thumbs-up"></i></span>} 
+      { (needNumLikesLeft && needNumDislikes) && <span>, </span>}
+      { needNumDislikes && <span> {numDislikes} {numDislikes==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
     </React.Fragment>
   )
 }
