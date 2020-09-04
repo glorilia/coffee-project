@@ -143,7 +143,7 @@ function Homepage() {
   return (
     <div id="homepage">
       <ButtonBar setView={setView} />
-      <MapContainer view={view} setLocationBounds={setLocationBounds}/>
+      <MapContainer view={view} setLocationBounds={setLocationBounds} locationBounds={locationBounds}/>
       <InfoContainer view={view} locationBounds={locationBounds}/>
       <SelectorAddButton view={view} />
     </div>
@@ -174,13 +174,42 @@ function MapContainer(props) {
     center: { lat: 39.5296, lng: -119.8138},
     zoom: 13
   });
-  // Have the options state initialize at the coordinates of the user's zipcode
+  // - Have the options state initialize at the coordinates of the user's zipcode
+  // - From map, get bounds thru map.getBounds() and set it using setLocationBounds
+  // - in infoContainer, only make ListItems for ufs with shops that have lat lang
+  // - check by making a LatLng object: shopLatLng = new google.maps.LatLng({lat: uf.shop.lat, lng: uf.shop.lng}) 
+  //   and checking it with locationBounds.contains(shopLatLng)
+
+  const MemoMap = React.useCallback( () => {
+    Promise(<MapComponent
+      map={map} 
+      setMap={setMap} 
+      options={options} 
+      locationBounds={props.locationBounds}
+      setLocationBounds={props.setLocationBounds}
+    />)
+    .then(() => {
+      props.setLocationBounds(map.getBounds())
+      console.log(props.locationBounds)
+    })
+  }
+    
+    , [options])
+
+  React.useEffect(() => {
+    if (map && map.getBounds()) {
+      console.log(map.getBounds())
+      props.setLocationBounds(map.getBounds())
+      map.addListener('bounds_changed', () => props.setLocationBounds(map.getBounds()))
+      console.log(props.locationBounds)
+    }
+  }, [map])
 
   return (
     <div id="map-container">
       <LocationSetter />
-      <MapComponent setMap={setMap} options={options} />
-      {/* <ShopMarkers map={map}/> */}
+      {MemoMap}
+      <ShopMarkers map={map}/>
     </div>
   )
 }
@@ -192,6 +221,7 @@ function LocationSetter(props) {
 
 // Map Component
 function MapComponent(props) {
+  console.log('rendering the map')
   const options = props.options;
   const ref = React.useRef();
   React.useEffect(() => {
@@ -201,11 +231,18 @@ function MapComponent(props) {
       script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
       document.head.append(script);
       script.addEventListener('load', createMap);
+      console.log('and now there is a map')
       return () => script.removeEventListener('load', createMap);
     } else { // Initialize the map if a script element with google url IS found
       createMap();
+      console.log('and now there is a map');
     }
   }, [options.center.lat]); //Need the value of the lat of options because it does not change
+
+  if (props.map) {
+    console.log('and the map exists')
+  } else { console.log('but there is no map')}
+
 
   return (
     <div id="map-div"
@@ -217,7 +254,33 @@ function MapComponent(props) {
 
 
 function ShopMarkers(props) {
+  let history = useHistory();
 
+  const makeMarkers = (coordsData) => {
+    for (const shop in coordsData) {
+      const shopMarker = new window.google.maps.Marker({
+        map: props.map,
+        position: {
+          lat: coordsData[shop].lat,
+          lng: coordsData[shop].lng
+        },
+        title: coordsData[shop].name,
+        // Can add icon here 
+      })
+      shopMarker.addListener('click', () => history.push(`/shop-info/${shop}`))
+    }
+  }
+
+  React.useEffect( () => {
+    if(props.map){
+      fetch('/api/all-shop-coordinates')
+      .then(response => response.json())
+      .then(data => makeMarkers(data))
+    }
+    
+  }, [props.map])
+
+  return null;
 }
 
 
@@ -228,6 +291,9 @@ function InfoContainer(props) { //get the user's user features' information acco
   const makeListItems = (data) => {
     const allListItems = []
     for (const item in data) {
+
+      // data[item].all_user_features.liked
+
       allListItems.push(
         <ListItem
           key={item}

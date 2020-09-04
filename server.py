@@ -452,6 +452,17 @@ def get_shop_user_features(shopName):
         )
     return jsonify(uf_data)
 
+@app.route('/api/all-shop-coordinates')
+def get_all_shop_coordinates():
+    shops = crud.get_all_shops()
+    shop_coords = {}
+    for shop in shops: #there are no repeat shops
+        shop_coords[shop.shop_id] = {
+            'lat': shop.lat,
+            'lng': shop.lng,
+            'name': shop.name
+        }
+    return jsonify(shop_coords)
 
 
 
