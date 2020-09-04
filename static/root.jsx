@@ -139,7 +139,7 @@ const HOMEPAGE_VIEWS = {
 function Homepage() {
   const [view, setView] = React.useState('shops');
   const [locationBounds, setLocationBounds] = React.useState()
-
+  console.log(`location bounds is: ${locationBounds}`)
   return (
     <div id="homepage">
       <ButtonBar setView={setView} />
@@ -180,28 +180,25 @@ function MapContainer(props) {
   // - check by making a LatLng object: shopLatLng = new google.maps.LatLng({lat: uf.shop.lat, lng: uf.shop.lng}) 
   //   and checking it with locationBounds.contains(shopLatLng)
 
-  const MemoMap = React.useCallback( () => {
-    Promise(<MapComponent
+  const MemoMap = React.useCallback( 
+    <MapComponent
       map={map} 
       setMap={setMap} 
       options={options} 
-      locationBounds={props.locationBounds}
-      setLocationBounds={props.setLocationBounds}
-    />)
-    .then(() => {
-      props.setLocationBounds(map.getBounds())
-      console.log(props.locationBounds)
-    })
-  }
-    
-    , [options])
+    />, [options])
 
   React.useEffect(() => {
-    if (map && map.getBounds()) {
-      console.log(map.getBounds())
+    if (map !== undefined) {
+      console.log(map)
+      console.log(map.mapType)
+      console.log(map.zoom)
+      console.log(map.center.lat())
+      console.log(map.center.lng())
       props.setLocationBounds(map.getBounds())
       map.addListener('bounds_changed', () => props.setLocationBounds(map.getBounds()))
-      console.log(props.locationBounds)
+      // map.addListener('bounds_changed', () => console.log(map.getBounds()))
+      console.log(`inside MapContainer, right after setting addListeneer, 
+        props.locationBounds is ${props.locationBounds}`)
     }
   }, [map])
 
@@ -209,6 +206,11 @@ function MapContainer(props) {
     <div id="map-container">
       <LocationSetter />
       {MemoMap}
+      {/* <MapComponent
+      map={map} 
+      setMap={setMap} 
+      options={options} 
+    /> */}
       <ShopMarkers map={map}/>
     </div>
   )
@@ -289,10 +291,16 @@ function InfoContainer(props) { //get the user's user features' information acco
   const [listItems, setListItems] = React.useState([]);
   // function that creates list of ListItem components after getting db data
   const makeListItems = (data) => {
+    // if (props.locationBounds !== undefined) {
+    //   console.log(`in InfoContainer, props.locationBounds is: ${props.locationBounds}`)
+    // }
     const allListItems = []
     for (const item in data) {
-
-      // data[item].all_user_features.liked
+      // console.log(`the lat is ${data[item].lat}, lng is ${data[item].lng}`)
+      const shopLatLng = {lat: data[item].lat, lng: data[item].lng};
+      if (props.locationBounds !== undefined) {
+        if ( !props.locationBounds.contains(shopLatLng) ) { continue }
+      }
 
       allListItems.push(
         <ListItem
@@ -308,7 +316,7 @@ function InfoContainer(props) { //get the user's user features' information acco
     fetch(`/api/get-user-information/${props.view}`)
     .then(response => response.json())
     .then(data => makeListItems(data))
-  }, [props.view])
+  }, [props.view, props.locationBounds])
 
   return (
     <div id="info-container">

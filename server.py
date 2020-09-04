@@ -127,6 +127,8 @@ def get_user_info(view):
                 # list a liked and a disliked list.
                 if uf['ranking'] > 0:
                     organized_user_info[uf['shop']['shop_id']] = {
+                        'lat': uf['shop']['lat'],
+                        'lng': uf['shop']['lng'],
                         'name': uf['shop']['name'],
                         'all_user_features': {
                             'liked': [uf],
@@ -135,6 +137,8 @@ def get_user_info(view):
                     }
                 else:
                     organized_user_info[uf['shop']['shop_id']] = {
+                        'lat': uf['shop']['lat'],
+                        'lng': uf['shop']['lng'],
                         'name': uf['shop']['name'],
                         'all_user_features': {
                             'liked': [],
@@ -178,6 +182,8 @@ def get_user_info(view):
                 # list a liked and a disliked list.
                 if uf['ranking'] > 0:
                     organized_user_info[uf['feature']['feature_id']] = {
+                        'lat': uf['shop']['lat'],
+                        'lng': uf['shop']['lng'],
                         'name': uf['feature']['name'],
                         'all_user_features': {
                             'liked': [uf],
@@ -186,6 +192,8 @@ def get_user_info(view):
                     }
                 else:
                     organized_user_info[uf['feature']['feature_id']] = {
+                        'lat': uf['shop']['lat'],
+                        'lng': uf['shop']['lng'],
                         'name': uf['feature']['name'],
                         'all_user_features': {
                             'liked': [],
@@ -454,14 +462,23 @@ def get_shop_user_features(shopName):
 
 @app.route('/api/all-shop-coordinates')
 def get_all_shop_coordinates():
-    shops = crud.get_all_shops()
+    # get all of a user's ufs, then get shop info for them
+    # Get the user_id from the session
+    user_id = session.get("user_id")
+    # Query the db for the user
+    user = crud.get_user_by_id(user_id)
+    # Get all the user's user features
+    user_features = crud.get_all_ufs_for_user(user)
     shop_coords = {}
-    for shop in shops: #there are no repeat shops
-        shop_coords[shop.shop_id] = {
-            'lat': shop.lat,
-            'lng': shop.lng,
-            'name': shop.name
-        }
+    for uf in user_features:
+        if uf.shop.shop_id in shop_coords:
+            continue
+        else: 
+            shop_coords[uf.shop.shop_id] = {
+                'lat': uf.shop.lat,
+                'lng': uf.shop.lng,
+                'name': uf.shop.name
+            }
     return jsonify(shop_coords)
 
 
