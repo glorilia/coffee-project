@@ -209,7 +209,7 @@ function LocationSetter(props) {
 
 // Map Component
 function MapComponent(props) {
-  // console.log('rendering the map')
+  console.log('rendering the map')
   const options = props.options;
   const ref = React.useRef();
   React.useEffect(() => {
@@ -219,17 +219,17 @@ function MapComponent(props) {
       script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
       document.head.append(script);
       script.addEventListener('load', createMap);
-      // console.log('and now there is a map')
+      console.log('and now there is a map')
       return () => script.removeEventListener('load', createMap);
     } else { // Initialize the map if a script element with google url IS found
       createMap();
-      // console.log('and now there is a map');
+      console.log('and now there is a map');
     }
   }, [options.center.lat]); //Need the value of the lat of options because it does not change
 
-  // if (props.map) {
-  //   console.log('and the map exists')
-  // } else { console.log('but there is no map')}
+  if (props.map) {
+    console.log('and the map exists')
+  } else { console.log('but there is no map')}
 
 
   return (
@@ -963,6 +963,7 @@ function AddNewUserFeature() {
   // Form to add a new user feature to the database
 
   // Hooks
+  const ref = React.useRef();
   let history = useHistory();
   const { featureType} = useParams();
   const [featureName, setFeatureName] = React.useState('');
@@ -970,17 +971,36 @@ function AddNewUserFeature() {
   const [details, setDetails] = React.useState('');
   const [liked, setLiked] = React.useState(true);
   const [shop, setShop] = React.useState('');
+
+  const [searchBox, setSearchBox] = React.useState();
   const [map, setMap] = React.useState('')
   const [ options, setOptions] = React.useState({
     center: { lat: 39.5296, lng: -119.8138},
     zoom: 13
   });
+  const mapDimensions = {
+    width: '30%',
+    height: '200px'
+  }
+
   const MemoMap = React.useCallback( 
     <MapComponent
       map={map} 
       setMap={setMap} 
       options={options} 
+      mapDimensions={mapDimensions}
     />, [options])
+
+  React.useEffect( () => {
+    if(map !== undefined){
+      console.log(map)
+      // map.addListener('click', () => console.log('you clicked on the map'))
+      // map.addListener('idle', () => {
+      //   map.controls[google.maps.ControlPosition.TOP_LEFT].push(ref.current);
+      // })
+    }
+  }, [map])
+
 
   const addToDB = () => {
     const formData = {
@@ -1009,11 +1029,13 @@ function AddNewUserFeature() {
       })
   }
 
+  
+
   return (
     <div>
       <label htmlFor="shop-input">Choose a Shop</label>
-      <ShopFinder shop={shop} setShop={setShop} />
       {MemoMap}
+      <ShopFinder shop={shop} setShop={setShop} searchBox={searchBox} setSearchBox={setSearchBox} />
       <FeatureNamePicker
         featureType={featureType}
         featureName={featureName}
@@ -1088,7 +1110,8 @@ function FeatureNamePicker(props) {
 function ShopFinder(props) {
   return (
     <div>
-      <SearchBox setShop={props.setShop} />
+      <SearchBox setShop={props.setShop} 
+        searchBox={props.searchBox} setSearchBox={props.setSearchBox}/>
       <ShopDisplayer shop={props.shop} />
     </div>
   )
@@ -1097,9 +1120,9 @@ function ShopFinder(props) {
 
 function SearchBox(props) {
   const ref = React.useRef();
-  const [searchBox, setSearchBox] = React.useState();
+  // const [searchBox, setSearchBox] = React.useState();
   React.useEffect(() => {
-    const createSearchBox = () => setSearchBox(new window.google.maps.places.Autocomplete(ref.current));
+    const createSearchBox = () => props.setSearchBox(new window.google.maps.places.Autocomplete(ref.current));
     if (!window.google) { // Create an html element with a script tag in the DOM
       const script = document.createElement('script');
       script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
@@ -1115,13 +1138,22 @@ function SearchBox(props) {
 
   // Setting the fields that the place will return
   React.useEffect(() => {
-    if (searchBox) {
-      searchBox.setFields(
+    if (props.searchBox !== undefined) {
+      props.searchBox.setFields(
         ['formatted_address', 'place_id', 'name', 'geometry']);
       // event listener for when the user picks a shop
-      searchBox.addListener('place_changed', makePlaceShop);
+      props.searchBox.addListener('place_changed', makePlaceShop);
     }
-  }, [searchBox])
+  }, [props.searchBox])
+
+  // React.useEffect( () => {
+  //   if(props.map !== undefined) {
+  //     // console.log(`in the Searchbox useEffect, searchbox? ${!! searchBox}, map? ${!! props.map}`)
+  //     props.map.addListener('tilesloaded', () => map.controls[google.maps.ControlPosition.TOP_LEFT].push(ref.current) )
+  //     // map.controls[google.maps.ControlPosition.TOP_LEFT].push(ref.current);
+
+  //   }
+  // }, [props.map])
 
   const makePlaceShop = () => {
     const place = searchBox.getPlace();
