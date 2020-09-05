@@ -139,7 +139,7 @@ const HOMEPAGE_VIEWS = {
 function Homepage() {
   const [view, setView] = React.useState('shops');
   const [locationBounds, setLocationBounds] = React.useState()
-  console.log(`location bounds is: ${locationBounds}`)
+  // console.log(`location bounds is: ${locationBounds}`)
   return (
     <div id="homepage">
       <ButtonBar setView={setView} />
@@ -174,44 +174,30 @@ function MapContainer(props) {
     center: { lat: 39.5296, lng: -119.8138},
     zoom: 13
   });
-  // - Have the options state initialize at the coordinates of the user's zipcode
-  // - From map, get bounds thru map.getBounds() and set it using setLocationBounds
-  // - in infoContainer, only make ListItems for ufs with shops that have lat lang
-  // - check by making a LatLng object: shopLatLng = new google.maps.LatLng({lat: uf.shop.lat, lng: uf.shop.lng}) 
-  //   and checking it with locationBounds.contains(shopLatLng)
+
+  const mapDimensions = {
+    width: '50%',
+    height: '300px'
+  }
 
   const MemoMap = React.useCallback( 
     <MapComponent
       map={map} 
       setMap={setMap} 
-      options={options} 
+      options={options}
+      mapDimensions={mapDimensions}
     />, [options])
 
   React.useEffect(() => {
-    if (map !== undefined) {
-      console.log(map)
-      console.log(map.mapType)
-      console.log(map.zoom)
-      console.log(map.center.lat())
-      console.log(map.center.lng())
-      props.setLocationBounds(map.getBounds())
-      map.addListener('bounds_changed', () => props.setLocationBounds(map.getBounds()))
-      // map.addListener('bounds_changed', () => console.log(map.getBounds()))
-      console.log(`inside MapContainer, right after setting addListeneer, 
-        props.locationBounds is ${props.locationBounds}`)
-    }
+    if (map !== undefined) map.addListener('bounds_changed', 
+      () => props.setLocationBounds(map.getBounds()))
   }, [map])
 
   return (
     <div id="map-container">
       <LocationSetter />
       {MemoMap}
-      {/* <MapComponent
-      map={map} 
-      setMap={setMap} 
-      options={options} 
-    /> */}
-      <ShopMarkers map={map}/>
+      <ShopMarkers map={map} view={props.view}/>
     </div>
   )
 }
@@ -223,7 +209,7 @@ function LocationSetter(props) {
 
 // Map Component
 function MapComponent(props) {
-  console.log('rendering the map')
+  // console.log('rendering the map')
   const options = props.options;
   const ref = React.useRef();
   React.useEffect(() => {
@@ -233,22 +219,24 @@ function MapComponent(props) {
       script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
       document.head.append(script);
       script.addEventListener('load', createMap);
-      console.log('and now there is a map')
+      // console.log('and now there is a map')
       return () => script.removeEventListener('load', createMap);
     } else { // Initialize the map if a script element with google url IS found
       createMap();
-      console.log('and now there is a map');
+      // console.log('and now there is a map');
     }
   }, [options.center.lat]); //Need the value of the lat of options because it does not change
 
-  if (props.map) {
-    console.log('and the map exists')
-  } else { console.log('but there is no map')}
+  // if (props.map) {
+  //   console.log('and the map exists')
+  // } else { console.log('but there is no map')}
 
 
   return (
     <div id="map-div"
-      style={{ height: `60vh`, margin: `1em 0`, borderRadius: `0.5em`, width: '50%' }}
+      style={{ height: props.mapDimensions.height, 
+        margin: `1em 0`, borderRadius: `0.5em`, 
+        width: props.mapDimensions.width }}
       ref={ref}
     ></div>
   )
@@ -257,8 +245,20 @@ function MapComponent(props) {
 
 function ShopMarkers(props) {
   let history = useHistory();
+  const [markers , setMarkers] = React.useState([]);
 
+  function clearMarkers() {
+    console.log('clearing old markers')
+    for (const marker of markers) { marker.setMap(null); }
+    setMarkers([])
+  }
+
+  
+  console.log(`there are ${markers.length} markers in markers: ${markers}`)
   const makeMarkers = (coordsData) => {
+    clearMarkers();
+    console.log(`making ${props.view} markers`)
+    const allMarkers = []
     for (const shop in coordsData) {
       const shopMarker = new window.google.maps.Marker({
         map: props.map,
@@ -269,18 +269,21 @@ function ShopMarkers(props) {
         title: coordsData[shop].name,
         // Can add icon here 
       })
-      shopMarker.addListener('click', () => history.push(`/shop-info/${shop}`))
+      shopMarker.addListener('click', () => history.push(`/shop-info/${coordsData[shop].name}`))
+      allMarkers.push(shopMarker);
     }
+    setMarkers(allMarkers)
   }
 
   React.useEffect( () => {
     if(props.map){
-      fetch('/api/all-shop-coordinates')
+      console.log(props.view)
+      fetch(`/api/all-shop-coordinates/${props.view}`)
       .then(response => response.json())
       .then(data => makeMarkers(data))
     }
     
-  }, [props.map])
+  }, [props.map, props.view])
 
   return null;
 }
@@ -289,17 +292,19 @@ function ShopMarkers(props) {
 // InfoContainer
 function InfoContainer(props) { //get the user's user features' information according to the view
   const [listItems, setListItems] = React.useState([]);
+  const [itemsIsEmpty, setItemsIsEmpty] =  React.useState(null)
   // function that creates list of ListItem components after getting db data
   const makeListItems = (data) => {
     // if (props.locationBounds !== undefined) {
     //   console.log(`in InfoContainer, props.locationBounds is: ${props.locationBounds}`)
     // }
+    console.table(data);
     const allListItems = []
     for (const item in data) {
       // console.log(`the lat is ${data[item].lat}, lng is ${data[item].lng}`)
       const shopLatLng = {lat: data[item].lat, lng: data[item].lng};
       if (props.locationBounds !== undefined) {
-        if ( !props.locationBounds.contains(shopLatLng) ) { continue }
+        if ( !props.locationBounds.contains(shopLatLng) || data[item].all_user_features.liked.length == 0 ) { continue }
       }
 
       allListItems.push(
@@ -310,6 +315,7 @@ function InfoContainer(props) { //get the user's user features' information acco
           allUserFeatures={data[item].all_user_features}
         />)}
     setListItems(allListItems);
+    (allListItems.length == 0) ? setItemsIsEmpty(true) : setItemsIsEmpty(false)
   }
   // gets information about user features from db according to view
   React.useEffect(() => {
@@ -322,6 +328,7 @@ function InfoContainer(props) { //get the user's user features' information acco
     <div id="info-container">
       <h1>Top {props.view}</h1>
       <ul id="list-of-user-features">
+        {itemsIsEmpty && <p>No shops in this area. Try moving around the map.</p>}
         {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
       </ul>
     </div>
@@ -411,7 +418,7 @@ function RankedListContainer() {
       .then(response => response.json())
       .then(data => setAllUserFeatures(data))
   }, [
-    // userFeatureId,
+    userFeatureId,
     changesMade
   ]);
 
@@ -423,6 +430,7 @@ function RankedListContainer() {
       <div id="ranked-list-container">
         <h1>Top {toRank}s</h1>
         <AreaForDragging 
+          toRank={toRank}
           allUserFeatures={allUserFeatures}
           changesMade ={changesMade}
           setChangesMade={setChangesMade} 
@@ -528,6 +536,7 @@ function AreaForDragging(props) {
     .then(data => {
       props.setChangesMade(props.changesMade + 1);
       alert(data.message);
+      history.push(`/rankings/${props.toRank}/none`)
     })
   }, [state.order])
 
@@ -607,130 +616,7 @@ function AreaForDragging(props) {
 }
 
 
-function OGAreaForDragging(props) {
-  let history = useHistory()
-  const unranked=props.allUserFeatures.disliked;
-  const items = props.allUserFeatures.liked;
-  const [state, setState] = React.useState({
-    order: items,
-    dragOrder: items,
-    draggedIndex: null
-  })
 
-  console.log(`3. In AreaForDragging, items is: ${items}`)
-  console.log(`4. In AreaForDragging, unranked is: ${unranked}`)
-
-  const handleDrag = React.useCallback(({translation, id}) => {
-    const delta = Math.round(translation.y / HEIGHT);
-    const index = state.order.indexOf(id);
-    const dragOrder = state.order.filter(item => item !== id);
-    if (!_.inRange(index + delta, 0, items.length)){
-      return;
-    }
-    dragOrder.splice(index + delta, 0, id);
-    setState(state => ({
-      ...state,
-      draggedIndex: id,
-      dragOrder
-    }));
-  }, [state.order, items.length]);
-
-  const handleDragEnd = React.useCallback(() => {
-    setState(state => ({
-      ...state,
-      order: state.dragOrder,
-      draggedIndex: null
-    }));
-  }, []);
-  
-  const saveRankings = React.useCallback(() => {
-    const userFeaturesByRanking = state.order
-    fetch('/api/update-rankings',
-      {
-        method: 'POST',
-        body: JSON.stringify(userFeaturesByRanking),
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      })
-    .then(response => response.json())
-    .then(data => {
-      props.setChangesMade(props.changesMade + 1);
-      alert(data.message);
-    })
-  }, [state.order])
-
-
-  return(
-    <Container> 
-      <button 
-        id="save-rankings-button" 
-        onClick={saveRankings}
-        >
-          Save Rankings
-      </button>
-      {items.map((item, index) => {
-        const isDragging = state.draggedIndex === index;
-        const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
-        console.log(`top: ${top}`)
-        const draggedTop = state.order.indexOf(item) * (HEIGHT + 10);
-        
-        return (
-          <Draggable
-            key={index}
-            id={item}
-            onDrag={handleDrag}
-            onDragEnd={handleDragEnd}
-          >
-            <Rect
-              key={item.user_feature_id}
-              isDragging={isDragging}
-              top={isDragging ? draggedTop : top}
-            >
-              {item.ranking}.
-              <br></br>
-              {item.shop.name} ({item.nickname}),  {item.details},  
-              Last Updated: {item.last_updated}
-              <button 
-                style={{zIndex: 3}} 
-                onClick={() => {
-                  props.setShowModal(true)
-                  props.setIdToEdit(item.user_feature_id)
-                }}
-              >
-                Edit Details
-              </button>
-            </Rect>
-          </Draggable>
-        );
-      })}
-      {unranked.map( (item, index) => {
-          return (
-            <div key={index} style={{position: "relative"}}>
-              <Rect
-                key={item.user_feature_id}
-                top={(index + state.order.length)* (HEIGHT + 10)}
-              >
-                {item.ranking}.
-                <br></br>
-                {item.shop.name} ({item.nickname}),  {item.details},  
-                Last Updated: {item.last_updated}
-                <button 
-                  style={{zIndex: 3}} 
-                  onClick={() => {
-                    props.setShowModal(true)
-                    props.setIdToEdit(item.user_feature_id)
-                  }}
-                >
-                  Edit Details
-                </button>
-              </Rect>
-            </div>
-          )
-        })
-        }
-  </Container>
-  );
-}
 
 
 function EditUserFeature(props) {
@@ -779,6 +665,21 @@ function EditUserFeature(props) {
     })
   }
 
+  const deleteUserFeature = () => {
+    fetch('/api/delete-user-feature', {
+      method: 'POST',
+      body: JSON.stringify({'userFeatureId': userFeatureId}),
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+      props.setChangesMade(props.changesMade + 1);
+      alert(data.message);
+      props.setShowModal(false);
+    })
+  }
+
 
 // return <p>The user feature's info is {info.feature} {info.details}</p>
   return (
@@ -814,6 +715,7 @@ function EditUserFeature(props) {
         checked={!liked}
       ></input>
       <button onClick={saveToDB}>Save Changes</button>
+      <button onClick={deleteUserFeature}>Delete This Entry</button>
     </div>
   )
 }
@@ -1068,6 +970,17 @@ function AddNewUserFeature() {
   const [details, setDetails] = React.useState('');
   const [liked, setLiked] = React.useState(true);
   const [shop, setShop] = React.useState('');
+  const [map, setMap] = React.useState('')
+  const [ options, setOptions] = React.useState({
+    center: { lat: 39.5296, lng: -119.8138},
+    zoom: 13
+  });
+  const MemoMap = React.useCallback( 
+    <MapComponent
+      map={map} 
+      setMap={setMap} 
+      options={options} 
+    />, [options])
 
   const addToDB = () => {
     const formData = {
@@ -1100,6 +1013,7 @@ function AddNewUserFeature() {
     <div>
       <label htmlFor="shop-input">Choose a Shop</label>
       <ShopFinder shop={shop} setShop={setShop} />
+      {MemoMap}
       <FeatureNamePicker
         featureType={featureType}
         featureName={featureName}

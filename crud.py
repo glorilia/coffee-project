@@ -148,6 +148,11 @@ def update_user_feature_last_updated(user_feature_id, new_last_updated):
     db.session.commit()
     return
 
+def delete_user_feature_by_id(user_feature_id):
+    user_feature = get_user_feature_by_id(user_feature_id)
+    db.session.delete(user_feature)
+    db.session.commit()
+
 
 def set_seed_rankings(all_users):
     for user in all_users:

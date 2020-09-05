@@ -427,6 +427,31 @@ def edit_user_feature():
 
     return jsonify({'message': 'Saved changes', 'need_to_rerank': need_to_rerank })
 
+@app.route('/api/delete-user-feature', methods=['POST'])
+def delete_user_feature():
+    data = request.get_json()
+    user_feature_id = data['userFeatureId']
+    uf_to_delete = crud.get_user_feature_by_id(user_feature_id)
+    ranking_uf_to_delete = uf_to_delete.ranking
+    feature = uf_to_delete.feature 
+    crud.delete_user_feature_by_id(user_feature_id)
+    if ranking_uf_to_delete > 0:
+        user_id = session.get("user_id")
+        user = crud.get_user_by_id(user_id)
+        user_features = crud.get_specific_feature_ufs_for_user(user=user, feature=feature)
+        ranked_user_features = list(filter(lambda uf: uf.ranking > 0, user_features))
+        ranked_user_features.sort(key=lambda uf: uf.ranking)
+        for index, uf in enumerate(ranked_user_features):
+            new_ranking = index + 1
+            crud.update_user_feature_ranking(user_feature_id=uf.user_feature_id,
+                                            new_ranking=new_ranking)
+    return jsonify({'message': f'the {feature.name} entry has been deleted',})
+
+    
+
+
+
+
 @app.route('/api/add-new-feature', methods=['POST'])
 def add_new_feature():
     # expecting a dict with name, description, and type
@@ -460,15 +485,27 @@ def get_shop_user_features(shopName):
         )
     return jsonify(uf_data)
 
-@app.route('/api/all-shop-coordinates')
-def get_all_shop_coordinates():
+@app.route('/api/all-shop-coordinates/<view>')
+def get_all_shop_coordinates(view):
+    print(f'******************** view is {view}*************************')
+
     # get all of a user's ufs, then get shop info for them
     # Get the user_id from the session
     user_id = session.get("user_id")
     # Query the db for the user
     user = crud.get_user_by_id(user_id)
     # Get all the user's user features
-    user_features = crud.get_all_ufs_for_user(user)
+    user_features = list(filter(lambda uf: uf.ranking >0 , crud.get_all_ufs_for_user(user)))
+    print(f'//////////// there are {len(user_features)} ufs')
+    
+    if view != 'shops' :
+        print('########### it aint shops ################')
+        if view == 'drinks':
+            user_features = list(filter(lambda uf: uf.feature.type.name == 'drink' and  uf.ranking > 0, user_features))
+            print(f'@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ drinks are {user_features}')
+        else:
+            user_features = list(filter(lambda uf: uf.feature.type.name == 'shop_aspect' and uf.ranking > 0, user_features))
+
     shop_coords = {}
     for uf in user_features:
         if uf.shop.shop_id in shop_coords:
@@ -480,6 +517,8 @@ def get_all_shop_coordinates():
                 'name': uf.shop.name
             }
     return jsonify(shop_coords)
+
+
 
 
 
