@@ -190,7 +190,11 @@ function MapContainer(props) {
 
   React.useEffect(() => {
     if (map !== undefined) map.addListener('bounds_changed', 
-      () => props.setLocationBounds(map.getBounds()))
+      () => {
+        props.setLocationBounds(map.getBounds())
+        console.log('in mapContainer useEffect, map.getBounds() is:')
+        console.log(map.getBounds())
+      })
   }, [map])
 
   return (
@@ -253,8 +257,8 @@ function ShopMarkers(props) {
     setMarkers([])
   }
 
-  
   console.log(`there are ${markers.length} markers in markers: ${markers}`)
+
   const makeMarkers = (coordsData) => {
     clearMarkers();
     console.log(`making ${props.view} markers`)
@@ -303,7 +307,14 @@ function InfoContainer(props) { //get the user's user features' information acco
     for (const item in data) {
       // console.log(`the lat is ${data[item].lat}, lng is ${data[item].lng}`)
       const shopLatLng = {lat: data[item].lat, lng: data[item].lng};
+      console.log('shopLatLng:')
+      console.log(shopLatLng)
       if (props.locationBounds !== undefined) {
+        console.log('locationBounds is:')
+        console.log(props.locationBounds)
+        console.log(data[item].name)
+        console.log(`shop NOT in location bounds: ${!props.locationBounds.contains(shopLatLng)}`)
+        console.log(`liked list is empty: ${data[item].all_user_features.liked.length == 0}`)
         if ( !props.locationBounds.contains(shopLatLng) || data[item].all_user_features.liked.length == 0 ) { continue }
       }
 
@@ -615,8 +626,102 @@ function AreaForDragging(props) {
   );
 }
 
+    
+const Container = window.styled.div`
+  width: 100vw;
+  min-height: 100vh;
+`;
+
+const Rect = window.styled.div.attrs(props => ({
+  style: {
+    transition: props.isDragging ? 'none' : 'all 500ms'
+  }
+}))`
+  width: 600px;
+  user-select: none;
+  height: ${HEIGHT}px;
+  background: #fff;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  position: absolute;
+  top: ${({top}) => 20 + top}px;
+  left: calc(50vw - 350px);
+  font-size: 20px;
+  color: #777;
+`;
 
 
+const POSITION = {x:0, y:0};
+
+
+function Draggable(props) {
+  const id = props.id
+  const children = props.children
+  const onDrag = props.onDrag
+  const onDragEnd = props.onDragEnd
+
+  const [state, setState] = React.useState({
+    isDragging: false,
+    origin: POSITION,
+    translation: POSITION
+  });
+
+  const handleMouseDown = React.useCallback(({clientX, clientY}) => {
+    setState(state => ({
+      ...state,
+      isDragging: true,
+      origin: {x: clientX, y: clientY}
+    }));
+  }, []);
+
+  const handleMouseMove = React.useCallback(({clientX, clientY}) => {
+    const translation = {x: clientX - state.origin.x, y: clientY - state.origin.y};
+    
+    setState( state => ({
+      ...state,
+      translation
+    }));
+
+    onDrag({translation, id});
+  }, [state.origin, onDrag, id])
+
+  const handleMouseUp = React.useCallback(() => {
+    setState(state => ({
+      ...state,
+      isDragging: false
+    }));
+
+    onDragEnd();
+  }, [onDragEnd]);
+
+  React.useEffect(() => {
+    if (state.isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp)
+
+      setState(state => ({...state, translation: {x:0, y:0}}));
+    }
+  }, [state.isDragging, handleMouseMove, handleMouseUp]);
+
+  const styles = React.useMemo(() => ({
+    cursor: state.isDragging ? '-webkit-grabbing' : '-webkit-grab',
+    transform: `translate(${state.translation.x}px, ${state.translation.y}px)`,
+    transition: state.isDragging ? 'none' : 'transform 500ms',
+    zIndex: state.isDragging ? 2 : 1,
+    position: state.isDragging ? 'absolute' : 'relative'
+  }), [state.isDragging, state.translation]);
+
+  return (
+    <div style={styles} onMouseDown={handleMouseDown}>
+      {children}
+    </div>
+  )
+}
 
 
 function EditUserFeature(props) {
@@ -721,145 +826,6 @@ function EditUserFeature(props) {
 }
 
 
-function BackToRankings() {
-  const {toRank, userFeatureId} = useParams();
-  let history = useHistory();
-  React.useEffect(() => {
-    history.push(`/rankings/${toRank}/${userFeatureId}`)
-  }, [])
-  return <p>reloading rankings...</p>
-}
-
-
-// {(unranked !== undefined) && <AreaOfDislikes items={unranked} />}
-// function AreaOfDislikes (props) {
-//   console.log(`in props, unranked items are ${props.items}`)
-//   const items = props.items;
-//   console.log(`The unranked items are ${items}`)
-//   if (items !== undefined) {
-//     return (
-//       <Container>
-//         {items.map( (item, index) => {
-//           return (
-//             <Rect
-//               key={index}
-//               top={index * (HEIGHT + 10)}
-//             >
-//               {item.ranking}.
-//               <br></br>
-//               {item.shop} ({item.nickname}),  {item.details},  
-//               Last Updated: {item.last_updated}
-//               <button>Edit Details</button>
-//             </Rect>
-//           )
-//         })
-//         }
-//       </Container>
-//     )
-//   } else return null;
-// }
-
-    
-const Container = window.styled.div`
-  width: 100vw;
-  min-height: 100vh;
-`;
-
-const Rect = window.styled.div.attrs(props => ({
-  style: {
-    transition: props.isDragging ? 'none' : 'all 500ms'
-  }
-}))`
-  width: 600px;
-  user-select: none;
-  height: ${HEIGHT}px;
-  background: #fff;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: start;
-  justify-content: start;
-  position: absolute;
-  top: ${({top}) => 20 + top}px;
-  left: calc(50vw - 350px);
-  font-size: 20px;
-  color: #777;
-`;
-
-
-
-const POSITION = {x:0, y:0};
-
-
-function Draggable(props) {
-  const id = props.id
-  const children = props.children
-  const onDrag = props.onDrag
-  const onDragEnd = props.onDragEnd
-
-  const [state, setState] = React.useState({
-    isDragging: false,
-    origin: POSITION,
-    translation: POSITION
-  });
-
-  const handleMouseDown = React.useCallback(({clientX, clientY}) => {
-    setState(state => ({
-      ...state,
-      isDragging: true,
-      origin: {x: clientX, y: clientY}
-    }));
-  }, []);
-
-  const handleMouseMove = React.useCallback(({clientX, clientY}) => {
-    const translation = {x: clientX - state.origin.x, y: clientY - state.origin.y};
-    
-    setState( state => ({
-      ...state,
-      translation
-    }));
-
-    onDrag({translation, id});
-  }, [state.origin, onDrag, id])
-
-  const handleMouseUp = React.useCallback(() => {
-    setState(state => ({
-      ...state,
-      isDragging: false
-    }));
-
-    onDragEnd();
-  }, [onDragEnd]);
-
-  React.useEffect(() => {
-    if (state.isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    } else {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp)
-
-      setState(state => ({...state, translation: {x:0, y:0}}));
-    }
-  }, [state.isDragging, handleMouseMove, handleMouseUp]);
-
-  const styles = React.useMemo(() => ({
-    cursor: state.isDragging ? '-webkit-grabbing' : '-webkit-grab',
-    transform: `translate(${state.translation.x}px, ${state.translation.y}px)`,
-    transition: state.isDragging ? 'none' : 'transform 500ms',
-    zIndex: state.isDragging ? 2 : 1,
-    position: state.isDragging ? 'absolute' : 'relative'
-  }), [state.isDragging, state.translation]);
-
-  return (
-    <div style={styles} onMouseDown={handleMouseDown}>
-      {children}
-    </div>
-  )
-}
-
-
-
-
 
 
 function ShopInfo(){
@@ -914,18 +880,12 @@ function ShopInfo(){
 
 
 
-
-
-
-
-
-
-// ViewAllButton
 function ViewAllButton() {
   return (
     <button id="view-all-button">View All</button>
   )
 }
+
 // SelectorAddButton
 function SelectorAddButton() {
   let history = useHistory()
@@ -973,7 +933,7 @@ function AddNewUserFeature() {
   const [shop, setShop] = React.useState('');
 
   const [searchBox, setSearchBox] = React.useState();
-  const [map, setMap] = React.useState('')
+  const [map, setMap] = React.useState()
   const [ options, setOptions] = React.useState({
     center: { lat: 39.5296, lng: -119.8138},
     zoom: 13
@@ -992,15 +952,27 @@ function AddNewUserFeature() {
     />, [options])
 
   React.useEffect( () => {
-    if(map !== undefined){
+    if(map !== undefined && shop){
+      console.log(`map is:`)
       console.log(map)
-      // map.addListener('click', () => console.log('you clicked on the map'))
+      console.log(`shop is:`)
+      console.log(shop)
+      const center = new google.maps.LatLng(shop.lat, shop.lng)
+      const marker = new google.maps.Marker({position: center, map: map, title: shop.name})
+      // map.addListener ('click', () => console.log('you clicked on the map'))
       // map.addListener('idle', () => {
-      //   map.controls[google.maps.ControlPosition.TOP_LEFT].push(ref.current);
-      // })
-    }
-  }, [map])
+      map.panTo(center)
 
+    }
+  }, [map, shop])
+
+  // TESTING
+  // const [locationBounds, setLocationBounds] = React.useState();
+  // React.useEffect(() => {
+  //   if (map !== undefined) map.addListener('bounds_changed', 
+  //     () => setLocationBounds(map.getBounds()))
+  // }, [map])
+  // console.log(`location bounds in AddNewUserFeature are: ${locationBounds}`)
 
   const addToDB = () => {
     const formData = {
@@ -1034,8 +1006,8 @@ function AddNewUserFeature() {
   return (
     <div>
       <label htmlFor="shop-input">Choose a Shop</label>
-      {MemoMap}
       <ShopFinder shop={shop} setShop={setShop} searchBox={searchBox} setSearchBox={setSearchBox} />
+      {MemoMap}
       <FeatureNamePicker
         featureType={featureType}
         featureName={featureName}
@@ -1105,8 +1077,6 @@ function FeatureNamePicker(props) {
   )
 }
 
-
-
 function ShopFinder(props) {
   return (
     <div>
@@ -1156,7 +1126,7 @@ function SearchBox(props) {
   // }, [props.map])
 
   const makePlaceShop = () => {
-    const place = searchBox.getPlace();
+    const place = props.searchBox.getPlace();
 
     props.setShop({
       'shop_id': place.place_id,
@@ -1313,9 +1283,6 @@ function App() {
           </Route>
           <Route path="/rankings/:toRank/:userFeatureId">
             <RankedListContainer />
-          </Route>
-          <Route path="/redirect-rankings/:toRank/:userFeatureId">
-            <BackToRankings />
           </Route>
           <Route path='/edit-user-feature/:userFeatureId'>
             <EditUserFeature />
