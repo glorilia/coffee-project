@@ -170,6 +170,7 @@ function ButtonBar(props) {
 // MapContainer
 function MapContainer(props) {
   const [ map, setMap] = React.useState();
+  const [ searchBox, setSearchBox] = React.useState();
   const [ options, setOptions] = React.useState({
     center: { lat: 39.5296, lng: -119.8138},
     zoom: 13
@@ -192,14 +193,13 @@ function MapContainer(props) {
     if (map !== undefined) map.addListener('bounds_changed', 
       () => {
         props.setLocationBounds(map.getBounds())
-        console.log('in mapContainer useEffect, map.getBounds() is:')
-        console.log(map.getBounds())
+
       })
   }, [map])
 
   return (
     <div id="map-container">
-      <LocationSetter />
+      <LocationSetter setSearchBox={setSearchBox} searchBox={searchBox} setOptions={setOptions} options={options}/>
       {MemoMap}
       <ShopMarkers map={map} view={props.view}/>
     </div>
@@ -208,7 +208,56 @@ function MapContainer(props) {
 
 // LocationSetter
 function LocationSetter(props) {
-  return <input id="location-setter" type="text"></input>
+  const ref = React.useRef();
+  // const [searchBox, setSearchBox] = React.useState();
+  React.useEffect(() => {
+    const createSearchBox = () => props.setSearchBox(new window.google.maps.places.Autocomplete(ref.current));
+    if (!window.google) { // Create an html element with a script tag in the DOM
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY&libraries=places';
+      document.head.append(script);
+      script.addEventListener('load', createSearchBox);
+      console.log("made google, then made search bar")
+      return () => script.removeEventListener('load', createSearchBox);
+    } else { // Initialize the map if a script element with google url IS found
+      createSearchBox();
+      console.log("made a search bar cause there was google already")
+    }
+  }, [])
+
+
+  
+  // Setting the fields that the place will return
+  React.useEffect(() => {
+    if (props.searchBox !== undefined) {
+      props.searchBox.setFields(
+        ['formatted_address', 'place_id', 'name', 'geometry']);
+      // event listener for when the user picks a place from the autocomplete widget
+      props.searchBox.addListener('place_changed', changeCenter);
+    }
+  }, [props.searchBox])
+
+  const changeCenter = () => {
+    const place = props.searchBox.getPlace();
+    console.log('place is:')
+    console.log(place)
+    props.setOptions({
+      ...props.options,
+      center: { 
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng()
+      }
+    })
+  }
+
+  return (
+    <input
+      ref={ref}
+      id="location-setter"
+      type="text"
+      placeholder="Wanna search somewhere else?"
+    ></input>
+  )
 }
 
 // Map Component
@@ -257,11 +306,8 @@ function ShopMarkers(props) {
     setMarkers([])
   }
 
-  console.log(`there are ${markers.length} markers in markers: ${markers}`)
-
   const makeMarkers = (coordsData) => {
     clearMarkers();
-    console.log(`making ${props.view} markers`)
     const allMarkers = []
     for (const shop in coordsData) {
       const shopMarker = new window.google.maps.Marker({
@@ -281,7 +327,7 @@ function ShopMarkers(props) {
 
   React.useEffect( () => {
     if(props.map){
-      console.log(props.view)
+
       fetch(`/api/all-shop-coordinates/${props.view}`)
       .then(response => response.json())
       .then(data => makeMarkers(data))
@@ -302,19 +348,12 @@ function InfoContainer(props) { //get the user's user features' information acco
     // if (props.locationBounds !== undefined) {
     //   console.log(`in InfoContainer, props.locationBounds is: ${props.locationBounds}`)
     // }
-    console.table(data);
     const allListItems = []
     for (const item in data) {
       // console.log(`the lat is ${data[item].lat}, lng is ${data[item].lng}`)
       const shopLatLng = {lat: data[item].lat, lng: data[item].lng};
-      console.log('shopLatLng:')
-      console.log(shopLatLng)
+
       if (props.locationBounds !== undefined) {
-        console.log('locationBounds is:')
-        console.log(props.locationBounds)
-        console.log(data[item].name)
-        console.log(`shop NOT in location bounds: ${!props.locationBounds.contains(shopLatLng)}`)
-        console.log(`liked list is empty: ${data[item].all_user_features.liked.length == 0}`)
         if ( !props.locationBounds.contains(shopLatLng) || data[item].all_user_features.liked.length == 0 ) { continue }
       }
 
@@ -342,7 +381,7 @@ function InfoContainer(props) { //get the user's user features' information acco
         {itemsIsEmpty && <p>No shops in this area. Try moving around the map.</p>}
         {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
       </ul>
-      <ViewAllButton />
+      <ViewAllButton view={props.view}/>
     </div>
   )
 }
@@ -564,10 +603,10 @@ function AreaForDragging(props) {
       {items.map((item, index) => {
         const isDragging = state.draggedIndex === index;
         const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
-        console.log(`OG index${index}-> state.dragOrder.indexOf(item->${item.shop.name}): ${state.dragOrder.indexOf(item)}`)
-        console.log(`OG index${index}-> top: ${top}`)
+        // console.log(`OG index${index}-> state.dragOrder.indexOf(item->${item.shop.name}): ${state.dragOrder.indexOf(item)}`)
+        // console.log(`OG index${index}-> top: ${top}`)
         const draggedTop = state.order.indexOf(item) * (HEIGHT + 10);
-        console.log(`OG index${index}-> draggedTop: ${draggedTop}`)
+        // console.log(`OG index${index}-> draggedTop: ${draggedTop}`)
 
         return (
           <Draggable
@@ -909,11 +948,58 @@ function ShopInfo(){
 
 
 
-function ViewAllButton() {
+function ViewAllButton(props) {
+  // console.log(`in view all button, the view is: ${props.view}`)
+  let history = useHistory();
+  const goToAll = () =>  {
+    // console.log(`going to all ${props.view}`)
+    history.push(`/all/${props.view}`)
+  }
   return (
-    <button id="view-all-button">View All</button>
+    <button 
+      id="view-all-button"
+      onClick={goToAll}
+    >View All</button>
   )
 }
+
+
+function All() {
+  const {view} = useParams();
+
+  const [listItems, setListItems] = React.useState([]);
+  const [itemsIsEmpty, setItemsIsEmpty] =  React.useState(null)
+  // function that creates list of ListItem components after getting db data
+  const makeListItems = (data) => {
+    const allListItems = []
+    for (const item in data) {
+      allListItems.push(
+        <ListItem
+          key={item}
+          view={view}
+          title={data[item].name}
+          allUserFeatures={data[item].all_user_features}
+        />)}
+    setListItems(allListItems);
+    (allListItems.length == 0) ? setItemsIsEmpty(true) : setItemsIsEmpty(false)
+  }
+  // gets information about all user features from db
+  React.useEffect(() => {
+    fetch(`/api/get-user-information/${view}`)
+    .then(response => response.json())
+    .then(data => makeListItems(data))
+  }, [])
+  return (
+    <div id='all-container'>
+      <h1>All {view}</h1>
+      {itemsIsEmpty && <p>No {view} yet! Try adding something.</p>}
+      <ul>
+        {listItems}
+      </ul>
+    </div>
+  )
+}
+
 
 // SelectorAddButton
 function SelectorAddButton() {
@@ -1303,6 +1389,9 @@ function App() {
         <Switch>
           <Route path="/homepage">
             <Homepage />
+          </Route>
+          <Route path="/all/:view">
+            <All />
           </Route>
           <Route path="/create-account">
             <CreateAccount />

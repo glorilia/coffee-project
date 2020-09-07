@@ -3,6 +3,7 @@
 from flask import (Flask, render_template, request, session, redirect, jsonify)
 from flask_debugtoolbar import DebugToolbarExtension
 from model import connect_to_db
+import requests
 import crud
 from datetime import datetime
 
@@ -63,6 +64,17 @@ def create_new_account():
     email = data['email']
     password = data['password']
     home_zipcode = data['homeZipcode']
+
+    # Request the geocoder api to get the lat and lng of this zipcode
+    url = "https://maps.googleapis.com/maps/api/geocode/json"
+    payload = {
+        "key": "AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY",
+        "components": f"postal_code:{home_zipcode}"
+    }
+    res = requests.get(url=url, params=payload)
+    res_data = res.json()
+    lat=res_data['results'][0]['geometry']['location']['lat']
+    lng=res_data['results'][0]['geometry']['location']['lng']
     # Use email to check if this user is in the database
     user = crud.get_user_by_email(email=email)
     # If they're in the database, send message that they have an account
@@ -202,6 +214,138 @@ def get_user_info(view):
                     }
 
     return jsonify(organized_user_info)
+
+
+@app.route('/api/all-information/<view>')
+def get_all_information(view):
+    # Get the user_id from the session
+    user_id = session.get("user_id")
+    # Query the db for the user
+    user = crud.get_user_by_id(user_id)
+    # Get all the user's user features
+    user_features = crud.get_all_ufs_for_user(user)
+    user_info = []  # will be filled with a dict for each user feature, as detailed below
+    for uf in user_features:
+        user_info.append(
+            {
+            'user_feature_id': uf.user_feature_id,
+            'feature': { 
+                'name': uf.feature.name, 
+                'feature_id': uf.feature.feature_id, 
+                'description': uf.feature.description,
+                'type_name': uf.feature.type.name
+                },
+            'shop': { 
+                'name': uf.shop.name, 
+                'shop_id': uf.shop.shop_id, 
+                'lat': uf.shop.lat, 
+                'lng': uf.shop.lng
+                },
+            'nickname': uf.nickname,
+            'details': uf.details,
+            'ranking': uf.ranking,
+            'last_updated': uf.last_updated
+            }
+        )
+    
+    organized_user_info = {}
+
+    if view == 'shops':
+        for uf in user_info: # go through array of user feature dicts
+            if uf['shop']['shop_id'] in organized_user_info: 
+                # if the shop_id is already in the organized_user_info dict
+                # add the uf to its all_user_features liked or disliked list
+                if uf['ranking'] > 0:
+                    organized_user_info[uf['shop']['shop_id']]['all_user_features']['liked'].append(uf)
+                    organized_user_info[uf['shop']['shop_id']]['all_user_features']['liked'].sort(key=lambda item: item.get('ranking'))
+                else:
+                    organized_user_info[uf['shop']['shop_id']]['all_user_features']['disliked'].append(uf)
+            else: # if the shop_id is not in organized_user_info dict,
+                # use its shop_id as a key and make its value a dict w/ name string and ufs being
+                # list a liked and a disliked list.
+                if uf['ranking'] > 0:
+                    organized_user_info[uf['shop']['shop_id']] = {
+                        'lat': uf['shop']['lat'],
+                        'lng': uf['shop']['lng'],
+                        'name': uf['shop']['name'],
+                        'all_user_features': {
+                            'liked': [uf],
+                            'disliked': []
+                        }
+                    }
+                else:
+                    organized_user_info[uf['shop']['shop_id']] = {
+                        'lat': uf['shop']['lat'],
+                        'lng': uf['shop']['lng'],
+                        'name': uf['shop']['name'],
+                        'all_user_features': {
+                            'liked': [],
+                            'disliked': [uf]
+                        }
+                    }
+        # makes organized_user_info look like: {
+        #   'ChIJaVGAwidHmYARy8OSQcTXNgc' : {
+        #       'name': 'Purple Bean',
+        #       'user_features_list': {
+        #           liked: [
+            #           {'user_feature_id': 201, 'feature': {name: latte, description: ...}},
+            #           {'user_feature_id': 209, 'feature': {name: cold brew, description: ...}}
+        #           ],
+        #           disliked: [
+            #           {'user_feature_id': 201, 'feature': {name: latte, description: ...}},
+            #           {'user_feature_id': 209, 'feature': {name: cold brew, description: ...}}
+        #           ]
+        #       }
+        #   },
+        # }
+    else: # goes here if the view is either drinks or shopAspects
+        # filter user_info by drinks or shop_aspect from type_name
+        if view == 'drinks':
+            user_info = list(filter(lambda uf: uf['feature']['type_name'] == 'drink', user_info))
+        else:
+            user_info = list(filter(lambda uf: uf['feature']['type_name'] == 'shop_aspect', user_info))
+        # use this new user_info to put data into organized_user_info dict
+        for uf in user_info: # go through array of user feature dicts
+            if uf['feature']['feature_id'] in organized_user_info: 
+                # if the feature_id is already in the organized_user_info dict
+                # add the uf to its all_user_features liked or disliked list
+                if uf['ranking'] > 0:
+                    organized_user_info[uf['feature']['feature_id']]['all_user_features']['liked'].append(uf)
+                    organized_user_info[uf['feature']['feature_id']]['all_user_features']['liked'].sort(key=lambda item: item.get('ranking'))
+
+                else:
+                    organized_user_info[uf['feature']['feature_id']]['all_user_features']['disliked'].append(uf)
+            else: # if the feature_id is not in organized_user_info dict,
+                # use its feature_id as a key and make its value a dict w/ name string and ufs being
+                # list a liked and a disliked list.
+                if uf['ranking'] > 0:
+                    organized_user_info[uf['feature']['feature_id']] = {
+                        'lat': uf['shop']['lat'],
+                        'lng': uf['shop']['lng'],
+                        'name': uf['feature']['name'],
+                        'all_user_features': {
+                            'liked': [uf],
+                            'disliked': []
+                        }
+                    }
+                else:
+                    organized_user_info[uf['feature']['feature_id']] = {
+                        'lat': uf['shop']['lat'],
+                        'lng': uf['shop']['lng'],
+                        'name': uf['feature']['name'],
+                        'all_user_features': {
+                            'liked': [],
+                            'disliked': [uf]
+                        }
+                    }
+
+    return jsonify(organized_user_info)
+
+
+
+
+
+
 
 @app.route('/api/add-user-feature', methods=['POST'])
 def add_user_feature():
