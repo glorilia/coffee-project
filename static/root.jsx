@@ -350,11 +350,25 @@ function InfoContainer(props) { //get the user's user features' information acco
     // }
     const allListItems = []
     for (const item in data) {
-      // console.log(`the lat is ${data[item].lat}, lng is ${data[item].lng}`)
-      const shopLatLng = {lat: data[item].lat, lng: data[item].lng};
-
-      if (props.locationBounds !== undefined) {
-        if ( !props.locationBounds.contains(shopLatLng) || data[item].all_user_features.liked.length == 0 ) { continue }
+      if (props.view == 'shops') { //if we're in the shops view
+        const shopLatLng = {lat: data[item].lat, lng: data[item].lng}; //get the shop coords
+        if (props.locationBounds !== undefined) { //once there's a locationBounds
+          if ( !props.locationBounds.contains(shopLatLng) || data[item].all_user_features.liked.length == 0 ) { continue }
+        } // don't add a List Item if the shop isn't on the map, or if it has no liked ufs
+      } else { // this means the view is either drinks or shop_aspects
+        const likedList = data[item].all_user_features.liked 
+        if (likedList.length == 0) { continue }
+        else { // this means the likedList has at least one user feature in it, 
+          //so we'll check each user feature's location now.
+          let noShopsOnMap = true; // set this to true as the default
+          for (const uf of likedList) {
+            const ufShopLatLng = {lat: uf.shop.lat , lng: uf.shop.lng} //get each uf's shop coords
+            if (props.locationBounds !== undefined) {
+              if (props.locationBounds.contains(ufShopLatLng)) { noShopsOnMap = false}
+            } // if it's on the map, then noShopsOnMap will be false
+          }
+          if (noShopsOnMap) { continue } // if no shops are on the map, don't make the ListItem
+        }
       }
 
       allListItems.push(
