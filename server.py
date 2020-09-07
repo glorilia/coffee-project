@@ -50,7 +50,7 @@ def process_login(): # Get data from user login form input
         message = 'Logged in! Success!'
     else:
         status = 'error'
-        message = 'Incorrect email or password. Try again'
+        message = 'Incorrect email or password. Try again.'
 
     return jsonify({'status': status, 'message':message})
 
@@ -71,10 +71,10 @@ def create_new_account():
         "key": "AIzaSyBtYZMS7aWpKxyZ20XLWWNEMKb3eo6iOkY",
         "components": f"postal_code:{home_zipcode}"
     }
-    res = requests.get(url=url, params=payload)
-    res_data = res.json()
-    lat=res_data['results'][0]['geometry']['location']['lat']
-    lng=res_data['results'][0]['geometry']['location']['lng']
+    # res = requests.get(url=url, params=payload)
+    # res_data = res.json()
+    # lat=res_data['results'][0]['geometry']['location']['lat']
+    # lng=res_data['results'][0]['geometry']['location']['lng']
     # Use email to check if this user is in the database
     user = crud.get_user_by_email(email=email)
     # If they're in the database, send message that they have an account
@@ -194,8 +194,8 @@ def get_user_info(view):
                 # list a liked and a disliked list.
                 if uf['ranking'] > 0:
                     organized_user_info[uf['feature']['feature_id']] = {
-                        'lat': uf['shop']['lat'],
-                        'lng': uf['shop']['lng'],
+                        # 'lat': uf['shop']['lat'],
+                        # 'lng': uf['shop']['lng'],
                         'name': uf['feature']['name'],
                         'all_user_features': {
                             'liked': [uf],
@@ -204,8 +204,8 @@ def get_user_info(view):
                     }
                 else:
                     organized_user_info[uf['feature']['feature_id']] = {
-                        'lat': uf['shop']['lat'],
-                        'lng': uf['shop']['lng'],
+                        # 'lat': uf['shop']['lat'],
+                        # 'lng': uf['shop']['lng'],
                         'name': uf['feature']['name'],
                         'all_user_features': {
                             'liked': [],

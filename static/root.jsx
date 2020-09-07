@@ -3,6 +3,8 @@ const { useHistory, useParams, Redirect, Switch, Prompt, Link, Route } = ReactRo
 const createPortal = ReactDOM.createPortal
 // const {range, inRange} = lodash;
 
+const APPNAME = "Perkticular"
+const SUBTITLE = "A Place For Your Inner Coffee Shop Critic"
 
 function LandingPage() { // First page anyone lands on, can login or create account
   let history = useHistory()
@@ -13,12 +15,62 @@ function LandingPage() { // First page anyone lands on, can login or create acco
 
   return (
     <div id="landing-page"> 
-      <h1>Dranks</h1>
+      <h1 className="app-title">{APPNAME}</h1>
+      <h2 className="app-subtitle">{SUBTITLE}</h2>
       <Login />
-      <h3>OR</h3>
-      <button id="create-account" onClick={handleClick}>
+      <h3 id="landing-page-or">OR</h3>
+      <button className='create-button' id="create-account" onClick={handleClick}>
         Create a New Account
       </button>
+    </div>
+  )
+}
+
+
+function Login() { // A form to gather login info from a user
+  let history = useHistory()
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
+  // Callback for login event
+  const logIn = (event) => {
+    event.preventDefault();
+    const formData = { 'email': email, 'password': password };
+    fetch('/api/login',
+      {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status == 'success') {
+          history.push('/homepage')
+        } else {
+          alert(data.message);
+        }
+      })
+  };
+
+  return (
+    <div className="form-bin" id="login-form">
+      <form>
+        <label htmlFor="email-input">Email:</label>
+        <input
+          id="email-input"
+          type="text"
+          onChange={(e) => setEmail(e.target.value)}
+          value={email}
+        ></input>
+        <label htmlFor="password-input">Password:</label>
+        <input
+          id="password-input"
+          type="password"
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
+        ></input>
+        <button onClick={logIn}> Log In </button>
+      </form>
     </div>
   )
 }
@@ -32,6 +84,7 @@ function CreateAccount() { // A form to create a new user account
   // Callback for create account event
   const logIn = (event) => {
     event.preventDefault();
+    console.log('inside login')
     const formData = {
       'email': email,
       'password': password,
@@ -52,94 +105,52 @@ function CreateAccount() { // A form to create a new user account
   };
 
   return (
-    <div>
-      <label htmlFor="create-email-input">Email:</label>
-      <input
-        id="create-email-input"
-        type="text"
-        onChange={(e) => setEmail(e.target.value)}
-        value={email}
-      ></input>
-      <label htmlFor="create-password-input">Password:</label>
-      <input
-        id="create-password-input"
-        type="password"
-        onChange={(e) => setPassword(e.target.value)}
-        value={password}
-      ></input>
-      <label htmlFor="create-home-zipcode-input">Home Zipcode:</label>
-      (we'll find coffee near you)
-      <input
-        id="home-create-home-zipcode-input"
-        type="text"
-        onChange={(e) => setHomeZipcode(e.target.value)}
-        value={homeZipcode}
-      ></input>
-      <button onClick={logIn}> Create Account </button>
+    <div id="create-account-page">
+      <h1>Create an Account</h1>
+      <h2>You'll Be Logging Your Coffee Shop Drink Opinions in No Time</h2>
+      <div className="form-bin" id="create-account-form">
+        <label htmlFor="create-email-input">Email:</label>
+        <input
+          id="create-email-input"
+          type="text"
+          onChange={(e) => setEmail(e.target.value)}
+          value={email}
+        ></input>
+        <label htmlFor="create-password-input">Password:</label>
+        <input
+          id="create-password-input"
+          type="password"
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
+        ></input>
+        <label htmlFor="create-home-zipcode-input">Home Zipcode:</label>
+        <span className="label-explainer">(where you drink most of your drinks)</span>
+        <input
+          id="create-home-zipcode-input"
+          type="text"
+          onChange={(e) => setHomeZipcode(e.target.value)}
+          value={homeZipcode}
+        ></input>
+        <button className="add-button" onClick={logIn}> Create Account </button>
+      </div>
     </div>
   )
 }
 
 
-function Login() { // a form to gather login info from a user
-  let history = useHistory()
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  // Callback for login event
-  const logIn = (event) => {
-    event.preventDefault();
-    const formData = { 'email': email, 'password': password };
-    fetch('/api/login',
-      {
-        method: 'POST',
-        body: JSON.stringify(formData),
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(response => response.json())
-      .then(data => {
-        alert(data.message)
-        if (data.status == 'success') {
-          history.push('/homepage')
-        }
-      })
-  };
-
-  return (
-    <form>
-      <label htmlFor="email-input">Email:</label>
-      <input
-        id="email-input"
-        type="text"
-        onChange={(e) => setEmail(e.target.value)}
-        value={email}
-      ></input>
-      <label htmlFor="password-input">Password:</label>
-      <input
-        id="password-input"
-        type="password"
-        onChange={(e) => setPassword(e.target.value)}
-        value={password}
-      ></input>
-      <button onClick={logIn}> Log In </button>
-    </form>
-  )
-}
 
 
-
-
-const HOMEPAGE_VIEWS = {
+const HOMEPAGE_VIEWS = { // Enum table for the homepage views, correspond to button bar
   'Top Shops': 'shops',
   'Top Drinks': 'drinks',
   'Top Shop Aspects': 'shopAspects'
 };
 
 
-function Homepage() {
-  const [view, setView] = React.useState('shops');
-  const [locationBounds, setLocationBounds] = React.useState()
-  // console.log(`location bounds is: ${locationBounds}`)
+function Homepage() { // The main page a user sees. Includes a map and text info from db
+  const [view, setView] = React.useState('shops'); //set by ButtonBar
+  const [locationBounds, setLocationBounds] = React.useState() // set by MapContainer
+
   return (
     <div id="homepage">
       <ButtonBar setView={setView} />
@@ -151,7 +162,7 @@ function Homepage() {
 }
 
 
-function ButtonBar(props) {
+function ButtonBar(props) { // 
   // Callback for a button's click event
   const changeView = (event) => {
     const newView = event.target.textContent; // want to get the inner contents of the event.target
@@ -253,6 +264,7 @@ function LocationSetter(props) {
   return (
     <input
       ref={ref}
+      className="search-box"
       id="location-setter"
       type="text"
       placeholder="Wanna search somewhere else?"
@@ -390,9 +402,9 @@ function InfoContainer(props) { //get the user's user features' information acco
 
   return (
     <div id="info-container">
-      <h1>Top {props.view}</h1>
+      <h1 id="info-container-title">Top {props.view}</h1>
       <ul id="list-of-user-features">
-        {itemsIsEmpty && <p>No shops in this area. Try moving around the map.</p>}
+        {itemsIsEmpty && <p className="empty-list">You haven't tried shops in this area. Try moving around the map (or adding something new!).</p>}
         {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
       </ul>
       <ViewAllButton view={props.view}/>
@@ -417,8 +429,8 @@ function ListItem(props) {
   }
 
   return (
-    <li onClick={handleListItemClick}>
-      <p>{props.title}</p>
+    <li className="list-item" onClick={handleListItemClick}>
+      <h2 className="list-item-title">{props.title}</h2>
       <ItemBodyList 
         label={label} 
         likedList={props.allUserFeatures.liked}
@@ -453,10 +465,10 @@ function ItemBodyList(props) {
   
   return (
     <React.Fragment>
-      <ul>{listElements}</ul>
-      { needNumLikesLeft && <span>+{numLikesLeft} more <i className="fas fa-thumbs-up"></i></span>} 
-      { (needNumLikesLeft && needNumDislikes) && <span>, </span>}
-      { needNumDislikes && <span> {numDislikes} {numDislikes==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
+      <ul className="item-body-list">{listElements}</ul>
+      { needNumLikesLeft && <span className="additional-items">+{numLikesLeft} more <i className="fas fa-thumbs-up"></i></span>} 
+      { (needNumLikesLeft && needNumDislikes) && <span className="additional-items">, </span>}
+      { needNumDislikes && <span className="additional-items"> {numDislikes} {numDislikes==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
     </React.Fragment>
   )
 }
@@ -473,6 +485,7 @@ const HEIGHT = 80;
 
 function RankedListContainer() {
   const { toRank, userFeatureId} = useParams();
+  const [description, setDescription] = React.useState('no description');
   const [changesMade, setChangesMade] = React.useState(0);
   const [allUserFeatures, setAllUserFeatures] = React.useState({});
   const [showModal, setShowModal] = React.useState(false);
@@ -481,19 +494,24 @@ function RankedListContainer() {
   React.useEffect( () => {
       fetch(`/api/rankings/${toRank}/${userFeatureId}`)
       .then(response => response.json())
-      .then(data => setAllUserFeatures(data))
+      .then(data => {
+        setAllUserFeatures(data);
+        setDescription(data.liked.length > 0 ? data.liked[0].feature.description : data.disliked[0].feature.description);
+        // setDescription(data.liked)
+      })
   }, [
     userFeatureId,
     changesMade
   ]);
 
-  console.log(`1. In RankedListContainer, allUserFeatures liked is ${allUserFeatures.liked}`)
-  console.log(`2. In RankedListContainer, allUserFeatures disliked is ${allUserFeatures.disliked}`)
+  // console.log(`1. In RankedListContainer, allUserFeatures liked is ${allUserFeatures.liked}`)
+  // console.log(`2. In RankedListContainer, allUserFeatures disliked is ${allUserFeatures.disliked}`)
 
   if (Object.keys(allUserFeatures).length > 0) {
     return (
       <div id="ranked-list-container">
-        <h1>Top {toRank}s</h1>
+        <h1>{toRank}s</h1>
+        <h2>{description}</h2>
         <AreaForDragging 
           toRank={toRank}
           allUserFeatures={allUserFeatures}
@@ -558,12 +576,12 @@ function AreaForDragging(props) {
     })
   }, [items])
 
-  console.log(`3. In AreaForDragging, items is:`)
-  console.table(items)
-  console.log(`4. In AreaForDragging, unranked is: ${unranked}`)
-  console.log(`4. state.dragOrder is:`)
-  console.table(state.dragOrder)
-  console.log(`5. is state.dragOrder == items? ${_.isEqual(items, state.dragOrder)}`)
+  // console.log(`3. In AreaForDragging, items is:`)
+  // console.table(items)
+  // console.log(`4. In AreaForDragging, unranked is: ${unranked}`)
+  // console.log(`4. state.dragOrder is:`)
+  // console.table(state.dragOrder)
+  // console.log(`5. is state.dragOrder == items? ${_.isEqual(items, state.dragOrder)}`)
 
   const handleDrag = React.useCallback(({translation, id}) => {
     const delta = Math.round(translation.y / HEIGHT);
