@@ -900,17 +900,27 @@ function ShopInfo(){
       let unrankedItems = data.uf_data
         .filter((item) => item.ranking == 0)
       setUserFeatures(rankedItems.concat(unrankedItems))
-      setOptions({
-        ...options,
-        center: data.shop_coords
-      })
-      const marker = new google.maps.Marker({
-        position: data.shop_coords, 
-        map: map, 
-        title: shopName})
+      if (map !== undefined){
+      const center = new google.maps.LatLng(data.shop_coords)
+      const marker = new google.maps.Marker({position: center, map: map, title: data.name})
+      map.panTo(center)
+      }
+      // setOptions({
+      //   ...options,
+      //   center: data.shop_coords
+      // })
+      // map.addListener('idle', () => {
+      //   const marker = new google.maps.Marker({
+      //     position: data.shop_coords, 
+      //     map: map, 
+      //     title: shopName
+      //   })
+      // })
+  
 
     })
-  }, [])
+  }, [map])
+
   if (userFeatures.length !== 0 ) {
    
     return (
