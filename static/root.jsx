@@ -510,7 +510,7 @@ function RankedListContainer() {
   if (Object.keys(allUserFeatures).length > 0) {
     return (
       <div id="ranked-list-container">
-        <h1>{toRank}s</h1>
+        <h1>{toRank}</h1>
         <h2>{description}</h2>
         <AreaForDragging 
           toRank={toRank}
@@ -544,6 +544,7 @@ function Modal(props) {
             {props.children}
           </div>
           <button
+            className="cancel-button"
             // className="modal-close"
             type="button"
             onClick= {() => props.setShowModal(false)}
@@ -627,6 +628,7 @@ function AreaForDragging(props) {
   return(
     <Container> 
       <button 
+        className="save-button"
         id="save-rankings-button" 
         onClick={saveRankings}
         >
@@ -657,6 +659,7 @@ function AreaForDragging(props) {
               {item.shop.name} ({item.nickname}),  {item.details},  
               Last Updated: {item.last_updated}
               <button 
+                className="edit-button"
                 style={{zIndex: 3}} 
                 onClick={() => {
                   props.setShowModal(true)
@@ -681,6 +684,7 @@ function AreaForDragging(props) {
                 {item.shop.name} ({item.nickname}),  {item.details},  
                 Last Updated: {item.last_updated}
                 <button 
+                  className="edit-button"
                   style={{zIndex: 3}} 
                   onClick={() => {
                     props.setShowModal(true)
@@ -789,7 +793,7 @@ function Draggable(props) {
   }), [state.isDragging, state.translation]);
 
   return (
-    <div style={styles} onMouseDown={handleMouseDown}>
+    <div className="draggable" style={styles} onMouseDown={handleMouseDown}>
       {children}
     </div>
   )
@@ -857,11 +861,9 @@ function EditUserFeature(props) {
     })
   }
 
-
-// return <p>The user feature's info is {info.feature} {info.details}</p>
   return (
-    <div>
-      <h1>{featureName} from {shop}</h1>
+    <div className="form-bin">
+      <h1 className="edit-title">{featureName} from {shop}</h1>
       <label htmlFor="nickname-input">Nickname</label>
       <input
         id="nickname-input"
@@ -891,8 +893,8 @@ function EditUserFeature(props) {
         onChange={(e) => setLiked(!e.target.checked)}
         checked={!liked}
       ></input>
-      <button onClick={saveToDB}>Save Changes</button>
-      <button onClick={deleteUserFeature}>Delete This Entry</button>
+      <button className="save-button" onClick={saveToDB}>Save Changes</button>
+      <button className="delete-button" onClick={deleteUserFeature}>Delete This Entry</button>
     </div>
   )
 }
@@ -903,6 +905,9 @@ function EditUserFeature(props) {
 function ShopInfo(){
   const {shopName} = useParams();
   const [userFeatures, setUserFeatures] = React.useState([]);
+  const [changesMade, setChangesMade] = React.useState(0);
+  const [showModal, setShowModal] = React.useState(false);
+  const [idToEdit, setIdToEdit] = React.useState('');
   const [map, setMap] = React.useState([]);
   const [ options, setOptions] = React.useState({
     center: { lat: 39.5296, lng: -119.8138},
@@ -937,52 +942,52 @@ function ShopInfo(){
       const marker = new google.maps.Marker({position: center, map: map, title: data.name})
       map.panTo(center)
       }
-      // setOptions({
-      //   ...options,
-      //   center: data.shop_coords
-      // })
-      // map.addListener('idle', () => {
-      //   const marker = new google.maps.Marker({
-      //     position: data.shop_coords, 
-      //     map: map, 
-      //     title: shopName
-      //   })
-      // })
-  
-
     })
-  }, [map])
+  }, [map, changesMade])
 
   if (userFeatures.length !== 0 ) {
    
     return (
-      <Container>
-        Info about {shopName}
-        {MemoMap}
-        {userFeatures.map( (item, index) => {
-            return (
-              <div style={{position: "relative"}} key={index}>
-                <Rect
-                  key={item.user_feature_id}
-                  top={(index )* (HEIGHT + 10)}
-                >
-                  {item.ranking}.
-                  <br></br>
-                  {item.feature} ({item.nickname}),  {item.details},  
-                  Last Updated: {item.last_updated}
-                  <Modal
-                  activator={({setShowModal}) => (
-                    <button style={{zIndex: 3}} onClick={() => setShowModal(true)}>Edit Details</button>)}
+      <div id="shop-info-page">
+        <Container>
+          <h1>{shopName}</h1>
+          <h2> All drinks and shop aspects from this coffee shop</h2>
+          {MemoMap}
+          {userFeatures.map( (item, index) => {
+              return (
+                <div id="shop-info-container" style={{position: "relative"}} key={index}>
+                  <Rect
+                    key={item.user_feature_id}
+                    top={(index )* (HEIGHT + 10)}
                   >
-                    <EditUserFeature 
-                      userFeatureId={item.user_feature_id}/>
-                  </Modal>
-                </Rect>
-              </div>
-            )
-          })
-          }
-      </Container>
+                    {item.ranking}.
+                    <br></br>
+                    {item.feature} ({item.nickname}),  {item.details},  
+                    Last Updated: {item.last_updated}
+                    <button 
+                      className="edit-button"
+                      style={{zIndex: 3}} 
+                      onClick={() => {
+                        setShowModal(true)
+                        setIdToEdit(item.user_feature_id)
+                    }}
+                    >
+                      Edit Details
+                    </button>
+                  </Rect>
+                </div>
+              )
+            })
+            }
+        </Container>
+        <Modal showModal={showModal} setShowModal={setShowModal}>
+          <EditUserFeature 
+            userFeatureId={idToEdit}
+            setShowModal={setShowModal}
+            setChangesMade={setChangesMade}
+            changesMade={changesMade}/>
+        </Modal>
+      </div>
     )
   } else {return null;}
 }
