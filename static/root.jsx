@@ -342,6 +342,7 @@ function InfoContainer(props) { //get the user's user features' information acco
         {itemsIsEmpty && <p>No shops in this area. Try moving around the map.</p>}
         {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
       </ul>
+      <ViewAllButton />
     </div>
   )
 }
@@ -830,30 +831,58 @@ function EditUserFeature(props) {
 
 function ShopInfo(){
   const {shopName} = useParams();
-  const [userFeatures, setUserFeatures] = React.useState();
+  const [userFeatures, setUserFeatures] = React.useState([]);
+  const [map, setMap] = React.useState([]);
+  const [ options, setOptions] = React.useState({
+    center: { lat: 39.5296, lng: -119.8138},
+    zoom: 13
+  });
+
+  const mapDimensions = {
+    width: '50%',
+    height: '100px'
+  }
+
+  const MemoMap = React.useCallback( 
+    <MapComponent
+      map={map} 
+      setMap={setMap} 
+      options={options}
+      mapDimensions={mapDimensions}
+    />, [options])
+
   React.useEffect( () => {
     fetch(`/api/shop-info/${shopName}`)
     .then(response => response.json())
     .then(data => {
-      let rankedItems = data
+      let rankedItems = data.uf_data
         .filter((item) => item.ranking != 0)
         .sort( (a,b) => a.ranking-b.ranking)
-      
-      let unrankedItems = data
+      let unrankedItems = data.uf_data
         .filter((item) => item.ranking == 0)
-
       setUserFeatures(rankedItems.concat(unrankedItems))
+      setOptions({
+        ...options,
+        center: data.shop_coords
+      })
+      const marker = new google.maps.Marker({
+        position: data.shop_coords, 
+        map: map, 
+        title: shopName})
+
     })
   }, [])
-  if (userFeatures != undefined) {
+  if (userFeatures.length !== 0 ) {
+   
     return (
       <Container>
         Info about {shopName}
+        {MemoMap}
         {userFeatures.map( (item, index) => {
             return (
-              <div style={{position: "relative"}}>
+              <div style={{position: "relative"}} key={index}>
                 <Rect
-                  key={index}
+                  key={item.user_feature_id}
                   top={(index )* (HEIGHT + 10)}
                 >
                   {item.ranking}.

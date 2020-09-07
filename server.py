@@ -467,6 +467,7 @@ def add_new_feature():
 @app.route('/api/shop-info/<shopName>')
 def get_shop_user_features(shopName):
     shop = crud.get_shop_by_name(shopName)
+    shop_coords = { 'lat': shop.lat, 'lng': shop.lng}
     user_id = session.get("user_id")
     user = crud.get_user_by_id(user_id)
     user_features = crud.get_specific_shop_ufs_for_user(user=user, shop=shop)
@@ -483,7 +484,7 @@ def get_shop_user_features(shopName):
             'last_updated': uf.last_updated
             }
         )
-    return jsonify(uf_data)
+    return jsonify({'shop_coords': shop_coords, 'uf_data': uf_data})
 
 @app.route('/api/all-shop-coordinates/<view>')
 def get_all_shop_coordinates(view):
