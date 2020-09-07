@@ -1012,7 +1012,7 @@ function All() {
 
 
 // SelectorAddButton
-function SelectorAddButton() {
+function SelectorAddButton(props) {
   let history = useHistory()
   const [types, setTypes] = React.useState();
   React.useEffect(() => {
@@ -1030,15 +1030,36 @@ function SelectorAddButton() {
 
   const goToCreate = (event) => {
     const featureType = event.target.value
+    console.log(featureType)
     history.push(`/add-new/${featureType}`)
   }
 
-  return (
-    <select id="selector-add-button" onChange={goToCreate}>
-      <option key='def' value=''>Add Something New</option>
-      {types}
-    </select>
-  )
+  if (props.view == 'shops') {
+    return (
+      <select id="selector-add-button" onChange={goToCreate}>
+        <option key='def' value=''>Add Something New</option>
+        {types}
+      </select>
+    )
+  } else if(props.view == 'drinks') {
+    return (
+      <button 
+        className="add-new" 
+        id="new-drink-button"
+        value='drink'
+        onClick={goToCreate}
+        >Add a New Drink</button>
+    )
+  } else {
+    return (
+      <button 
+        className="add-new" 
+        id="new-drink-button"
+        value='shop_aspect'
+        onClick={goToCreate}
+        >Add a New Shop Aspect</button>
+    )
+  }
 }
 
 
