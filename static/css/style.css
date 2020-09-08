@@ -2,7 +2,20 @@
   margin-bottom: 0px;
 }
 
-.overlay {
+/* defaults that can be overriden */
+html {
+  font-family: serif;
+}
+
+#app-title {
+  font-family: 'Rancho', cursive;
+}
+
+#app-subtitle {
+  font-family: 'Londrina S';
+}
+
+/* .overlay {
     z-index: 98;
     position: fixed;
     top: 0;
@@ -18,9 +31,9 @@
   }
   
   .modal {
-    z-index: 99;
+    z-index: 99; */
     /* Everything below is optional styling */
-    position: relative;
+    /* position: relative;
     width: 100%;
     max-width: 400px;
     max-height: 100%;
@@ -43,4 +56,4 @@
     padding: 20px 24px;
     border-radius: 4px;
     background-color: white;
-  }
+  } */

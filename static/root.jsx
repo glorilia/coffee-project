@@ -19,14 +19,14 @@ function LandingPage() { // First page anyone lands on, can login or create acco
         <div className="columns is-centered">
           <div className="column is-half">
             <div className="content">
-              <h1 className="title is-1 app-title mb-0">{APPNAME}</h1>
+              <h1 className="title is-1 mb-0" id="app-title">{APPNAME}</h1>
             </div>
           </div>
         </div>
         <div className="columns is-centered">
           <div className="column is-half">
             <div className="content">
-              <h2 className="subtitle">{SUBTITLE}</h2>
+              <h2 className="subtitle is-4" id="app-subtitle">{SUBTITLE}</h2>
             </div>
           </div>
         </div>
@@ -208,7 +208,9 @@ function Homepage() { // The main page a user sees. Includes a map and text info
 
   return (
     <section className="section" id="homepage">
-      <ButtonBar setView={setView} />
+      <div className="container">
+        <ButtonBar setView={setView} />
+      </div>
       <div className="container">
         <div className="columns">
           <div className="column is-half">
@@ -233,10 +235,10 @@ function ButtonBar(props) { //
   }
 
   return (
-    <div id="button-bar">
-      <button onClick={changeView} >Top Shops</button>
-      <button onClick={changeView} >Top Drinks</button>
-      <button onClick={changeView} >Top Shop Aspects</button>
+    <div id="button-bar" className="buttons is-centered">
+      <button className="button is-info" onClick={changeView} >Top Shops</button>
+      <button className="button is-info" onClick={changeView} >Top Drinks</button>
+      <button className="button is-info" onClick={changeView} >Top Shop Aspects</button>
     </div>
   )
 }
@@ -464,10 +466,10 @@ function InfoContainer(props) { //get the user's user features' information acco
   }, [props.view, props.locationBounds])
 
   return (
-    <div id="info-container container">
+    <div id="info-container" className="container">
       <h1 id="info-container-title"
         className="title">Top {props.view}</h1>
-      <ul id="top-user-features" className="container">
+      <ul id="top-user-features" className="columns is-multiline">
         {itemsIsEmpty && <p className="empty-list">You haven't tried shops in this area. Try moving around the map (or adding something new!).</p>}
         {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
       </ul>
@@ -493,13 +495,19 @@ function ListItem(props) {
   }
 
   return (
-    <li className="list-item" onClick={handleListItemClick} className="box">
-      <h2 className="list-item-title">{props.title}</h2>
-      <ItemBodyList 
-        label={label} 
-        likedList={props.allUserFeatures.liked}
-        dislikedList={props.allUserFeatures.disliked}/>
-    </li>
+    <div className="column is-half">
+      <li className="list-item" onClick={handleListItemClick} className="card">
+        <header className="card-header">
+          <h2 className="list-item-title card-header-title">{props.title}</h2>
+        </header>
+        <div className="card-content">
+          <ItemBodyList 
+          label={label} 
+          likedList={props.allUserFeatures.liked}
+          dislikedList={props.allUserFeatures.disliked}/>
+        </div>
+      </li>
+    </div>
   )
 }
 
@@ -602,20 +610,19 @@ function Modal(props) {
   // const [showModal, setShowModal] = React.useState(false)
   // const activator = props.activator;
   const modalContent =  (
-      <div className="overlay">
-        <div className="modal">
-          <div className="modal-body">
-            {props.children}
-          </div>
-          <button
-            className="cancel-button"
-            // className="modal-close"
-            type="button"
-            onClick= {() => props.setShowModal(false)}
-          >
-            Cancel
-          </button>
-        </div>
+      <div className="modal is-active">
+        <div className="modal-background"></div>
+        {/* <div className="modal-card"> */}
+          {props.children}
+        {/* </div> */}
+        <button
+          className="cancel-button"
+          // className="modal-close"
+          type="button"
+          onClick= {() => props.setShowModal(false)}
+        >
+          Cancel
+        </button>
       </div>
     )
 
@@ -918,40 +925,52 @@ function EditUserFeature(props) {
     })
   }
 
+  const cancelEdit = () => {
+    props.setShowModal(false)
+  }
+
   return (
-    <div className="form-bin">
-      <h1 className="edit-title">{featureName} from {shop}</h1>
-      <label htmlFor="nickname-input">Nickname</label>
-      <input
-        id="nickname-input"
-        type="text"
-        onChange={(e) => setNickname(e.target.value)}
-        value={nickname}
-      ></input>
-      <label htmlFor="details-input">Details</label>
-      <textarea
-        id="details-input"
-        onChange={(e) => setDetails(e.target.value)}
-        value={details}
-      ></textarea>
-      <label htmlFor="liked-input">Liked</label>
-      <input
-        id="liked-input"
-        type="radio"
-        value="liked"
-        onChange={(e) => setLiked(e.target.checked)}
-        checked={liked}
-      ></input>
-      <label htmlFor="disliked-input">Disliked</label>
-      <input
-        id="disliked-input"
-        type="radio"
-        value="not-liked"
-        onChange={(e) => setLiked(!e.target.checked)}
-        checked={!liked}
-      ></input>
-      <button className="save-button" onClick={saveToDB}>Save Changes</button>
-      <button className="delete-button" onClick={deleteUserFeature}>Delete This Entry</button>
+    <div className="modal-card">
+      <header className="modal-card-head">
+        <h1 className="edit-title modal-card-title">{featureName} from {shop}</h1>
+        <button class="delete" aria-label="close" onClick={cancelEdit}></button>
+      </header>
+      <section class="modal-card-body">
+        <label htmlFor="nickname-input">Nickname</label>
+        <input
+          id="nickname-input"
+          type="text"
+          onChange={(e) => setNickname(e.target.value)}
+          value={nickname}
+        ></input>
+        <label htmlFor="details-input">Details</label>
+        <textarea
+          id="details-input"
+          onChange={(e) => setDetails(e.target.value)}
+          value={details}
+        ></textarea>
+        <label htmlFor="liked-input">Liked</label>
+        <input
+          id="liked-input"
+          type="radio"
+          value="liked"
+          onChange={(e) => setLiked(e.target.checked)}
+          checked={liked}
+        ></input>
+        <label htmlFor="disliked-input">Disliked</label>
+        <input
+          id="disliked-input"
+          type="radio"
+          value="not-liked"
+          onChange={(e) => setLiked(!e.target.checked)}
+          checked={!liked}
+        ></input>
+        </section>
+        <footer class="modal-card-foot">
+          <button className="save-button" onClick={saveToDB}>Save Changes</button>
+          <button className="delete-button" onClick={deleteUserFeature}>Delete This Entry</button>
+        </footer>
+            
     </div>
   )
 }
@@ -1477,30 +1496,40 @@ function App() {
     // Creating Navigation
     <Router>
       <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/"> Landing Page </Link>
-            </li>
-            <li>
-              <Link to="/about"> About </Link>
-            </li>
-            <li>
-              <Link to="/homepage"> Homepage </Link>
-            </li>
-            <li>
-              <Link to="/all/shops"> All Shops </Link>
-            </li>
-            <li>
-              <Link to="/all/drinks"> All Drinks </Link>
-            </li>
-            <li>
-              <Link to="/all/shopAspects"> All Shop Aspects </Link>
-            </li>
-            <li>
-              <Link to="/logout"> Log Out</Link>
-            </li>
-          </ul>
+        <nav className="navbar" role="navigation" aria-label="main-navigation">
+          <div className="navbar-brand">
+            <a className="navbar-item">
+              <Link to="/homepage"><p id="app-title" className="title">{APPNAME}</p> </Link>
+            </a>
+            <a role="button" class="navbar-burger burger" aria-label="menu" 
+            aria-expanded="false" data-target="navbarMain"
+            >
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+            </a>
+          </div>
+          <div id="navbarMain" className="navbar-menu">
+            <div className="navbar-start">
+              <a className="navbar-item">
+                <Link to="/homepage">Home</Link>
+              </a>
+              <a className="navbar-item">
+                <Link to="/all/shops"> All Shops </Link>
+              </a>
+              <a className="navbar-item">
+                <Link to="/all/drinks"> All Drinks </Link>
+              </a>
+              <a className="navbar-item">
+                <Link to="/all/shopAspects"> All Shop Aspects </Link>
+              </a>
+            </div>
+            <div className="navbar-end">
+              <a className="navbar-item button">
+                <Link to="/logout"> Log Out</Link>
+              </a>
+            </div>
+          </div>      
         </nav>
         <Switch>
           <Route path="/homepage">
