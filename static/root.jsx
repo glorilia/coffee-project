@@ -1107,6 +1107,9 @@ function AddNewUserFeature() {
   const [liked, setLiked] = React.useState(true);
   const [shop, setShop] = React.useState('');
 
+  const [showModal, setShowModal] = React.useState(false);
+  const [changesMade, setChangesMade] = React.useState(0);
+
   const [searchBox, setSearchBox] = React.useState();
   const [map, setMap] = React.useState()
   const [ options, setOptions] = React.useState({
@@ -1170,10 +1173,12 @@ function AddNewUserFeature() {
       <ShopFinder shop={shop} setShop={setShop} searchBox={searchBox} setSearchBox={setSearchBox} />
       {MemoMap}
       <FeatureNamePicker
+        changesMade={changesMade}
         featureType={featureType}
         featureName={featureName}
         setFeatureName={setFeatureName} />
-      <p><Link to={`/add-feature/${featureType}`}>Add A New {featureType}</Link></p>
+      {/* <p><Link to={`/add-feature/${featureType}`}>Add A New {featureType}</Link></p> */}
+      <button onClick={() => setShowModal(true)}>Add a New {featureType}</button>
       <label htmlFor="nickname-input">Nickname</label>
       <input
         id="nickname-input"
@@ -1204,6 +1209,12 @@ function AddNewUserFeature() {
         checked={!liked}
       ></input>
       <button className="add-button" onClick={addToDB}>Add {featureType}</button>
+      <Modal showModal={showModal} setShowModal={setShowModal}>
+          <NewFeature
+            setShowModal={setShowModal}
+            setChangesMade={setChangesMade}
+            changesMade={changesMade}/>
+        </Modal>
     </div>
   )
 }
@@ -1221,7 +1232,7 @@ function FeatureNamePicker(props) {
         }
         setFeatures(all_features)
       })
-  }, [])
+  }, [props.changesMade])
 
   return (
     <React.Fragment>
@@ -1318,7 +1329,7 @@ function ShopDisplayer(props) {
 }
 
 
-function NewFeature() {
+function NewFeature(props) {
   let history = useHistory()
   const {featureType} = useParams();
   const [name, setName] = React.useState('');
@@ -1338,8 +1349,9 @@ function NewFeature() {
       })
     .then(response => response.json())
     .then(data => {
-      alert(data.message)
-      history.goBack()
+      props.setChangesMade(props.changesMade + 1);
+      alert(data.message);
+      props.setShowModal(false);
     })
   }
 
