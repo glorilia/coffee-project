@@ -14,15 +14,44 @@ function LandingPage() { // First page anyone lands on, can login or create acco
   }
 
   return (
-    <div id="landing-page"> 
-      <h1 className="app-title">{APPNAME}</h1>
-      <h2 className="app-subtitle">{SUBTITLE}</h2>
-      <Login />
-      <h3 id="landing-page-or">OR</h3>
-      <button className='create-button' id="create-account" onClick={handleClick}>
-        Create a New Account
-      </button>
-    </div>
+    <section id="landing-page" className="section">
+      <div className="container has-text-centered">
+        <div className="columns is-centered">
+          <div className="column is-half">
+            <div className="content">
+              <h1 className="title is-1 app-title mb-0">{APPNAME}</h1>
+            </div>
+          </div>
+        </div>
+        <div className="columns is-centered">
+          <div className="column is-half">
+            <div className="content">
+              <h2 className="subtitle">{SUBTITLE}</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="container">
+        <div className="columns is-vcentered">
+          <div className="column">
+            <Login />
+          </div>
+          <div className="column is-one-fifth">
+            <div className="content">
+              <h3 id="landing-page-or" className="has-text-left-touch has-text-centered">OR</h3>
+            </div>
+          </div>
+          <div className="column has-text-centered">
+            <button 
+              className='create-button button is-centered is-rounded is-primary is-outlined is-large' 
+              id="create-account" onClick={handleClick}
+            >
+              Create a New Account
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -53,23 +82,49 @@ function Login() { // A form to gather login info from a user
   };
 
   return (
-    <div className="form-bin" id="login-form">
+    <div className="form-bin " id="login-form">
       <form>
-        <label htmlFor="email-input">Email:</label>
-        <input
-          id="email-input"
-          type="text"
-          onChange={(e) => setEmail(e.target.value)}
-          value={email}
-        ></input>
-        <label htmlFor="password-input">Password:</label>
-        <input
-          id="password-input"
-          type="password"
-          onChange={(e) => setPassword(e.target.value)}
-          value={password}
-        ></input>
-        <button onClick={logIn}> Log In </button>
+        <div className="field">
+          <label htmlFor="email-input" className="label">Email:</label>
+          <div className="control has-icons-left">
+            <input
+              className="input is-primary is-rounded"
+              id="email-input"
+              type="text"
+              placeholder="e.g. perk@gmail.com"
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+            ></input>
+            <span className="icon is-small is-left">
+              <i className="fas fa-envelope"></i>
+            </span>
+          </div>
+        </div>
+        <div className="field">
+          <label htmlFor="password-input" className="label">Password:</label>
+          <div className="control has-icons-left">
+            <input
+              className="input is-primary is-rounded"
+              id="password-input"
+              type="password"
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+            ></input>
+            <span className="icon is-small is-left">
+              <i className="fas fa-lock"></i>
+            </span>
+          </div>
+        </div>
+        <div className="field">
+          <div className="control">
+            <button 
+              className="button is-primary is-medium is-rounded"
+              onClick={logIn}
+            >
+             Log In 
+            </button>
+          </div>
+        </div>
       </form>
     </div>
   )
@@ -152,12 +207,20 @@ function Homepage() { // The main page a user sees. Includes a map and text info
   const [locationBounds, setLocationBounds] = React.useState() // set by MapContainer
 
   return (
-    <div id="homepage">
+    <section className="section" id="homepage">
       <ButtonBar setView={setView} />
-      <MapContainer view={view} setLocationBounds={setLocationBounds} locationBounds={locationBounds}/>
-      <InfoContainer view={view} locationBounds={locationBounds}/>
+      <div className="container">
+        <div className="columns">
+          <div className="column is-half">
+            <MapContainer view={view} setLocationBounds={setLocationBounds} locationBounds={locationBounds}/>
+          </div>
+          <div className="column is-half">
+            <InfoContainer view={view} locationBounds={locationBounds}/>
+          </div>
+        </div>
+      </div>
       <SelectorAddButton view={view} />
-    </div>
+    </section>
   )
 }
 
@@ -188,7 +251,7 @@ function MapContainer(props) {
   });
 
   const mapDimensions = {
-    width: '50%',
+    width: '100%',
     height: '300px'
   }
 
@@ -401,9 +464,10 @@ function InfoContainer(props) { //get the user's user features' information acco
   }, [props.view, props.locationBounds])
 
   return (
-    <div id="info-container">
-      <h1 id="info-container-title">Top {props.view}</h1>
-      <ul id="top-user-features">
+    <div id="info-container container">
+      <h1 id="info-container-title"
+        className="title">Top {props.view}</h1>
+      <ul id="top-user-features" className="container">
         {itemsIsEmpty && <p className="empty-list">You haven't tried shops in this area. Try moving around the map (or adding something new!).</p>}
         {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
       </ul>
@@ -429,7 +493,7 @@ function ListItem(props) {
   }
 
   return (
-    <li className="list-item" onClick={handleListItemClick}>
+    <li className="list-item" onClick={handleListItemClick} className="box">
       <h2 className="list-item-title">{props.title}</h2>
       <ItemBodyList 
         label={label} 
@@ -1483,3 +1547,95 @@ function App() {
 
 ReactDOM.render(<App />, document.getElementById('root'))
 
+
+
+// function LandingPage() { // First page anyone lands on, can login or create account
+//   let history = useHistory()
+//   // Callback for create account button click
+//   const handleClick = () => {
+//     history.push('/create-account')
+//   }
+
+//   return (
+//     <div id="landing-page" className="container">
+//       <h1 className="app-title text-center">{APPNAME}</h1>
+//       <h2 className="app-subtitle text-center">{SUBTITLE}</h2>
+//       <Login />
+//       <h3 id="landing-page-or" className="text-center">OR</h3>
+//       <div className="d-flex justify-content-center">
+//         <button className='create-button btn btn-outline-primary' id="create-account" onClick={handleClick}>
+//           Create a New Account
+//         </button>
+//       </div>
+//     </div>
+//   )
+// }
+
+
+// function Login() { // A form to gather login info from a user
+//   let history = useHistory()
+//   const [email, setEmail] = React.useState('')
+//   const [password, setPassword] = React.useState('')
+//   // Callback for login event
+//   const logIn = (event) => {
+//     event.preventDefault();
+//     const formData = { 'email': email, 'password': password };
+//     fetch('/api/login',
+//       {
+//         method: 'POST',
+//         body: JSON.stringify(formData),
+//         credentials: 'include',
+//         headers: { 'Content-Type': 'application/json' }
+//       })
+//       .then(response => response.json())
+//       .then(data => {
+//         if (data.status == 'success') {
+//           history.push('/homepage')
+//         } else {
+//           alert(data.message);
+//         }
+//       })
+//   };
+
+//   return (
+//     <div className="form-bin " id="login-form">
+//       <form>
+
+//           <div className="form-group row">
+//             <label 
+//               htmlFor="email-input"
+//               className="col-sm-2 col-form-label">Email:</label>
+//             <div className="col-sm-10">
+//               <input
+//                 className="form-control"
+//                 id="email-input"
+//                 type="text"
+//                 onChange={(e) => setEmail(e.target.value)}
+//                 value={email}
+//               ></input>
+//             </div>
+//           </div>
+
+//           <div className="form-group row">
+//             <label 
+//               htmlFor="password-input"
+//               className="col-sm-2 col-form-label">Password:</label>
+//             <div className="col-sm-10">
+//               <input
+//                 className="form-control"
+//                 id="password-input"
+//                 type="password"
+//                 onChange={(e) => setPassword(e.target.value)}
+//                 value={password}
+//               ></input>
+//             </div>
+//           </div>
+//           <div className="d-flex justify-content-center">
+//             <button 
+//               className="btn btn-primary"
+//               onClick={logIn}> Log In </button>
+//           </div>
+//       </form>
+//     </div>
+//   )
+// }

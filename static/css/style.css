@@ -1,3 +1,7 @@
+.app-title {
+  margin-bottom: 0px;
+}
+
 .overlay {
     z-index: 98;
     position: fixed;
