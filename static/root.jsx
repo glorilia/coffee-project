@@ -1032,6 +1032,7 @@ function All() {
   return (
     <div id='all-container'>
       <h1>All {view}</h1>
+      <SelectorAddButton view={view} />
       {itemsIsEmpty && <p>No {view} yet! Try adding something.</p>}
       <ul id="all-user-featurese">
         {listItems}
@@ -1164,8 +1165,6 @@ function AddNewUserFeature() {
         } else { history.push('/homepage')}
       })
   }
-
-  
 
   return (
     <div className='form-bin'>
@@ -1426,16 +1425,16 @@ function App() {
               <Link to="/homepage"> Homepage </Link>
             </li>
             <li>
-              <Link to="/add-new-drink"> Add New Drink </Link>
+              <Link to="/all/shops"> All Shops </Link>
             </li>
             <li>
-              <Link to="/login"> Login </Link>
+              <Link to="/all/drinks"> All Drinks </Link>
+            </li>
+            <li>
+              <Link to="/all/shopAspects"> All Shop Aspects </Link>
             </li>
             <li>
               <Link to="/logout"> Log Out</Link>
-            </li>
-            <li>
-              <Link to="/create-account"> Create Account </Link>
             </li>
           </ul>
         </nav>
@@ -1480,7 +1479,6 @@ function App() {
       </div>
     </Router>
   );
-
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
