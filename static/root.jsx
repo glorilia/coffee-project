@@ -403,7 +403,7 @@ function InfoContainer(props) { //get the user's user features' information acco
   return (
     <div id="info-container">
       <h1 id="info-container-title">Top {props.view}</h1>
-      <ul id="list-of-user-features">
+      <ul id="top-user-features">
         {itemsIsEmpty && <p className="empty-list">You haven't tried shops in this area. Try moving around the map (or adding something new!).</p>}
         {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
       </ul>
@@ -479,7 +479,6 @@ function BodyListElement(props) {
 }
 
 
-const MAX = 5;
 const HEIGHT = 80;
 
 
@@ -514,6 +513,7 @@ function RankedListContainer() {
         <h2>{description}</h2>
         <AreaForDragging 
           toRank={toRank}
+          userFeatureId={userFeatureId}
           allUserFeatures={allUserFeatures}
           changesMade ={changesMade}
           setChangesMade={setChangesMade} 
@@ -577,13 +577,6 @@ function AreaForDragging(props) {
     })
   }, [items])
 
-  // console.log(`3. In AreaForDragging, items is:`)
-  // console.table(items)
-  // console.log(`4. In AreaForDragging, unranked is: ${unranked}`)
-  // console.log(`4. state.dragOrder is:`)
-  // console.table(state.dragOrder)
-  // console.log(`5. is state.dragOrder == items? ${_.isEqual(items, state.dragOrder)}`)
-
   const handleDrag = React.useCallback(({translation, id}) => {
     const delta = Math.round(translation.y / HEIGHT);
     const index = state.order.indexOf(id);
@@ -627,13 +620,13 @@ function AreaForDragging(props) {
 
   return(
     <Container> 
-      <button 
+      { (items.length > 1 || props.userFeatureId != 'none') && <button 
         className="save-button"
         id="save-rankings-button" 
         onClick={saveRankings}
         >
           Save Rankings
-      </button>
+      </button>}
       {items.map((item, index) => {
         const isDragging = state.draggedIndex === index;
         const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
@@ -1006,7 +999,7 @@ function ViewAllButton(props) {
     <button 
       id="view-all-button"
       onClick={goToAll}
-    >View All</button>
+    >View All {props.view}</button>
   )
 }
 
@@ -1040,7 +1033,7 @@ function All() {
     <div id='all-container'>
       <h1>All {view}</h1>
       {itemsIsEmpty && <p>No {view} yet! Try adding something.</p>}
-      <ul>
+      <ul id="all-user-featurese">
         {listItems}
       </ul>
     </div>
@@ -1048,7 +1041,6 @@ function All() {
 }
 
 
-// SelectorAddButton
 function SelectorAddButton(props) {
   let history = useHistory()
   const [types, setTypes] = React.useState();
@@ -1073,7 +1065,7 @@ function SelectorAddButton(props) {
 
   if (props.view == 'shops') {
     return (
-      <select id="selector-add-button" onChange={goToCreate}>
+      <select className="create-button" id="selector-add-button" onChange={goToCreate}>
         <option key='def' value=''>Add Something New</option>
         {types}
       </select>
@@ -1081,7 +1073,7 @@ function SelectorAddButton(props) {
   } else if(props.view == 'drinks') {
     return (
       <button 
-        className="add-new" 
+        className="create-button" 
         id="new-drink-button"
         value='drink'
         onClick={goToCreate}
@@ -1090,7 +1082,7 @@ function SelectorAddButton(props) {
   } else {
     return (
       <button 
-        className="add-new" 
+        className="create-button" 
         id="new-drink-button"
         value='shop_aspect'
         onClick={goToCreate}
@@ -1136,26 +1128,12 @@ function AddNewUserFeature() {
 
   React.useEffect( () => {
     if(map !== undefined && shop){
-      console.log(`map is:`)
-      console.log(map)
-      console.log(`shop is:`)
-      console.log(shop)
-      const center = new google.maps.LatLng(shop.lat, shop.lng)
-      const marker = new google.maps.Marker({position: center, map: map, title: shop.name})
-      // map.addListener ('click', () => console.log('you clicked on the map'))
-      // map.addListener('idle', () => {
-      map.panTo(center)
-
+      const center = new google.maps.LatLng(shop.lat, shop.lng);
+      const marker = new google.maps.Marker({position: center, map: map, title: shop.name});
+      map.panTo(center);
     }
   }, [map, shop])
 
-  // TESTING
-  // const [locationBounds, setLocationBounds] = React.useState();
-  // React.useEffect(() => {
-  //   if (map !== undefined) map.addListener('bounds_changed', 
-  //     () => setLocationBounds(map.getBounds()))
-  // }, [map])
-  // console.log(`location bounds in AddNewUserFeature are: ${locationBounds}`)
 
   const addToDB = () => {
     const formData = {
@@ -1187,7 +1165,7 @@ function AddNewUserFeature() {
   
 
   return (
-    <div>
+    <div className='form-bin'>
       <label htmlFor="shop-input">Choose a Shop</label>
       <ShopFinder shop={shop} setShop={setShop} searchBox={searchBox} setSearchBox={setSearchBox} />
       {MemoMap}
@@ -1225,7 +1203,7 @@ function AddNewUserFeature() {
         onChange={(e) => setLiked(!e.target.checked)}
         checked={!liked}
       ></input>
-      <button onClick={addToDB}>Add {featureType}</button>
+      <button className="add-button" onClick={addToDB}>Add {featureType}</button>
     </div>
   )
 }
@@ -1269,7 +1247,6 @@ function ShopFinder(props) {
     </div>
   )
 }
-
 
 function SearchBox(props) {
   const ref = React.useRef();
@@ -1330,7 +1307,6 @@ function SearchBox(props) {
   )
 }
 
-
 function ShopDisplayer(props) {
   const shop = props.shop
   return (
@@ -1343,7 +1319,6 @@ function ShopDisplayer(props) {
 
 
 function NewFeature() {
-  //should eventually go back to where we came from
   let history = useHistory()
   const {featureType} = useParams();
   const [name, setName] = React.useState('');
@@ -1370,10 +1345,10 @@ function NewFeature() {
 
   return (
     <div>
-      <p>What's the new {featureType}?</p>
+      <h1>New {featureType}</h1>
       <label htmlFor="name-input">Name</label>
       <input
-        id="name-input"
+        id="feature-name-input"
         type="text"
         onChange={(e) => setName(e.target.value)}
         value={name}
@@ -1384,11 +1359,10 @@ function NewFeature() {
         onChange={(e) => setDescription(e.target.value)}
         value={description}
       ></textarea>
-      <button onClick={addFeature}>Add New Feature</button>
+      <button className="add-button" onClick={addFeature}>Add New Feature</button>
     </div>
   )
 }
-
 
 
 
@@ -1399,10 +1373,9 @@ function About() {
 }
 
 
-function Logout(props) {
-  // Logs you out
 
-  // Hooks
+
+function Logout(props) { // Logs you out
   let history = useHistory()
   React.useEffect(() => {
     fetch('/api/logout',

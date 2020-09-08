@@ -469,7 +469,7 @@ def get_rankings(to_rank, user_feature_id):
         #   'liked' : [
         #               {'user_feature_id': 201, 'feature': {name: latte, description: ...}},
         #               {'user_feature_id': 209, 'feature': {name: cold brew, description: ...}}
-        #            ]
+        #            ],
         #   'disliked': [
         #               {'user_feature_id': 201, 'feature': {name: latte, description: ...}},
         #                {'user_feature_id': 209, 'feature': {name: cold brew, description: ...}}
