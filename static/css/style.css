@@ -7,17 +7,31 @@ html {
   font-family: serif;
 }
 
+body {
+  font-family: 'Lato', sans-serif;
+}
+
 .card-content {
-  height: 80px;
+  min-height: 104px;
+}
+
+/* #map-and-info-columns {
+  border: 1px solid transparent;
+  border-color: #00d1b2;
+  border-radius: 8px;
+} */
+
+#all-background-column {
+  border-radius: 8px;
 }
 
 #app-title {
   font-family: 'Rancho', cursive;
 }
 
-#app-subtitle {
-  font-family: 'Londrina S';
-}
+/* #app-subtitle {
+  font-family: 'Londrina S', cursive;
+} */
 
 #top-user-features-container {
   height: 60vh;
@@ -28,8 +42,18 @@ html {
   /* flex-direction: column; */
 }
 
-#info-container-title {
-  text-shadow: 2px 1px 3px rgba(0,0,0,0.3);
+#info-container-column {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* #info-container-title {
+  -webkit-text-stroke: 0.5px gray;
+} */
+
+#new-user-feature-button {
+  white-space: normal;
+  height: auto;
 }
 
 /* .overlay {

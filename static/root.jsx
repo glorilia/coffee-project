@@ -38,7 +38,7 @@ function LandingPage() { // First page anyone lands on, can login or create acco
           </div>
           <div className="column is-one-fifth">
             <div className="content">
-              <h3 id="landing-page-or" className="has-text-left-touch has-text-centered">OR</h3>
+              <h3 id="landing-page-or" className="has-text-centered">OR</h3>
             </div>
           </div>
           <div className="column has-text-centered">
@@ -116,7 +116,7 @@ function Login() { // A form to gather login info from a user
           </div>
         </div>
         <div className="field">
-          <div className="control">
+          <div className="control has-text-centered">
             <button 
               className="button is-primary is-medium is-rounded"
               onClick={logIn}
@@ -207,21 +207,27 @@ function Homepage() { // The main page a user sees. Includes a map and text info
   const [locationBounds, setLocationBounds] = React.useState() // set by MapContainer
 
   return (
-    <section className="section" id="homepage">
-      <div className="container mb-2">
+    <section className="section pt-4" id="homepage">
+      <div className="content mb-4 has-text-centered">
+        <h1 
+          id="info-container-title"
+          className="title is-uppercase has-text-primary-dark has-text-weight-bold">
+          Top {view}
+        </h1>
+      </div>
+      <div className="container mb-2 pb-5">
         <ButtonBar setView={setView} />
       </div>
       <div className="container">
-        <div className="columns">
-          <div className="column is-half has-background-grey-light">
+        <div className="columns has-background-primary-light" id="map-and-info-columns">
+          <div className="column is-half" id="map-container-column">
             <MapContainer view={view} setLocationBounds={setLocationBounds} locationBounds={locationBounds}/>
           </div>
-          <div className="column is-half has-background-grey-lighter">
+          <div id="info-container-column" className="column is-half has-background-primary-dark">
             <InfoContainer view={view} locationBounds={locationBounds}/>
           </div>
         </div>
       </div>
-      {/* <SelectorAddButton view={view} /> */}
     </section>
   )
 }
@@ -327,13 +333,18 @@ function LocationSetter(props) {
   }
 
   return (
-    <input
-      ref={ref}
-      className="search-box"
-      id="location-setter"
-      type="text"
-      placeholder="Wanna search somewhere else?"
-    ></input>
+    <div className="field">
+      <div className="control">
+        <input
+          ref={ref}
+          className="search-box input is-primary"
+          id="location-setter"
+          type="text"
+          placeholder="Wanna search somewhere else?"
+        ></input>
+      </div>
+    </div>
+    
   )
 }
 
@@ -467,20 +478,19 @@ function InfoContainer(props) { //get the user's user features' information acco
 
   return (
     <div id="info-container" className="container">
-      <div className="columns has-text-centered has-background-grey-light">
-        <div className="column ">
-          <h1 id="info-container-title"
-        className="title has-text-white">Top {props.view}</h1>
-        </div>
-        <div className="column is-half">
+      <div className="field has-addons has-addons-centered">
+        <p className="control">
+          <ViewAllButton view={props.view} />
+        </p>
+        <p className="control has-text-centered">
           <SelectorAddButton view={props.view} />
-          <ViewAllButton view={props.view}/>
-        </div>
+        </p>
       </div>
       <div id="top-user-features-container">
-        <ul id="top-user-features" className="columns is-multiline">
-          {itemsIsEmpty && <p className="empty-list">You haven't tried shops in this area. Try moving around the map (or adding something new!).</p>}
-          {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
+        <ul id="top-user-features" className="columns is-multiline is-variable is-1">
+          {itemsIsEmpty && <p className="empty-list has-text-white has-text-centered mt-4 px-6">You haven't tried shops in this area. Try moving around the map (or adding something new!).</p>}
+          {(listItems.length > 0 ) ? listItems : null}
+          {/* {(listItems.length > 0 ) ? listItems : <p className="has-text-centered icon"><i className="fas fa-3xfa-spin fa-coffee has-text-white"></i></p>} */}
         </ul>
       </div>
     </div>
@@ -507,7 +517,7 @@ function ListItem(props) {
     <div className="column is-half">
       <li className="list-item" onClick={handleListItemClick} className="card">
         <header className="card-header">
-          <h2 className="list-item-title card-header-title">{props.title}</h2>
+          <h2 className="list-item-title card-header-title is-capitalized pl-5">{props.title}</h2>
         </header>
         <div className="content ">
           <ItemBodyList 
@@ -546,23 +556,35 @@ function ItemBodyList(props) {
   
   return (
     <React.Fragment>
-      <ul className="card-content py-0 item-body-list">{listElements}</ul>
-      <footer className="card-footer">
-        <div className="card-footer-item">
-          { needNumLikesLeft && <span className="additional-items">+{numLikesLeft} more {numLikesLeft==1 ? 'like' : 'likes'} <i className="fas fa-thumbs-up"></i></span>} 
+      <div className="card-content py-3 item-body-list">
+        {listElements}
+        <div className="tags">
+          { needNumLikesLeft &&
+              <span className="additional-items tag">
+                +{numLikesLeft} more 
+                <span className="icon has-text-primary"><i className="fas fa-thumbs-up"></i></span>
+              </span>
+          }
+          { needNumDislikes && 
+            <span className="additional-items tag"> 
+              +{numDislikes} {numDislikes==1 ? 'dislike' : 'dislikes'} 
+              <span className="icon has-text-danger-dark"><i className="fas fa-thumbs-down"></i></span>
+            </span>}
+
         </div>
-        <div className="card-footer-item">
-          { needNumDislikes && <span className="additional-items"> {numDislikes} {numDislikes==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
-        </div>
-      </footer>
-      
+      </div>      
     </React.Fragment>
   )
 }
 
 
 function BodyListElement(props) {
-  return <li>{props.bodyListElement}</li>
+  return (
+    <p className="is-capitalized">
+      <span className="icon has-text-primary"><i className="fas fa-thumbs-up"></i></span>
+      {props.bodyListElement}
+    </p>
+    )
 }
 
 
@@ -948,9 +970,9 @@ function EditUserFeature(props) {
     <div className="modal-card">
       <header className="modal-card-head">
         <h1 className="edit-title modal-card-title">{featureName} from {shop}</h1>
-        <button class="delete" aria-label="close" onClick={cancelEdit}></button>
+        <button className="delete" aria-label="close" onClick={cancelEdit}></button>
       </header>
-      <section class="modal-card-body">
+      <section className="modal-card-body">
         <label htmlFor="nickname-input">Nickname</label>
         <input
           id="nickname-input"
@@ -981,7 +1003,7 @@ function EditUserFeature(props) {
           checked={!liked}
         ></input>
         </section>
-        <footer class="modal-card-foot">
+        <footer className="modal-card-foot">
           <button className="save-button" onClick={saveToDB}>Save Changes</button>
           <button className="delete-button" onClick={deleteUserFeature}>Delete This Entry</button>
         </footer>
@@ -1096,7 +1118,7 @@ function ViewAllButton(props) {
   return (
     <button 
       id="view-all-button"
-      className="button is-primary is-light is-small"
+      className="button is-primary is-light"
       onClick={goToAll}
     >View All {props.view}</button>
   )
@@ -1127,16 +1149,29 @@ function All() {
     fetch(`/api/get-user-information/${view}`)
     .then(response => response.json())
     .then(data => makeListItems(data))
-  }, [])
+  }, [view])
   return (
-    <div id='all-container'>
-      <h1>All {view}</h1>
-      <SelectorAddButton view={view} />
+    <section className="section pt-4" id="all-page">
+      <div className="content mb-4 has-text-centered">
+        <h1 
+          id="info-container-title"
+          className="title is-uppercase has-text-primary-dark has-text-weight-bold">
+          All {view}
+        </h1>
+      </div>
+      <div className="container has-text-centered mb-5">
+        <SelectorAddButton view={view} />
+      </div>
       {itemsIsEmpty && <p>No {view} yet! Try adding something.</p>}
-      <ul id="all-user-featurese">
-        {listItems}
-      </ul>
-    </div>
+      <div className="columns is-centered">
+        <div className="column is-two-thirds has-background-primary-dark" id="all-background-column">
+          <ul id="all-user-features" className="columns is-multiline is-variable is-1"> 
+            {listItems}
+          </ul>
+        </div>
+      </div>
+      
+    </section>
   )
 }
 
@@ -1165,8 +1200,8 @@ function SelectorAddButton(props) {
 
   if (props.view == 'shops') {
     return (
-      <div className="select is-small is-primary is-light">
-        <select className="create-button" id="selector-add-button" onChange={goToCreate}>
+      <div className="select is-primary is-light">
+        <select className="create-button has-text-centered has-text-primary has-text-weight-semibold" id="new-user-feature-button" onChange={goToCreate}>
         <option key='def' value=''>Add Something New</option>
         {types}
       </select>
@@ -1175,8 +1210,8 @@ function SelectorAddButton(props) {
   } else if(props.view == 'drinks') {
     return (
       <button 
-        className="button is-primary is-light is-small create-button" 
-        id="new-drink-button"
+        className="button is-primary is-inverted is-focused has-text-weight-semibold create-button" 
+        id="new-user-feature-button"
         value='drink'
         onClick={goToCreate}
         >Add a New Drink</button>
@@ -1184,8 +1219,8 @@ function SelectorAddButton(props) {
   } else {
     return (
       <button 
-        className="button is-primary is-light is-small create-button" 
-        id="new-drink-button"
+        className="button is-primary has-text-weight-semibold is-inverted is-focused create-button" 
+        id="new-user-feature-button"
         value='shop_aspect'
         onClick={goToCreate}
         >Add a New Shop Aspect</button>
@@ -1219,7 +1254,7 @@ function AddNewUserFeature() {
     zoom: 13
   });
   const mapDimensions = {
-    width: '30%',
+    width: '100%',
     height: '200px'
   }
 
@@ -1268,54 +1303,102 @@ function AddNewUserFeature() {
   }
 
   return (
-    <div className='form-bin'>
-      <label htmlFor="shop-input">Choose a Shop</label>
-      <ShopFinder shop={shop} setShop={setShop} searchBox={searchBox} setSearchBox={setSearchBox} />
-      {MemoMap}
-      <FeatureNamePicker
-        changesMade={changesMade}
-        featureType={featureType}
-        featureName={featureName}
-        setFeatureName={setFeatureName} />
-      {/* <p><Link to={`/add-feature/${featureType}`}>Add A New {featureType}</Link></p> */}
-      <button onClick={() => setShowModal(true)}>Add a New {featureType}</button>
-      <label htmlFor="nickname-input">Nickname</label>
-      <input
-        id="nickname-input"
-        type="text"
-        onChange={(e) => setNickname(e.target.value)}
-        value={nickname}
-      ></input>
-      <label htmlFor="details-input">Details</label>
-      <textarea
-        id="details-input"
-        onChange={(e) => setDetails(e.target.value)}
-        value={details}
-      ></textarea>
-      <label htmlFor="liked-input">Liked</label>
-      <input
-        id="liked-input"
-        type="radio"
-        value="liked"
-        onChange={(e) => setLiked(e.target.checked)}
-        checked={liked}
-      ></input>
-      <label htmlFor="disliked-input">Disliked</label>
-      <input
-        id="disliked-input"
-        type="radio"
-        value="not-liked"
-        onChange={(e) => setLiked(!e.target.checked)}
-        checked={!liked}
-      ></input>
-      <button className="add-button" onClick={addToDB}>Add {featureType}</button>
+    <section className='section'>
+      <div className="columns" id="parent-for-add-new-form">
+        <div className="column" id="shop-finder-column">
+          <div className="field">
+            <label className="label" htmlFor="shop-input">Find a Shop</label>
+            {/* <ShopFinder shop={shop} setShop={setShop} searchBox={searchBox} setSearchBox={setSearchBox} /> */}
+            <SearchBox 
+              setShop={setShop} 
+              searchBox={searchBox} 
+              setSearchBox={setSearchBox}/>
+            {MemoMap}
+          </div>
+        </div>
+        <div className="column" id="user-feature-details-inputs">
+          <ShopDisplayer shop={shop} />
+          <div className="field ">
+            <label className="label is-capitalized" htmlFor="feature-name-input">{featureType} Name</label>
+            <FeatureNamePicker
+              changesMade={changesMade}
+              featureType={featureType}
+              featureName={featureName}
+              setFeatureName={setFeatureName} />
+            <p className="help is-primary">Can't find it? Add a new kind of {featureType}</p>
+            <div className="control">
+               <button
+                className="button is-small is-primary is-dark is-capitalized"
+                onClick={() => setShowModal(true)}
+                >
+                  New Type of {featureType}
+              </button>
+            </div>
+          </div>
+          <div className="field">
+            <label className="label" htmlFor="nickname-input">Nickname</label>
+            <div className="control">
+              <input
+                className="input"
+                id="nickname-input"
+                type="text"
+                onChange={(e) => setNickname(e.target.value)}
+                value={nickname}
+              ></input>
+            </div>
+          </div>
+          <div className="field">
+            <label className="label" htmlFor="details-input">Details</label>
+            <div className="control">
+              <textarea
+                className="textarea"
+                id="details-input"
+                placeholder="What'd you think?"
+                onChange={(e) => setDetails(e.target.value)}
+                value={details}
+              ></textarea>
+            </div>
+          </div>
+          <div className="field">
+            <div className="control">
+              <label className="radio" htmlFor="liked-input">
+                Liked 
+                <input
+                  id="liked-input"
+                  name="answer"
+                  type="radio"
+                  value="liked"
+                  onChange={(e) => setLiked(e.target.checked)}
+                  checked={liked}
+                ></input>
+              </label>
+              <label className="radio" htmlFor="disliked-input">
+                Disliked 
+                <input
+                  id="disliked-input"
+                  name="answer"
+                  type="radio"
+                  value="not-liked"
+                  onChange={(e) => setLiked(!e.target.checked)}
+                  checked={!liked}
+                ></input>
+              </label>
+            </div>
+          </div>
+          <div className="field">
+            <div className="control">
+              <button className="add-button button is-primary" onClick={addToDB}>Add {featureType}</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <Modal showModal={showModal} setShowModal={setShowModal}>
           <NewFeature
             setShowModal={setShowModal}
             setChangesMade={setChangesMade}
             changesMade={changesMade}/>
-        </Modal>
-    </div>
+      </Modal>
+    </section>
   )
 }
 
@@ -1336,15 +1419,18 @@ function FeatureNamePicker(props) {
 
   return (
     <React.Fragment>
-      <label htmlFor="feature-name-input">{props.featureType} Name</label>
-      <select
-        id="feature-name-input"
-        onChange={(e) => props.setFeatureName(e.target.value)}
-        value={props.featureName}
-      >
-        <option key='def' value=''>Which {props.featureType} is it?</option>
-        {features}
-      </select>
+      <div className="control">
+        <div className="select">
+          <select
+            id="feature-name-input"
+            onChange={(e) => props.setFeatureName(e.target.value)}
+            value={props.featureName}
+          >
+            <option key='def' value=''>Which {props.featureType} is it?</option>
+            {features}
+          </select>
+        </div>
+      </div>
     </React.Fragment>
   )
 }
@@ -1409,22 +1495,33 @@ function SearchBox(props) {
   }
 
   return (
-    <input
-      ref={ref}
-      id="search-box"
-      type="text"
-      placeholder="Type in the shop name"
-    ></input>
+    <div className="control">
+      <input
+        ref={ref}
+        className="input"
+        id="search-box"
+        type="text"
+        placeholder="Type in the shop name"
+      ></input>
+    </div>
+    
   )
 }
 
 function ShopDisplayer(props) {
   const shop = props.shop
   return (
-    <div id="shop-displayer">
-      <p>{shop.name}</p>
-      <p>{shop.address}</p>
+    <div className="field">
+      <label className="label">
+        Chosen Shop
+      </label>
+      <div id="shop-displayer" className="notification">
+        {shop=== '' && <div><p>No shop has been chosen.</p><br></br></div>}
+        <p>{shop.name}</p>
+        <p>{shop.address}</p>
+      </div>
     </div>
+    
   )
 }
 
@@ -1519,7 +1616,7 @@ function App() {
             <a className="navbar-item">
               <Link to="/homepage"><p id="app-title" className="title">{APPNAME}</p> </Link>
             </a>
-            <a role="button" class="navbar-burger burger" aria-label="menu" 
+            <a role="button" className="navbar-burger burger" aria-label="menu" 
             aria-expanded="false" data-target="navbarMain"
             >
               <span aria-hidden="true"></span>
