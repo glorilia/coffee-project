@@ -208,20 +208,20 @@ function Homepage() { // The main page a user sees. Includes a map and text info
 
   return (
     <section className="section" id="homepage">
-      <div className="container">
+      <div className="container mb-2">
         <ButtonBar setView={setView} />
       </div>
       <div className="container">
         <div className="columns">
-          <div className="column is-half">
+          <div className="column is-half has-background-grey-light">
             <MapContainer view={view} setLocationBounds={setLocationBounds} locationBounds={locationBounds}/>
           </div>
-          <div className="column is-half">
+          <div className="column is-half has-background-grey-lighter">
             <InfoContainer view={view} locationBounds={locationBounds}/>
           </div>
         </div>
       </div>
-      <SelectorAddButton view={view} />
+      {/* <SelectorAddButton view={view} /> */}
     </section>
   )
 }
@@ -236,9 +236,9 @@ function ButtonBar(props) { //
 
   return (
     <div id="button-bar" className="buttons is-centered">
-      <button className="button is-info" onClick={changeView} >Top Shops</button>
-      <button className="button is-info" onClick={changeView} >Top Drinks</button>
-      <button className="button is-info" onClick={changeView} >Top Shop Aspects</button>
+      <button className="button is-primary is-rounded" onClick={changeView} >Top Shops</button>
+      <button className="button is-primary is-rounded" onClick={changeView} >Top Drinks</button>
+      <button className="button is-primary is-rounded" onClick={changeView} >Top Shop Aspects</button>
     </div>
   )
 }
@@ -254,7 +254,7 @@ function MapContainer(props) {
 
   const mapDimensions = {
     width: '100%',
-    height: '300px'
+    height: '60vh'
   }
 
   const MemoMap = React.useCallback( 
@@ -274,7 +274,7 @@ function MapContainer(props) {
   }, [map])
 
   return (
-    <div id="map-container">
+    <div id="map-container" className="container">
       <LocationSetter setSearchBox={setSearchBox} searchBox={searchBox} setOptions={setOptions} options={options}/>
       {MemoMap}
       <ShopMarkers map={map} view={props.view}/>
@@ -467,13 +467,22 @@ function InfoContainer(props) { //get the user's user features' information acco
 
   return (
     <div id="info-container" className="container">
-      <h1 id="info-container-title"
-        className="title">Top {props.view}</h1>
-      <ul id="top-user-features" className="columns is-multiline">
-        {itemsIsEmpty && <p className="empty-list">You haven't tried shops in this area. Try moving around the map (or adding something new!).</p>}
-        {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
-      </ul>
-      <ViewAllButton view={props.view}/>
+      <div className="columns has-text-centered has-background-grey-light">
+        <div className="column ">
+          <h1 id="info-container-title"
+        className="title has-text-white">Top {props.view}</h1>
+        </div>
+        <div className="column is-half">
+          <SelectorAddButton view={props.view} />
+          <ViewAllButton view={props.view}/>
+        </div>
+      </div>
+      <div id="top-user-features-container">
+        <ul id="top-user-features" className="columns is-multiline">
+          {itemsIsEmpty && <p className="empty-list">You haven't tried shops in this area. Try moving around the map (or adding something new!).</p>}
+          {(listItems.length > 0 ) ? listItems : <i className="fas fa-spin fa-coffee"></i>}
+        </ul>
+      </div>
     </div>
   )
 }
@@ -500,7 +509,7 @@ function ListItem(props) {
         <header className="card-header">
           <h2 className="list-item-title card-header-title">{props.title}</h2>
         </header>
-        <div className="card-content">
+        <div className="content ">
           <ItemBodyList 
           label={label} 
           likedList={props.allUserFeatures.liked}
@@ -537,10 +546,16 @@ function ItemBodyList(props) {
   
   return (
     <React.Fragment>
-      <ul className="item-body-list">{listElements}</ul>
-      { needNumLikesLeft && <span className="additional-items">+{numLikesLeft} more <i className="fas fa-thumbs-up"></i></span>} 
-      { (needNumLikesLeft && needNumDislikes) && <span className="additional-items">, </span>}
-      { needNumDislikes && <span className="additional-items"> {numDislikes} {numDislikes==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
+      <ul className="card-content py-0 item-body-list">{listElements}</ul>
+      <footer className="card-footer">
+        <div className="card-footer-item">
+          { needNumLikesLeft && <span className="additional-items">+{numLikesLeft} more {numLikesLeft==1 ? 'like' : 'likes'} <i className="fas fa-thumbs-up"></i></span>} 
+        </div>
+        <div className="card-footer-item">
+          { needNumDislikes && <span className="additional-items"> {numDislikes} {numDislikes==1 ? 'dislike' : 'dislikes'} <i className="fas fa-thumbs-down"></i></span>}
+        </div>
+      </footer>
+      
     </React.Fragment>
   )
 }
@@ -1081,6 +1096,7 @@ function ViewAllButton(props) {
   return (
     <button 
       id="view-all-button"
+      className="button is-primary is-light is-small"
       onClick={goToAll}
     >View All {props.view}</button>
   )
@@ -1149,15 +1165,17 @@ function SelectorAddButton(props) {
 
   if (props.view == 'shops') {
     return (
-      <select className="create-button" id="selector-add-button" onChange={goToCreate}>
+      <div className="select is-small is-primary is-light">
+        <select className="create-button" id="selector-add-button" onChange={goToCreate}>
         <option key='def' value=''>Add Something New</option>
         {types}
       </select>
+      </div>
     )
   } else if(props.view == 'drinks') {
     return (
       <button 
-        className="create-button" 
+        className="button is-primary is-light is-small create-button" 
         id="new-drink-button"
         value='drink'
         onClick={goToCreate}
@@ -1166,7 +1184,7 @@ function SelectorAddButton(props) {
   } else {
     return (
       <button 
-        className="create-button" 
+        className="button is-primary is-light is-small create-button" 
         id="new-drink-button"
         value='shop_aspect'
         onClick={goToCreate}
@@ -1496,7 +1514,7 @@ function App() {
     // Creating Navigation
     <Router>
       <div>
-        <nav className="navbar" role="navigation" aria-label="main-navigation">
+        <nav className="navbar is-light is-spaced py-0" role="navigation" aria-label="main-navigation">
           <div className="navbar-brand">
             <a className="navbar-item">
               <Link to="/homepage"><p id="app-title" className="title">{APPNAME}</p> </Link>
@@ -1525,7 +1543,7 @@ function App() {
               </a>
             </div>
             <div className="navbar-end">
-              <a className="navbar-item button">
+              <a className="navbar-item button is-primary is-outlined">
                 <Link to="/logout"> Log Out</Link>
               </a>
             </div>
