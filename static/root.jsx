@@ -562,13 +562,13 @@ function ItemBodyList(props) {
           { needNumLikesLeft &&
               <span className="additional-items tag">
                 +{numLikesLeft} more 
-                <span className="icon has-text-primary"><i className="fas fa-thumbs-up"></i></span>
+                <span className="icon has-text-primary">  <i className="fas fa-thumbs-up"></i></span>
               </span>
           }
           { needNumDislikes && 
             <span className="additional-items tag"> 
               +{numDislikes} {numDislikes==1 ? 'dislike' : 'dislikes'} 
-              <span className="icon has-text-danger-dark"><i className="fas fa-thumbs-down"></i></span>
+              <span className="icon has-text-danger-dark">  <i className="fas fa-thumbs-down"></i></span>
             </span>}
 
         </div>
@@ -588,7 +588,8 @@ function BodyListElement(props) {
 }
 
 
-const HEIGHT = 80;
+const HEIGHT = 150;
+const WIDTH = 400;
 
 
 function RankedListContainer() {
@@ -617,9 +618,11 @@ function RankedListContainer() {
 
   if (Object.keys(allUserFeatures).length > 0) {
     return (
-      <div id="ranked-list-container">
-        <h1>{toRank}</h1>
-        <h2>{description}</h2>
+      <section className="section mx-0 px-0" id="ranked-list-container">
+        <div className="content has-text-centered">
+          <h1 className="title is-1 is-capitalized has-text-primary-dark" id="rankings-title">{toRank}</h1>
+          <h2 className="subtitle is-4 has-weight-bold">{description}</h2>
+        </div>
         <AreaForDragging 
           toRank={toRank}
           userFeatureId={userFeatureId}
@@ -637,7 +640,7 @@ function RankedListContainer() {
             setChangesMade={setChangesMade}
             changesMade={changesMade}/>
         </Modal>
-      </div>
+      </section>
     )
   } else return null;
 }
@@ -727,80 +730,128 @@ function AreaForDragging(props) {
 
 
   return(
-    <Container> 
-      { (items.length > 1 || props.userFeatureId != 'none') && <button 
-        className="save-button"
-        id="save-rankings-button" 
-        onClick={saveRankings}
-        >
-          Save Rankings
-      </button>}
-      {items.map((item, index) => {
-        const isDragging = state.draggedIndex === index;
-        const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
-        // console.log(`OG index${index}-> state.dragOrder.indexOf(item->${item.shop.name}): ${state.dragOrder.indexOf(item)}`)
-        // console.log(`OG index${index}-> top: ${top}`)
-        const draggedTop = state.order.indexOf(item) * (HEIGHT + 10);
-        // console.log(`OG index${index}-> draggedTop: ${draggedTop}`)
-
-        return (
-          <Draggable
-            key={index}
-            id={item}
-            onDrag={handleDrag}
-            onDragEnd={handleDragEnd}
-          >
-            <Rect
-              key={item.user_feature_id}
-              isDragging={isDragging}
-              top={isDragging ? draggedTop : top}
+    <div>
+      { (items.length > 1 || props.userFeatureId != 'none') && <div className="content has-text-centered">
+          <button
+            disabled={true}
+            title="Disabled button"
+            className="save-button button is-primary"
+            id="save-rankings-button" 
+            onClick={saveRankings}
             >
-              {item.ranking}.
-              <br></br>
-              {item.shop.name} ({item.nickname}),  {item.details},  
-              Last Updated: {item.last_updated}
-              <button 
-                className="edit-button"
-                style={{zIndex: 3}} 
-                onClick={() => {
-                  props.setShowModal(true)
-                  props.setIdToEdit(item.user_feature_id)
-                }}
-              >
-                Edit Details
-              </button>
-            </Rect>
-          </Draggable>
-        );
-      })}
-      {unranked.map( (item, index) => {
+              Save Rankings
+          </button>
+        </div>  
+      }
+      <Container> 
+        {items.map((item, index) => {
+          const isDragging = state.draggedIndex === index;
+          const top = state.dragOrder.indexOf(item) * (HEIGHT + 10);
+          // console.log(`OG index${index}-> state.dragOrder.indexOf(item->${item.shop.name}): ${state.dragOrder.indexOf(item)}`)
+          // console.log(`OG index${index}-> top: ${top}`)
+          const draggedTop = state.order.indexOf(item) * (HEIGHT + 10);
+
+          //dealing with the date
+          const d = new Date(item.last_updated)
+          const lastUpdated = `${d.getMonth()}/${d.getDate()} @ ${d.getHours()}:${d.getMinutes()}`
+          
+          //dealing with nickname
+          let nickname = ''
+          if (item.nickname != null) {
+            nickname = `(${item.nickname})`
+          }
+
           return (
-            <div key={index} style={{position: "relative"}}>
+            <Draggable
+              key={index}
+              id={item}
+              onDrag={handleDrag}
+              onDragEnd={handleDragEnd}
+            >
               <Rect
                 key={item.user_feature_id}
-                top={(index + state.order.length)* (HEIGHT + 10)}
+                isDragging={isDragging}
+                top={isDragging ? draggedTop : top}
               >
-                {item.ranking}.
-                <br></br>
-                {item.shop.name} ({item.nickname}),  {item.details},  
-                Last Updated: {item.last_updated}
-                <button 
-                  className="edit-button"
-                  style={{zIndex: 3}} 
-                  onClick={() => {
-                    props.setShowModal(true)
-                    props.setIdToEdit(item.user_feature_id)
-                  }}
-                >
-                  Edit Details
-                </button>
+                <div className="message-header">
+                  <p className="is-size-6">
+                    <span className="icon"><i className="fas fa-thumbs-up"></i> </span>
+                    {item.shop.name} 
+                    <span className="is-italic"> {nickname}</span>
+                  </p>
+                  
+                  <button 
+                    className="edit-button button is-small is-primary"
+                    style={{zIndex: 3}} 
+                    onClick={() => {
+                      props.setShowModal(true)
+                      props.setIdToEdit(item.user_feature_id)
+                    }}
+                    >
+                    Edit Details
+                  </button>
+                </div>
+                <div className="message-body px-3 py-2">
+                  <p className="is-size-6">{item.details}
+                    <br /><span className="is-italic is-size-7" style={{color:"silver"}}>
+                      Updated: {lastUpdated}
+                    </span>
+                  </p>
+                </div>
               </Rect>
-            </div>
-          )
-        })
-        }
-  </Container>
-  );
+            </Draggable>
+          );
+        })}
+        {unranked.map( (item, index) => {
+            //dealing with the date
+            const d = new Date(item.last_updated)
+            const lastUpdated = `${d.getMonth()}/${d.getDate()} @ ${d.getHours()}:${d.getMinutes()}`
+            
+            //dealing with nickname
+            let nickname = ''
+            if (item.nickname != null) {
+              nickname = `(${item.nickname})`
+            }
+
+            return (
+              <div key={index} style={{position: "relative"}}>
+                <Rect
+                  className="message is-danger"
+                  key={item.user_feature_id}
+                  top={(index + state.order.length)* (HEIGHT + 10)}
+                >
+                  <div className="message-header">
+                    <p className="is-size-6">
+                      <span className="icon"><i className="fas fa-thumbs-down"></i> </span>
+                      {item.shop.name} 
+                      <span className="is-italic">{nickname}</span>
+                    </p>
+                    <button 
+                      className="edit-button button is-small is-danger"
+                      style={{zIndex: 3}} 
+                      onClick={() => {
+                        props.setShowModal(true)
+                        props.setIdToEdit(item.user_feature_id)
+                      }}
+                      >
+                      Edit Details
+                    </button>
+                  </div>
+                  <div className="message-body px-3 py-2">
+                    <p className="is-size-6">{item.details}
+                      <br /><span className="is-italic is-size-7" style={{color:"silver"}}>
+                        Updated: {lastUpdated}
+                      </span>
+                    </p>
+                  </div>
+                </Rect>
+              </div>
+            )
+          })
+          }
+    </Container>
+    </div>
+  )
 }
 
     
@@ -810,21 +861,22 @@ const Container = window.styled.div`
 `;
 
 const Rect = window.styled.div.attrs(props => ({
+  className: "message is-small is-primary",
   style: {
     transition: props.isDragging ? 'none' : 'all 500ms'
   }
 }))`
-  width: 600px;
+  width: ${WIDTH}px;
   user-select: none;
   height: ${HEIGHT}px;
-  background: #fff;
+  
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-  display: flex;
+  
   align-items: start;
   justify-content: start;
   position: absolute;
   top: ${({top}) => 20 + top}px;
-  left: calc(50vw - 350px);
+  left: calc(50vw - ${WIDTH / 2}px);
   font-size: 20px;
   color: #777;
 `;
@@ -969,45 +1021,64 @@ function EditUserFeature(props) {
   return (
     <div className="modal-card">
       <header className="modal-card-head">
-        <h1 className="edit-title modal-card-title">{featureName} from {shop}</h1>
+        <h1 className="edit-title modal-card-title is-capitalized">{featureName} from {shop}</h1>
         <button className="delete" aria-label="close" onClick={cancelEdit}></button>
       </header>
       <section className="modal-card-body">
-        <label htmlFor="nickname-input">Nickname</label>
-        <input
-          id="nickname-input"
-          type="text"
-          onChange={(e) => setNickname(e.target.value)}
-          value={nickname}
-        ></input>
-        <label htmlFor="details-input">Details</label>
-        <textarea
-          id="details-input"
-          onChange={(e) => setDetails(e.target.value)}
-          value={details}
-        ></textarea>
-        <label htmlFor="liked-input">Liked</label>
-        <input
-          id="liked-input"
-          type="radio"
-          value="liked"
-          onChange={(e) => setLiked(e.target.checked)}
-          checked={liked}
-        ></input>
-        <label htmlFor="disliked-input">Disliked</label>
-        <input
-          id="disliked-input"
-          type="radio"
-          value="not-liked"
-          onChange={(e) => setLiked(!e.target.checked)}
-          checked={!liked}
-        ></input>
+        <div className="field">
+          <label className="label" htmlFor="nickname-input">Nickname</label>
+          <div className="control">
+            <input
+              className="input"
+              id="nickname-input"
+              type="text"
+              onChange={(e) => setNickname(e.target.value)}
+              value={nickname}
+            ></input>
+          </div>
+        </div>
+        <div className="field">
+          <label className="label" htmlFor="details-input">Details</label>
+          <div className="control">
+            <textarea
+              className="textarea"
+              id="details-input"
+              onChange={(e) => setDetails(e.target.value)}
+              value={details}
+            ></textarea>
+          </div>
+        </div>
+        <div className="field is-grouped is-grouped-centered">
+          <div className="control">
+            <label className="radio is-size-5" htmlFor="liked-input">
+              Liked 
+              <input
+                id="liked-input"
+                name="answer"
+                type="radio"
+                value="liked"
+                onChange={(e) => setLiked(e.target.checked)}
+                checked={liked}
+              ></input>
+            </label>
+            <label className="radio is-size-5" htmlFor="disliked-input">
+              Disliked 
+              <input
+                id="disliked-input"
+                name="answer"
+                type="radio"
+                value="not-liked"
+                onChange={(e) => setLiked(!e.target.checked)}
+                checked={!liked}
+              ></input>
+            </label>
+          </div>
+        </div> 
         </section>
         <footer className="modal-card-foot">
           <button className="save-button" onClick={saveToDB}>Save Changes</button>
           <button className="delete-button" onClick={deleteUserFeature}>Delete This Entry</button>
         </footer>
-            
     </div>
   )
 }
@@ -1255,7 +1326,7 @@ function AddNewUserFeature() {
   });
   const mapDimensions = {
     width: '100%',
-    height: '200px'
+    height: '50vh'
   }
 
   const MemoMap = React.useCallback( 
@@ -1303,8 +1374,12 @@ function AddNewUserFeature() {
   }
 
   return (
-    <section className='section'>
+    <section className='section px-6'>
+      <div className="content">
+        <h1 className="title has-text-centered has-text-primary-dark is-capitalized">Add New {featureType}</h1>
+      </div>
       <div className="columns" id="parent-for-add-new-form">
+
         <div className="column" id="shop-finder-column">
           <div className="field">
             <label className="label" htmlFor="shop-input">Find a Shop</label>
@@ -1316,82 +1391,96 @@ function AddNewUserFeature() {
             {MemoMap}
           </div>
         </div>
+
         <div className="column" id="user-feature-details-inputs">
           <ShopDisplayer shop={shop} />
-          <div className="field ">
-            <label className="label is-capitalized" htmlFor="feature-name-input">{featureType} Name</label>
-            <FeatureNamePicker
-              changesMade={changesMade}
-              featureType={featureType}
-              featureName={featureName}
-              setFeatureName={setFeatureName} />
-            <p className="help is-primary">Can't find it? Add a new kind of {featureType}</p>
-            <div className="control">
-               <button
-                className="button is-small is-primary is-dark is-capitalized"
-                onClick={() => setShowModal(true)}
-                >
-                  New Type of {featureType}
-              </button>
+
+          <div className="columns" id="name-and-nickname-columns">
+            <div className="column" id="drink-name-column">
+              <div className="field ">
+                <label className="label is-capitalized" htmlFor="feature-name-input">{featureType} Name</label>
+                <FeatureNamePicker
+                  changesMade={changesMade}
+                  featureType={featureType}
+                  featureName={featureName}
+                  setFeatureName={setFeatureName} />
+                <p className="help is-primary">Can't find it? Add a new kind of {featureType}</p>
+                <div className="control">
+                  <button
+                    className="button is-small is-primary is-dark is-capitalized"
+                    onClick={() => setShowModal(true)}
+                    >
+                      New Type of {featureType}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="column" id="nickname-column">
+              <div className="field">
+                <label className="label" htmlFor="nickname-input">Nickname</label>
+                <div className="control">
+                  <input
+                    className="input"
+                    id="nickname-input"
+                    type="text"
+                    onChange={(e) => setNickname(e.target.value)}
+                    value={nickname}
+                  ></input>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="field">
-            <label className="label" htmlFor="nickname-input">Nickname</label>
-            <div className="control">
-              <input
-                className="input"
-                id="nickname-input"
-                type="text"
-                onChange={(e) => setNickname(e.target.value)}
-                value={nickname}
-              ></input>
-            </div>
-          </div>
-          <div className="field">
-            <label className="label" htmlFor="details-input">Details</label>
-            <div className="control">
-              <textarea
-                className="textarea"
-                id="details-input"
-                placeholder="What'd you think?"
-                onChange={(e) => setDetails(e.target.value)}
-                value={details}
-              ></textarea>
-            </div>
-          </div>
-          <div className="field">
-            <div className="control">
-              <label className="radio" htmlFor="liked-input">
-                Liked 
-                <input
-                  id="liked-input"
-                  name="answer"
-                  type="radio"
-                  value="liked"
-                  onChange={(e) => setLiked(e.target.checked)}
-                  checked={liked}
-                ></input>
-              </label>
-              <label className="radio" htmlFor="disliked-input">
-                Disliked 
-                <input
-                  id="disliked-input"
-                  name="answer"
-                  type="radio"
-                  value="not-liked"
-                  onChange={(e) => setLiked(!e.target.checked)}
-                  checked={!liked}
-                ></input>
-              </label>
-            </div>
-          </div>
-          <div className="field">
-            <div className="control">
-              <button className="add-button button is-primary" onClick={addToDB}>Add {featureType}</button>
+
+          <div className="columns" id="rest-of-fields-columns">
+            <div className="column" id="rest-of-fields-column">
+              <div className="field">
+                <label className="label" htmlFor="details-input">Details</label>
+                <div className="control">
+                  <textarea
+                    className="textarea"
+                    id="details-input"
+                    placeholder="What'd you think?"
+                    onChange={(e) => setDetails(e.target.value)}
+                    value={details}
+                  ></textarea>
+                </div>
+              </div>
+              <div className="field is-grouped is-grouped-centered">
+                <div className="control">
+                  <label className="radio is-size-5" htmlFor="liked-input">
+                    Liked 
+                    <input
+                      id="liked-input"
+                      name="answer"
+                      type="radio"
+                      value="liked"
+                      onChange={(e) => setLiked(e.target.checked)}
+                      checked={liked}
+                    ></input>
+                  </label>
+                  <label className="radio is-size-5" htmlFor="disliked-input">
+                    Disliked 
+                    <input
+                      id="disliked-input"
+                      name="answer"
+                      type="radio"
+                      value="not-liked"
+                      onChange={(e) => setLiked(!e.target.checked)}
+                      checked={!liked}
+                    ></input>
+                  </label>
+                </div>
+              </div>
+              <div className="field">
+                <div className="control has-text-centered">
+                  <button className="add-button button is-primary is-medium" onClick={addToDB}>Add {featureType}</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
       <Modal showModal={showModal} setShowModal={setShowModal}>
           <NewFeature
             setShowModal={setShowModal}
@@ -1515,11 +1604,11 @@ function ShopDisplayer(props) {
       <label className="label">
         Chosen Shop
       </label>
-      <div id="shop-displayer" className="notification">
+      <div id="shop-displayer" className="notification is-primary is-light">
         {shop=== '' && <div><p>No shop has been chosen.</p><br></br></div>}
         <p>{shop.name}</p>
         <p>{shop.address}</p>
-      </div>
+      </div> 
     </div>
     
   )
@@ -1531,6 +1620,8 @@ function NewFeature(props) {
   const {featureType} = useParams();
   const [name, setName] = React.useState('');
   const [description, setDescription] = React.useState();
+
+  const cancelAdd = () => props.setShowModal(false)
 
   const addFeature = () => {
     const formData = {
@@ -1553,22 +1644,43 @@ function NewFeature(props) {
   }
 
   return (
-    <div>
-      <h1>New {featureType}</h1>
-      <label htmlFor="name-input">Name</label>
-      <input
-        id="feature-name-input"
-        type="text"
-        onChange={(e) => setName(e.target.value)}
-        value={name}
-        ></input>
-      <label htmlFor="details-input">Details</label>
-      <textarea
-        id="description-input"
-        onChange={(e) => setDescription(e.target.value)}
-        value={description}
-      ></textarea>
-      <button className="add-button" onClick={addFeature}>Add New Feature</button>
+    <div className="modal-card">
+      <header className="modal-card-head">
+        <h1 className="edit-title modal-card-title is-capitalized">New Kind of {featureType}</h1>
+        <button className="delete" aria-label="close" onClick={cancelAdd}></button>
+      </header>
+      <section className="modal-card-body">
+        <div className="field">
+          <label className="label" htmlFor="name-input">Name</label>
+          <div className="control">
+            <input
+              className="input"
+              id="feature-name-input"
+              type="text"
+              onChange={(e) => setName(e.target.value)}
+              value={name}
+            ></input>
+          </div>
+        </div>
+        <div className="field">
+          <label className="label" htmlFor="details-input">Details</label>
+          <div className="control">
+            <textarea
+              className="textarea"
+              id="description-input"
+              onChange={(e) => setDescription(e.target.value)}
+              value={description}
+            ></textarea>
+          </div>
+        </div>
+      </section>
+      <footer className="modal-card-foot" id="modal-foot-new-drink">
+        <div className="field has-text-centered">
+          <div className="control">
+            <button className="add-button button is-primary is-capitalized" onClick={addFeature}>Add New Kind of {featureType}</button>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
