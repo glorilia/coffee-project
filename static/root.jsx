@@ -1099,7 +1099,7 @@ function ShopInfo(){
   });
 
   const mapDimensions = {
-    width: '50%',
+    width: '100%',
     height: '100px'
   }
 
@@ -1132,37 +1132,72 @@ function ShopInfo(){
   if (userFeatures.length !== 0 ) {
    
     return (
-      <div id="shop-info-page">
+      <section className="section mx-0 px-0" id="shop-info-page">
+        <div className="content has-text-centered">
+          <h1 className="title is-1 is-capitalized has-text-primary-dark" id="rankings-title">{shopName}</h1>
+        </div>
+        <div className="columns is-centered" id="shop-map-columns">
+          <div className="column is-half" id="shop-map-column">
+            {MemoMap}
+          </div>
+        </div>
+        <div className="content has-text-centered">
+          <h2 className="subtitle is-4 has-weight-bold">All drinks and shop aspects from this coffee shop</h2>
+        </div>
         <Container>
-          <h1>{shopName}</h1>
-          <h2> All drinks and shop aspects from this coffee shop</h2>
-          {MemoMap}
           {userFeatures.map( (item, index) => {
-              return (
-                <div id="shop-info-container" style={{position: "relative"}} key={index}>
-                  <Rect
-                    key={item.user_feature_id}
-                    top={(index )* (HEIGHT + 10)}
-                  >
-                    {item.ranking}.
-                    <br></br>
-                    {item.feature} ({item.nickname}),  {item.details},  
-                    Last Updated: {item.last_updated}
+            //dealing with the date
+            const d = new Date(item.last_updated)
+            const lastUpdated = `${d.getMonth()}/${d.getDate()} @ ${d.getHours()}:${d.getMinutes()}`
+            
+            //dealing with nickname
+            let nickname = ''
+            if (item.nickname != null) {
+              nickname = `(${item.nickname})`
+            }
+
+            //deal with 0 rankings (dislikes)
+            const isLiked = item.ranking > 0;
+
+
+            return (
+              <div id="shop-info-container" style={{position: "relative"}} key={index}>
+                <Rect
+                  // className={`${item.ranking=0? "message is-danger":"message is-primary"}`}
+                  className={`${isLiked? "is-primary" : "is-danger"}`}
+                  key={item.user_feature_id}
+                  top={(index )* (HEIGHT + 10)}
+                >
+                  <div className="message-header">
+                    <p className="is-size-6 is-capitalized">
+                      <span className="icon"><i className={`fas fa-thumbs-${isLiked? "up": "down"}`}></i> </span>
+                      {item.feature} 
+                      <span className="is-italic"> {nickname}</span>
+                    </p>
+                    
                     <button 
-                      className="edit-button"
+                      className={`edit-button button is-small ${isLiked? "is-primary" : "is-danger"}`}
                       style={{zIndex: 3}} 
                       onClick={() => {
                         setShowModal(true)
                         setIdToEdit(item.user_feature_id)
-                    }}
-                    >
+                      }}
+                      >
                       Edit Details
                     </button>
-                  </Rect>
-                </div>
-              )
-            })
-            }
+                  </div>
+                  <div className="message-body px-3 py-2">
+                    <p className="is-size-6">{item.details}
+                      <br /><span className="is-italic is-size-7" style={{color:"silver"}}>
+                        Updated: {lastUpdated}
+                      </span>
+                    </p>
+                  </div>
+                </Rect>
+              </div>
+            )
+          })
+          }
         </Container>
         <Modal showModal={showModal} setShowModal={setShowModal}>
           <EditUserFeature 
@@ -1171,7 +1206,7 @@ function ShopInfo(){
             setChangesMade={setChangesMade}
             changesMade={changesMade}/>
         </Modal>
-      </div>
+      </section>
     )
   } else {return null;}
 }
