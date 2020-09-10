@@ -674,18 +674,20 @@ function AreaForDragging(props) {
   let history = useHistory();
   const unranked=props.allUserFeatures.disliked;
   const items = props.allUserFeatures.liked;
+  // const [ogOrder, setOgOrder] = React.useState(items)
   const [state, setState] = React.useState({
     order: items,
     dragOrder: items,
     draggedIndex: null
-  })
+  }) 
 
   React.useEffect( () => {
     setState({
       order: items,
       dragOrder: items,
-      draggedIndex: null
-    })
+      draggedIndex: null,
+      ogOrder: items
+    });
   }, [items])
 
   const handleDrag = React.useCallback(({translation, id}) => {
@@ -728,12 +730,11 @@ function AreaForDragging(props) {
     })
   }, [state.order])
 
-
   return(
     <div>
       { (items.length > 1 || props.userFeatureId != 'none') && <div className="content has-text-centered">
           <button
-            disabled={true}
+            // disabled={ props.userFeatureId=="none" && (state.order == state.ogOrder ? true: false)}
             title="Disabled button"
             className="save-button button is-primary"
             id="save-rankings-button" 
@@ -769,6 +770,7 @@ function AreaForDragging(props) {
               onDragEnd={handleDragEnd}
             >
               <Rect
+                className={item.user_feature_id==props.userFeatureId ? "is-warning": "is-primary" }
                 key={item.user_feature_id}
                 isDragging={isDragging}
                 top={isDragging ? draggedTop : top}
@@ -776,10 +778,9 @@ function AreaForDragging(props) {
                 <div className="message-header">
                   <p className="is-size-6">
                     <span className="icon"><i className="fas fa-thumbs-up"></i> </span>
-                    {item.shop.name} 
-                    <span className="is-italic"> {nickname}</span>
+                      {item.shop.name} 
+                    <span className="is-italic">{nickname}</span>
                   </p>
-                  
                   <button 
                     className="edit-button button is-small is-primary"
                     style={{zIndex: 3}} 
