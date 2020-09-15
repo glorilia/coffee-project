@@ -6,6 +6,7 @@ You can add drinks and shop aspects about specific places, and rank these drinks
 
 ## About Me
 Glorilí Alejandro grew up drawing on every surface she encountered. She enjoys figuring out the intricacies of how things work and their effects on the big picture, and uses this skill for good (how do we prevent errors on this accounting spreadsheet?) and evil (how do I get my introverted friend to sing karaoke in public?). 
+
 Glorilí first encountered coding while animating videos for her art degree at Yale University. After discovering UX design, she became a founding member of the design team at a database software firm. She returned to the arts with new skills, building systems for an arts education non-profit. Glorilí aims to continue building systems with an eye for design, this time in software. She brings her abilities to bridge gaps between engineers and users, and solve complexity with creativity.
 
 ## Contents
@@ -29,13 +30,21 @@ Glorilí first encountered coding while animating videos for her art degree at Y
 #### Home Page
 Users are greeted with a map created using the Google Maps Javascript API. The markers on this map correspond to information about shops, drinks, or shop aspects, depending on the chosen view. Details are provided through the cards on the right. 
 
+![home page](/images_for_readme/homepage)
+
 #### Add a Drink/ Shop Aspect
 When a user wants to log a their thoughts about a particular shop's drink, or an aspect of the shop itself like seating or privacy, they can add it along with details and a nickname. A user also indicates if they like or dislike this addition, which determines whether they go to the rankings page or the home page after submitting their addition.
+
+![add a new drink or shop aspect](/images_for_readme/add-new)
 
 #### Rankings
 A user can rank any kind of feature, be it a drink (ex: latte) or a shop aspect (ex: barista friendliness) against others of its type to keep track of their favorites. This draggable interface, made possible by React hooks and CSS, allows for users to adjust the order of favorites at any time.
 
+
+
 #### Edit Details
 If a user changes their mind about a feature they've already added, they can edit the details about it through a modal window, and even change whether it is liked or disliked. The date of this update is displayed in the details for reference.
+
+![edit details](/images_for_readme/edit-details)
 
 
