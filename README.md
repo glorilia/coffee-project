@@ -30,12 +30,12 @@ Glorilí first encountered coding while animating videos for her art degree at Y
 #### Home Page
 Users are greeted with a map created using the Google Maps Javascript API. The markers on this map correspond to information about shops, drinks, or shop aspects, depending on the chosen view. Details are provided through the cards on the right. 
 
-![home page](/images_for_readme/homepage)
+![home page](/images_for_readme/homepage.png)
 
 #### Add a Drink/ Shop Aspect
 When a user wants to log a their thoughts about a particular shop's drink, or an aspect of the shop itself like seating or privacy, they can add it along with details and a nickname. A user also indicates if they like or dislike this addition, which determines whether they go to the rankings page or the home page after submitting their addition.
 
-![add a new drink or shop aspect](/images_for_readme/add-new)
+![add a new drink or shop aspect](/images_for_readme/add-new.png)
 
 #### Rankings
 A user can rank any kind of feature, be it a drink (ex: latte) or a shop aspect (ex: barista friendliness) against others of its type to keep track of their favorites. This draggable interface, made possible by React hooks and CSS, allows for users to adjust the order of favorites at any time.
@@ -45,6 +45,6 @@ A user can rank any kind of feature, be it a drink (ex: latte) or a shop aspect 
 #### Edit Details
 If a user changes their mind about a feature they've already added, they can edit the details about it through a modal window, and even change whether it is liked or disliked. The date of this update is displayed in the details for reference.
 
-![edit details](/images_for_readme/edit-details)
+![edit details](/images_for_readme/edit-details.png)
 
 
