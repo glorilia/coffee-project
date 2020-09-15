@@ -592,7 +592,7 @@ const HEIGHT = 150;
 const WIDTH = 400;
 
 
-function RankedListContainer() {
+function RankedListContainer() { 
   const { toRank, userFeatureId} = useParams();
   const [description, setDescription] = React.useState('no description');
   const [changesMade, setChangesMade] = React.useState(0);
@@ -779,7 +779,7 @@ function AreaForDragging(props) {
                   <p className="is-size-6">
                     <span className="icon"><i className="fas fa-thumbs-up"></i> </span>
                       {item.shop.name} 
-                    <span className="is-italic">{nickname}</span>
+                    <span className="is-italic"> {nickname}</span>
                   </p>
                   <button 
                     className="edit-button button is-small is-primary"
@@ -825,7 +825,7 @@ function AreaForDragging(props) {
                     <p className="is-size-6">
                       <span className="icon"><i className="fas fa-thumbs-down"></i> </span>
                       {item.shop.name} 
-                      <span className="is-italic">{nickname}</span>
+                      <span className="is-italic"> {nickname}</span>
                     </p>
                     <button 
                       className="edit-button button is-small is-danger"
@@ -836,8 +836,8 @@ function AreaForDragging(props) {
                       }}
                       >
                       Edit Details
-                    </button>
-                  </div>
+                    </button> 
+                  </div> 
                   <div className="message-body px-3 py-2">
                     <p className="is-size-6">{item.details}
                       <br /><span className="is-italic is-size-7" style={{color:"silver"}}>
@@ -1292,7 +1292,7 @@ function SelectorAddButton(props) {
       .then(data => {
         const typesList = [];
         for (const a_type of data) {
-          typesList.push(<option
+          typesList.push(<option 
             key={a_type.id} id={a_type.name} value={a_type.name}>{a_type.name}</option>);
         }
         setTypes(typesList);
@@ -1301,14 +1301,14 @@ function SelectorAddButton(props) {
 
   const goToCreate = (event) => {
     const featureType = event.target.value
-    console.log(featureType)
+    console.log(featureType) 
     history.push(`/add-new/${featureType}`)
   }
 
   if (props.view == 'shops') {
     return (
       <div className="select is-primary is-light">
-        <select className="create-button has-text-centered has-text-primary has-text-weight-semibold" id="new-user-feature-button" onChange={goToCreate}>
+        <select className="create-button has-text-centered has-text-primary has-text-weight-semibold is-capitalized" id="new-user-feature-button" onChange={goToCreate}>
         <option key='def' value=''>Add Something New</option>
         {types}
       </select>
