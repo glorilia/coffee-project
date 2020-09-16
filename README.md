@@ -40,7 +40,7 @@ When a user wants to log a their thoughts about a particular shop's drink, or an
 #### Rankings
 A user can rank any kind of feature, be it a drink (ex: latte) or a shop aspect (ex: barista friendliness) against others of its type to keep track of their favorites. This draggable interface, made possible by React hooks and CSS, allows for users to adjust the order of favorites at any time.
 
-
+![rankings](/images_for_readme/rankings.png)
 
 #### Edit Details
 If a user changes their mind about a feature they've already added, they can edit the details about it through a modal window, and even change whether it is liked or disliked. The date of this update is displayed in the details for reference.
