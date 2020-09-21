@@ -23,7 +23,8 @@ class User(db.Model):
                         nullable=False)
     password = db.Column(db.String,
                         nullable=False)
-    home_zipcode = db.Column(db.String)
+    lat = db.Column(db.Float)
+    lng = db.Column(db.Float)
 
     # Relationships
     user_features = db.relationship('UserFeature')
@@ -83,6 +84,7 @@ class Feature(db.Model):
                         primary_key=True,
                         autoincrement=True)
     name = db.Column(db.String,
+                        unique=True,
                         nullable=False)
     type_id = db.Column(db.Integer,
                         db.ForeignKey('types.type_id'),
