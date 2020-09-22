@@ -670,7 +670,8 @@ def get_all_shop_coordinates(view):
 if __name__ == '__main__':
     # Connect to db first, then app can access it.
     # Set debug to True before accessing the Debug Toolbar
-    app.debug = True
+    
+    # app.debug = True
     connect_to_db(app)
     # DebugToolbarExtension(app)
     app.run(host='0.0.0.0')
