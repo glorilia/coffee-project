@@ -62,9 +62,12 @@ def create_new_account():
     # "homeZipcode": "90291"}
     data = request.get_json()
     email = data['email']
+    
+    # TODO: enable salting & hashing for passwords so they are not stored directly in db
     password = data['password']
     home_zipcode = data['homeZipcode']
 
+    # TODO: enact flow where lat&lng of zipcode are what's stored, used for map center
     # Request the geocoder api to get the lat and lng of this zipcode
     url = "https://maps.googleapis.com/maps/api/geocode/json"
     payload = {
@@ -75,6 +78,7 @@ def create_new_account():
     # res_data = res.json()
     # lat=res_data['results'][0]['geometry']['location']['lat']
     # lng=res_data['results'][0]['geometry']['location']['lng']
+
     # Use email to check if this user is in the database
     user = crud.get_user_by_email(email=email)
     # If they're in the database, send message that they have an account
